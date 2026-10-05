@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONWARNINGS: error
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@v9
+        with:
+          version: "0.12.5"
+          enable-cache: true
+      - name: Install locked dependencies
+        run: uv sync --frozen --group dev
+      - name: Type check
+        run: uv run mypy
+      - name: Lint
+        run: uv run ruff check .
+      - name: Check formatting
+        run: uv run ruff format --check .
+      - name: Unit and CLI tests
+        run: uv run pytest
+      - name: Build package
+        run: uv build
+      - name: Check installed wheel
+        run: uv run --isolated --no-project --with ./dist/vgc_rulebreak-0.1.0-py3-none-any.whl vgc-rulebreak check experiments/protect-pp.json
+      - name: Export dependency inventory
+        run: uv export --quiet --frozen --all-groups --no-emit-project --output-file /tmp/vgc-rulebreak-requirements.txt
+      - name: Audit dependencies
+        run: uv run pip-audit --strict --disable-pip --require-hashes --cache-dir /tmp/vgc-rulebreak-audit-cache --requirement /tmp/vgc-rulebreak-requirements.txt
+
+  secrets:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "false"

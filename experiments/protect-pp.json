@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "protect-pp",
+  "question": "How does reducing Protect from 16 to 8 maximum PP change defensive decisions and matchup outcomes?",
+  "simulator_revision": "9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e",
+  "base_format": "gen9doublescustomgame",
+  "information_mode": "open",
+  "training_seeds": [11, 29, 47],
+  "variants": [
+    {"name": "protect-16", "rules": {"protect_max_pp": 16}},
+    {"name": "protect-8", "rules": {"protect_max_pp": 8}}
+  ],
+  "readiness": {
+    "mechanics_verified": false,
+    "team_manifest": null,
+    "pairs_per_matchup": null,
+    "compute_budget_seconds": null
+  }
+}

@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: uv
+    directory: /
+    target-branch: main
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: main
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    ignore:
+      - dependency-name: "*"
+        versions: [">=10"]

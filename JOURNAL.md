@@ -1,5 +1,9 @@
 # Journal
 
+## 2026-10-04: Verify moving action tags #incident
+
+The first hosted package job could not resolve `setup-uv@v9`, although a v9.0.0 release existed. A release does not establish that its moving major tag exists. Checking Git refs showed v7 as setup-uv's newest published single-digit major tag, so the workflow uses v7. The secret scan passed on the initial PR revision.
+
 ## 2026-10-04: Scaffold checks pass #milestone
 
 The Python scaffold passed strict type checking, lint, formatting, 12 tests, source and wheel builds, installation from the wheel, and a hashed dependency audit on Linux ARM64. The audit uses a dedicated cache to avoid unrelated cached-response warnings. The draft reports its four missing study declarations instead of launching an unverified experiment.
@@ -10,7 +14,7 @@ The repository starts with a Python 3.12 package and a Protect specification val
 
 ## 2026-10-04: Baseline scope #decision
 
-README, license, journal, tests, and CI are required for this executable public research repository. Contributor instructions are included because outside contributions may follow. Deployment and analytics do not apply to the current package. Banners, logos, and recordings remain optional until a visual demo exists. CI action references use stable single-digit major tags; setup-uv stays at v9 because the newer v10 tag exceeds that policy.
+README, license, journal, tests, and CI are required for this executable public research repository. Contributor instructions are included because outside contributions may follow. Deployment and analytics do not apply to the current package. Banners, logos, and recordings remain optional until a visual demo exists. CI action references use published stable single-digit major tags.
 
 ## 2026-10-04: Name and first study #decision
 

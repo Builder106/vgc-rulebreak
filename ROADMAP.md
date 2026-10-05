@@ -4,7 +4,7 @@
 
 - [x] Choose the public premise and repository name.
 - [x] Define the first Protect PP study and research controls.
-- [ ] Add the validated study specification and repository checks.
+- [x] Add the validated study specification and repository checks.
 
 ## 1. Verify mechanics and reproduce a baseline
 

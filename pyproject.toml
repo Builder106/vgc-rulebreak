@@ -16,7 +16,7 @@ Repository = "https://github.com/Builder106/vgc-rulebreak"
 vgc-rulebreak = "vgc_rulebreak.cli:main"
 
 [build-system]
-requires = ["uv_build>=0.12.5,<0.13"]
+requires = ["uv_build>=0.12.5,<0.14"]
 build-backend = "uv_build"
 
 [dependency-groups]

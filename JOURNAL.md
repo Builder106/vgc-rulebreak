@@ -1,5 +1,9 @@
 # Journal
 
+## 2026-10-13: Replace the README Mermaid diagram #decision
+
+The current flow is a short linear scaffold, so the README now states it in prose. The former Mermaid block added no relationship that needed a diagram.
+
 ## 2026-10-04: Verify moving action tags #incident
 
 The first hosted package job could not resolve `setup-uv@v9`, although a v9.0.0 release existed. A release does not establish that its moving major tag exists. Checking Git refs showed v7 as setup-uv's newest published single-digit major tag, so the workflow uses v7. The secret scan passed on the initial PR revision.

@@ -35,11 +35,7 @@ This exits with code 1 while the draft has missing declarations. See [CONTRIBUTI
 
 ## Current flow
 
-```mermaid
-flowchart LR
-    Spec[Draft Protect specification] --> Check[Python specification validator]
-    Check --> Output[JSON summary and pending declarations]
-```
+A draft Protect specification goes through the Python validator, which returns a JSON summary and lists declarations that still need to be filled in.
 
 ## Repository layout
 

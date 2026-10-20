@@ -11,7 +11,7 @@
     {"name": "protect-8", "rules": {"protect_max_pp": 8}}
   ],
   "readiness": {
-    "mechanics_verified": false,
+    "mechanics_verified": true,
     "team_manifest": null,
     "pairs_per_matchup": null,
     "compute_budget_seconds": null

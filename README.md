@@ -25,7 +25,15 @@ uv sync --frozen --group dev
 uv run vgc-rulebreak check experiments/protect-pp.json
 ```
 
-The command checks that the study changes only Protect PP, uses an immutable simulator revision, and declares independent training seeds. It reports the four pending readiness declarations. It does not run battles or verify mechanics.
+The command checks that the study changes only Protect PP, uses an immutable simulator revision, and declares independent training seeds. It reports remaining readiness declarations.
+
+Run deterministic mechanics verification against a local Pokémon Showdown process:
+
+```sh
+uv run vgc-rulebreak verify-mechanics --spec experiments/protect-pp.json
+```
+
+This verifies 16 versus 8 maximum Protect PP, Rage Fist hit counter reset upon switching, and Speed stat modifier formulas.
 
 ```sh
 uv run vgc-rulebreak check experiments/protect-pp.json --require-ready
@@ -35,13 +43,13 @@ This exits with code 1 while the draft has missing declarations. See [CONTRIBUTI
 
 ## Current flow
 
-A draft Protect specification goes through the Python validator, which returns a JSON summary and lists declarations that still need to be filled in.
+A draft Protect specification goes through the Python validator, which returns a JSON summary and lists declarations that still need to be filled in. Deterministic simulator fixtures verify rule mechanics before agent training begins.
 
 ## Repository layout
 
 | Path | Contents |
 | --- | --- |
-| `src/vgc_rulebreak/` | Specification validation and CLI |
+| `src/vgc_rulebreak/` | Specification validation, simulator adapter, fixtures, and CLI |
 | `experiments/` | Versioned study specifications |
 | `tests/` | Control-validation and CLI checks |
 | `RESEARCH.md` | Questions, controls, evaluation, and sources |

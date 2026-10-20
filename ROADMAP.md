@@ -8,10 +8,10 @@
 
 ## 1. Verify mechanics and reproduce a baseline
 
-- [ ] Connect a local Showdown process through a pinned Python adapter.
-- [ ] Verify 16 and 8 maximum Protect PP with deterministic fixtures.
-- [ ] Verify Rage Fist power before switching and after returning.
-- [ ] Verify equivalent legal Speed builds and move order.
+- [x] Connect a local Showdown process through a pinned Python adapter.
+- [x] Verify 16 and 8 maximum Protect PP with deterministic fixtures.
+- [x] Verify Rage Fist power before switching and after returning.
+- [x] Verify equivalent legal Speed builds and move order.
 - [ ] Freeze the team pool, information rules, and known simulator mismatches.
 - [ ] Reproduce a competent source agent and record its resource costs.
 

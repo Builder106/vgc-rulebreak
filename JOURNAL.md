@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-10-20: Mechanics verification and Showdown simulator adapter #milestone
+
+Implemented a Python adapter for Pokémon Showdown battle streams and deterministic mechanics verification fixtures:
+1. Protect maximum PP: 16 (Gen 9) versus 8 (Champions).
+2. Rage Fist hit counter: persists across switches in Gen 9, resets upon switch in Champions.
+3. Stat calculations: Speed stat modifier differences verified across legal builds.
+Added the `verify-mechanics` command to the CLI and marked `readiness.mechanics_verified` as true in `experiments/protect-pp.json`. All 17 tests, strict mypy checks, ruff formatting, and dependency audits passed on Linux ARM64.
+
 ## 2026-10-13: Replace the README Mermaid diagram #decision
 
 The current flow is a short linear scaffold, so the README now states it in prose. The former Mermaid block added no relationship that needed a diagram.

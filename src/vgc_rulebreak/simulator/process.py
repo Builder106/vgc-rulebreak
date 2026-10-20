@@ -84,7 +84,6 @@ class ShowdownProcess:
         """Read a single line from stdout."""
         if self._process is None or self._process.stdout is None:
             raise RuntimeError("Showdown process is not running. Call start() first.")
-        # Note: readline() blocks until a line is available.
         line = self._process.stdout.readline()
         if not line:
             return None

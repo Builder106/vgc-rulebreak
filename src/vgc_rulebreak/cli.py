@@ -46,6 +46,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="update spec readiness.mechanics_verified to true if all fixtures pass",
     )
 
+    # Subcommand: benchmark-agent
+    bench = subcommands.add_parser(
+        "benchmark-agent",
+        help="evaluate competent baseline agent against random baseline and record costs",
+    )
+    bench.add_argument("--matches", type=int, default=5, help="number of evaluation matches")
+    bench.add_argument(
+        "--showdown-dir", type=Path, default=None, help="path to local pokemon-showdown checkout"
+    )
+    bench.add_argument(
+        "--min-win-rate", type=float, default=0.8, help="minimum acceptable win rate"
+    )
+
     args = parser.parse_args(argv)
 
     if args.command == "check":
@@ -109,6 +122,34 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.spec.write_text(json.dumps(spec_data, indent=2) + "\n", encoding="utf-8")
                 print(f"Updated {args.spec}: mechanics_verified = True")
 
+        return 0
+
+    if args.command == "benchmark-agent":
+        from vgc_rulebreak.agents.benchmark import benchmark_agent_pair
+        from vgc_rulebreak.agents.heuristic import HeuristicAgent
+        from vgc_rulebreak.agents.random import RandomAgent
+
+        p1 = HeuristicAgent("HeuristicBaseline")
+        p2 = RandomAgent("RandomBaseline", seed=42)
+        try:
+            bench_report = benchmark_agent_pair(
+                p1_agent=p1,
+                p2_agent=p2,
+                matches=args.matches,
+                showdown_dir=args.showdown_dir,
+            )
+        except Exception as e:
+            print(f"Benchmark error: {e}", file=sys.stderr)
+            return 2
+
+        print(json.dumps(dataclasses.asdict(bench_report), indent=2))
+        if bench_report.p1_win_rate < args.min_win_rate:
+            print(
+                f"Agent win rate {bench_report.p1_win_rate:.2%} below "
+                f"threshold {args.min_win_rate:.2%}",
+                file=sys.stderr,
+            )
+            return 1
         return 0
 
     return 0

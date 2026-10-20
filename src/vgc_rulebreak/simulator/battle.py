@@ -50,13 +50,18 @@ class BattleSession:
         initial_messages = self._read_until_requests_or_end()
         return initial_messages
 
-    def step(self, p1_choice: str, p2_choice: str) -> BattleTurnResult:
-        """Send choices for both players and consume turn messages."""
+    def step(self, p1_choice: str | None = None, p2_choice: str | None = None) -> BattleTurnResult:
+        """Send choices for active players and consume turn messages."""
         if self.is_ended:
             raise RuntimeError("Cannot step an ended battle.")
 
-        self.stream.send(BattleCommand.choose("p1", p1_choice))
-        self.stream.send(BattleCommand.choose("p2", p2_choice))
+        self.p1_request = None
+        self.p2_request = None
+
+        if p1_choice is not None:
+            self.stream.send(BattleCommand.choose("p1", p1_choice))
+        if p2_choice is not None:
+            self.stream.send(BattleCommand.choose("p2", p2_choice))
 
         turn_messages = self._read_until_requests_or_end()
         return BattleTurnResult(
@@ -76,6 +81,16 @@ class BattleSession:
             line = self.stream.read_line()
             if line is None:
                 break
+
+            stripped = line.strip()
+            if stripped in ("p1", "p2"):
+                target_slot = stripped
+                continue
+            if stripped == "update":
+                target_slot = None
+                continue
+            if stripped == "sideupdate":
+                continue
 
             parsed = parse_message_line(line)
             if parsed is None:
@@ -106,14 +121,24 @@ class BattleSession:
                 if payload_str.strip():
                     try:
                         req_data = json.loads(payload_str)
-                        if target_slot == "p1":
+                        slot = target_slot or req_data.get("side", {}).get("id")
+                        if slot == "p1":
                             self.p1_request = req_data
-                        elif target_slot == "p2":
+                        elif slot == "p2":
                             self.p2_request = req_data
                     except json.JSONDecodeError:
                         pass
-                # Once requests for both active players are collected or wait condition met
-                if self.p1_request and self.p2_request:
-                    break
+
+            # Break condition: battle ended, or actionable requests available
+            if self.is_ended:
+                break
+            p1_can_act = self.p1_request is not None and not self.p1_request.get("wait", False)
+            p2_can_act = self.p2_request is not None and not self.p2_request.get("wait", False)
+            if p1_can_act and p2_can_act:
+                break
+            if p1_can_act and self.p2_request is not None and self.p2_request.get("wait", False):
+                break
+            if p2_can_act and self.p1_request is not None and self.p1_request.get("wait", False):
+                break
 
         return collected

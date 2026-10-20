@@ -12,7 +12,7 @@
 - [x] Verify 16 and 8 maximum Protect PP with deterministic fixtures.
 - [x] Verify Rage Fist power before switching and after returning.
 - [x] Verify equivalent legal Speed builds and move order.
-- [ ] Freeze the team pool, information rules, and known simulator mismatches.
+- [x] Freeze the team pool, information rules, and known simulator mismatches.
 - [ ] Reproduce a competent source agent and record its resource costs.
 
 Exit when legal battles complete, targeted fixtures pass, and baseline results are reproducible. A random agent is useful for plumbing but is insufficient as the only strength baseline.

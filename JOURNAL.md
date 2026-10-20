@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-10-20: Team manifest and OTS archetype splits #milestone
+
+Added the Open Team Sheet (OTS) team pool manifest for the Protect study in `experiments/teams/protect-pp.json` and manifest validation in `src/vgc_rulebreak/manifest.py`. The manifest defines six archetypes split into disjoint sets:
+- Training: Tailwind offense (Tornadus/Flutter Mane) and Sun balance (Torkoal/Chi-Yu).
+- Validation: Trick Room bulky (Farigiraf/Bloodmoon Ursaluna) and Rain offense (Pelipper/Archaludon).
+- Test: Annihilape bulky setup and Balance pivot (Incineroar/Rillaboom/Landorus-Therian).
+All teams were validated against Showdown format rules with 0 errors. Marked `readiness.team_manifest` in `experiments/protect-pp.json`.
+
 ## 2026-10-20: Mechanics verification and Showdown simulator adapter #milestone
 
 Implemented a Python adapter for Pokémon Showdown battle streams and deterministic mechanics verification fixtures:

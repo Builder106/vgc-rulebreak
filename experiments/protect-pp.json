@@ -12,7 +12,7 @@
   ],
   "readiness": {
     "mechanics_verified": true,
-    "team_manifest": null,
+    "team_manifest": "experiments/teams/protect-pp.json",
     "pairs_per_matchup": null,
     "compute_budget_seconds": null
   }

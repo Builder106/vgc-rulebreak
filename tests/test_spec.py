@@ -13,7 +13,6 @@ def test_draft_reports_remaining_gates() -> None:
     spec = validate_spec(json.loads(SPEC.read_text()))
     assert spec.variants == {"protect-16": 16, "protect-8": 8}
     assert set(spec.pending_gates) == {
-        "team_manifest",
         "pairs_per_matchup",
         "compute_budget_seconds",
     }

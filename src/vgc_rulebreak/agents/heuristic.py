@@ -271,7 +271,7 @@ class HeuristicAgent(BattleAgent):
         claimed_switches: set[int] = set()
 
         for slot_idx, slot_data in unfainted_slots:
-            legal_choices = get_legal_slot_choices(slot_data, pokemon_list)
+            legal_choices = get_legal_slot_choices(slot_data, pokemon_list, slot_idx=slot_idx)
             moves = slot_data.get("moves", [])
 
             # Species and HP ratio for current slot
@@ -321,6 +321,8 @@ class HeuristicAgent(BattleAgent):
                         score = 90.0 if self._turns_active.get(slot_idx, 0) == 0 else 0.0
                     elif move_id == "spore":
                         score = 110.0
+                    elif move_id == "helpinghand":
+                        score = 70.0
                     elif move_id in {"eruption", "waterspout"}:
                         score = float(int(150 * hp_ratio))
                         if move_id in SPECIES_STAB_MOVES.get(species_key, set()):
@@ -339,9 +341,10 @@ class HeuristicAgent(BattleAgent):
                         # Target slot preference to split focus across foes
                         if len(parts) > 2:
                             target_slot = int(parts[2])
-                            preferred_target = 2 if slot_idx == 0 else 1
-                            if target_slot == preferred_target:
-                                score += 5.0
+                            if target_slot > 0:
+                                preferred_target = 2 if slot_idx == 0 else 1
+                                if target_slot == preferred_target:
+                                    score += 5.0
 
                 if score > best_score:
                     best_score = score

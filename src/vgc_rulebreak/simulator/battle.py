@@ -113,6 +113,9 @@ class BattleSession:
                 self.winner = None
                 break
 
+            elif parsed.msg_type == "error":
+                raise RuntimeError(f"Showdown error: {parsed.raw}")
+
             elif parsed.msg_type == "split" and parsed.args:
                 target_slot = parsed.args[0]
 

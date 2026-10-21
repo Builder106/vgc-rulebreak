@@ -59,6 +59,41 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--min-win-rate", type=float, default=0.8, help="minimum acceptable win rate"
     )
 
+    # Subcommand: pilot-eval
+    pilot = subcommands.add_parser(
+        "pilot-eval",
+        help="run pilot evaluation to calibrate sample size and compute budget",
+    )
+    pilot.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("experiments/teams/protect-pp.json"),
+        help="path to Open Team Sheet manifest",
+    )
+    pilot.add_argument(
+        "--spec",
+        type=Path,
+        default=None,
+        help="optional experiment spec to update with calibrated budget",
+    )
+    pilot.add_argument(
+        "--sample-pairs",
+        type=int,
+        default=3,
+        help="number of mirrored pilot pairs per matchup",
+    )
+    pilot.add_argument(
+        "--showdown-dir",
+        type=Path,
+        default=None,
+        help="path to local pokemon-showdown checkout",
+    )
+    pilot.add_argument(
+        "--update-spec",
+        action="store_true",
+        help="update spec readiness with calibrated pairs_per_matchup and compute_budget_seconds",
+    )
+
     args = parser.parse_args(argv)
 
     if args.command == "check":
@@ -150,6 +185,35 @@ def main(argv: Sequence[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 1
+        return 0
+
+    if args.command == "pilot-eval":
+        from vgc_rulebreak.pilot import run_pilot_evaluation, update_spec_with_pilot
+
+        try:
+            pilot_report = run_pilot_evaluation(
+                manifest_path=args.manifest,
+                sample_pairs=args.sample_pairs,
+                showdown_dir=args.showdown_dir,
+            )
+        except Exception as e:
+            print(f"Pilot evaluation error: {e}", file=sys.stderr)
+            return 2
+
+        print(json.dumps(dataclasses.asdict(pilot_report), indent=2))
+
+        if args.update_spec and args.spec:
+            try:
+                update_spec_with_pilot(args.spec, pilot_report)
+                print(
+                    f"Updated {args.spec}: pairs_per_matchup="
+                    f"{pilot_report.recommended_pairs_per_matchup}, "
+                    f"compute_budget_seconds={pilot_report.recommended_compute_budget_seconds}"
+                )
+            except Exception as e:
+                print(f"Failed to update spec {args.spec}: {e}", file=sys.stderr)
+                return 2
+
         return 0
 
     return 0

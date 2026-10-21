@@ -56,11 +56,18 @@ def get_available_switch_indices(pokemon_list: list[dict[str, Any]]) -> list[int
 def get_legal_slot_choices(
     slot_active: dict[str, Any],
     pokemon_list: list[dict[str, Any]],
+    slot_idx: int = 0,
     foe_count: int = 2,
 ) -> list[str]:
     """Enumerate legal action choices for a single active slot."""
     choices: list[str] = []
     moves = slot_active.get("moves", [])
+
+    partner_idx = slot_idx ^ 1
+    partner_alive = False
+    if partner_idx < len(pokemon_list):
+        p_cond = pokemon_list[partner_idx].get("condition", "")
+        partner_alive = "fnt" not in p_cond and not p_cond.startswith("0/")
 
     for m_idx, move in enumerate(moves, start=1):
         if move.get("disabled", False):
@@ -69,18 +76,28 @@ def get_legal_slot_choices(
             continue
 
         target = move.get("target", "normal")
-        # In doubles, moves targeting a single opponent slot require a target index (1 or 2).
-        # Field, side, spread, and self moves do not specify an opponent target index.
+        # In doubles:
+        # Single foe moves require a positive target index (1 or 2).
+        # Ally moves require a negative target index (-1 or -2).
+        # Field, side, spread, and self moves do not specify a target index.
         if target in {"normal", "any", "adjacentFoe"}:
             for f in range(1, max(foe_count, 1) + 1):
                 choices.append(f"move {m_idx} {f}")
+        elif target == "adjacentAlly":
+            if partner_alive:
+                choices.append(f"move {m_idx} -{partner_idx + 1}")
+        elif target == "adjacentAllyOrSelf":
+            if partner_alive:
+                choices.append(f"move {m_idx} -{partner_idx + 1}")
+            choices.append(f"move {m_idx} -{slot_idx + 1}")
         else:
             choices.append(f"move {m_idx}")
 
-    # Also consider legal switches
-    switches = get_available_switch_indices(pokemon_list)
-    for sw in switches:
-        choices.append(f"switch {sw}")
+    # Also consider legal switches if slot is not trapped
+    if not slot_active.get("trapped", False):
+        switches = get_available_switch_indices(pokemon_list)
+        for sw in switches:
+            choices.append(f"switch {sw}")
 
     if not choices:
         # Fallback if no moves are available (e.g. Struggle)

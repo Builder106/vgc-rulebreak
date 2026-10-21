@@ -56,7 +56,7 @@ class RandomAgent(BattleAgent):
         claimed_switches: set[int] = set()
 
         for _slot_idx, slot_data in unfainted_slots:
-            legal_choices = get_legal_slot_choices(slot_data, pokemon_list)
+            legal_choices = get_legal_slot_choices(slot_data, pokemon_list, slot_idx=_slot_idx)
             # Filter out switch targets already chosen by the partner slot
             valid = [
                 c

@@ -94,6 +94,68 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="update spec readiness with calibrated pairs_per_matchup and compute_budget_seconds",
     )
 
+    # Subcommand: evaluate
+    eval_cmd = subcommands.add_parser(
+        "evaluate",
+        help="evaluate an agent against frozen test teams, opponent policies, and seeds",
+    )
+    eval_cmd.add_argument(
+        "--spec",
+        type=Path,
+        default=Path("experiments/protect-pp.json"),
+        help="path to experiment spec",
+    )
+    eval_cmd.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("experiments/teams/protect-pp.json"),
+        help="path to Open Team Sheet manifest",
+    )
+    eval_cmd.add_argument(
+        "--agent",
+        type=str,
+        default="heuristic",
+        choices=["heuristic", "random"],
+        help="candidate agent to evaluate",
+    )
+    eval_cmd.add_argument(
+        "--opponent",
+        type=str,
+        default=None,
+        choices=["HeuristicBaseline", "RandomBaseline"],
+        help="specific opponent policy (defaults to all frozen opponent policies)",
+    )
+    eval_cmd.add_argument(
+        "--variant",
+        type=str,
+        default=None,
+        choices=["protect-16", "protect-8"],
+        help="specific variant (defaults to all variants)",
+    )
+    eval_cmd.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="specific evaluation seed (defaults to all frozen evaluation seeds)",
+    )
+    eval_cmd.add_argument(
+        "--pairs",
+        type=int,
+        default=None,
+        help="mirrored pairs per matchup (defaults to 1 for ad-hoc, or full spec budget)",
+    )
+    eval_cmd.add_argument(
+        "--check-only",
+        action="store_true",
+        help="validate frozen evaluation setup without running battles",
+    )
+    eval_cmd.add_argument(
+        "--showdown-dir",
+        type=Path,
+        default=None,
+        help="path to local pokemon-showdown checkout",
+    )
+
     args = parser.parse_args(argv)
 
     if args.command == "check":
@@ -103,20 +165,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         except (OSError, UnicodeError, ValueError) as error:
             print(f"Invalid specification: {error}", file=sys.stderr)
             return 2
-        print(
-            json.dumps(
-                {
-                    "name": spec.name,
-                    "simulator_revision": spec.simulator_revision,
-                    "information_mode": spec.information_mode,
-                    "training_seeds": spec.training_seeds,
-                    "variants": spec.variants,
-                    "pending_gates": spec.pending_gates,
-                    "scope": "Specification validation only. No battles or mechanics checks ran.",
-                },
-                indent=2,
-            )
-        )
+        payload: dict[str, Any] = {
+            "name": spec.name,
+            "simulator_revision": spec.simulator_revision,
+            "information_mode": spec.information_mode,
+            "training_seeds": spec.training_seeds,
+            "variants": spec.variants,
+            "pending_gates": spec.pending_gates,
+            "scope": "Specification validation only. No battles or mechanics checks ran.",
+        }
+        if spec.evaluation is not None:
+            payload["evaluation"] = dataclasses.asdict(spec.evaluation)
+        print(json.dumps(payload, indent=2))
         if args.require_ready and spec.pending_gates:
             return 1
         return 0
@@ -214,6 +274,60 @@ def main(argv: Sequence[str] | None = None) -> int:
                 print(f"Failed to update spec {args.spec}: {e}", file=sys.stderr)
                 return 2
 
+        return 0
+
+    if args.command == "evaluate":
+        from vgc_rulebreak.evaluation import (
+            get_evaluation_plan,
+            run_evaluation_suite,
+            verify_frozen_evaluation,
+        )
+        from vgc_rulebreak.manifest import load_manifest
+
+        try:
+            raw_spec = json.loads(args.spec.read_text(encoding="utf-8"))
+            spec = validate_spec(raw_spec)
+        except Exception as e:
+            print(f"Failed to load spec {args.spec}: {e}", file=sys.stderr)
+            return 2
+
+        try:
+            manifest = load_manifest(args.manifest)
+        except Exception as e:
+            print(f"Failed to load manifest {args.manifest}: {e}", file=sys.stderr)
+            return 2
+
+        try:
+            verify_frozen_evaluation(spec, manifest)
+        except Exception as e:
+            print(f"Evaluation setup error: {e}", file=sys.stderr)
+            return 2
+
+        if args.check_only:
+            plan = get_evaluation_plan(spec, manifest, pairs_override=args.pairs)
+            print(json.dumps(plan, indent=2))
+            return 0
+
+        target_opponents = [args.opponent] if args.opponent else None
+        target_variants = [args.variant] if args.variant else None
+        target_seeds = [args.seed] if args.seed else None
+
+        try:
+            summary = run_evaluation_suite(
+                spec=spec,
+                manifest=manifest,
+                candidate=args.agent,
+                opponent_policies=target_opponents,
+                evaluation_seeds=target_seeds,
+                variants=target_variants,
+                pairs_per_matchup=args.pairs,
+                showdown_dir=args.showdown_dir,
+            )
+        except Exception as e:
+            print(f"Evaluation error: {e}", file=sys.stderr)
+            return 2
+
+        print(json.dumps(dataclasses.asdict(summary), indent=2))
         return 0
 
     return 0

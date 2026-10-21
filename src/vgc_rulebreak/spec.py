@@ -5,6 +5,13 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
+class EvaluationSpec:
+    test_teams: tuple[str, ...]
+    opponent_policies: tuple[str, ...]
+    evaluation_seeds: tuple[int, ...]
+
+
+@dataclass(frozen=True)
 class ExperimentSpec:
     name: str
     simulator_revision: str
@@ -12,11 +19,23 @@ class ExperimentSpec:
     training_seeds: tuple[int, ...]
     variants: dict[str, int]
     pending_gates: tuple[str, ...]
+    evaluation: EvaluationSpec | None = None
 
 
-def _object(value: object, label: str, keys: set[str]) -> dict[str, object]:
-    if not isinstance(value, dict) or set(value) != keys:
-        raise ValueError(f"{label} must contain exactly these fields: {', '.join(sorted(keys))}")
+def _object(
+    value: object,
+    label: str,
+    required_keys: set[str],
+    optional_keys: set[str] | None = None,
+) -> dict[str, object]:
+    if not isinstance(value, dict):
+        raise ValueError(f"{label} must be a dictionary")
+    actual_keys = set(value)
+    allowed_keys = required_keys | (optional_keys or set())
+    if not required_keys.issubset(actual_keys) or not actual_keys.issubset(allowed_keys):
+        raise ValueError(
+            f"{label} must contain exactly these fields: {', '.join(sorted(required_keys))}"
+        )
     result: dict[str, object] = {}
     for key, item in value.items():
         if not isinstance(key, str):
@@ -46,6 +65,7 @@ def validate_spec(value: object) -> ExperimentSpec:
             "variants",
             "readiness",
         },
+        optional_keys={"evaluation"},
     )
     if type(document["schema_version"]) is not int or document["schema_version"] != 1:
         raise ValueError("schema_version must be 1")
@@ -102,6 +122,67 @@ def validate_spec(value: object) -> ExperimentSpec:
         if number is not None and (type(number) is not int or number <= 0):
             raise ValueError(f"{field} must be a positive integer or null")
     pending = tuple(key for key, item in readiness.items() if item is None or item is False)
+
+    evaluation: EvaluationSpec | None = None
+    if "evaluation" in document:
+        eval_doc = _object(
+            document["evaluation"],
+            "evaluation",
+            {"test_teams", "opponent_policies", "evaluation_seeds"},
+        )
+        raw_test_teams = eval_doc["test_teams"]
+        if not isinstance(raw_test_teams, list) or len(raw_test_teams) == 0:
+            raise ValueError("evaluation.test_teams must be a nonempty list of team names")
+        checked_test_teams: list[str] = []
+        for item in raw_test_teams:
+            checked_test_teams.append(_text(item, "evaluation.test_teams"))
+        if len(set(checked_test_teams)) != len(checked_test_teams):
+            raise ValueError("evaluation.test_teams must contain unique team names")
+
+        raw_opponents = eval_doc["opponent_policies"]
+        if not isinstance(raw_opponents, list) or len(raw_opponents) == 0:
+            raise ValueError("evaluation.opponent_policies must be a nonempty list")
+        allowed_policies = {"HeuristicBaseline", "RandomBaseline"}
+        checked_opponents: list[str] = []
+        for item in raw_opponents:
+            policy_name = _text(item, "evaluation.opponent_policies")
+            if policy_name not in allowed_policies:
+                raise ValueError(
+                    f"unrecognized opponent policy: {policy_name}; "
+                    f"allowed: {sorted(allowed_policies)}"
+                )
+            checked_opponents.append(policy_name)
+        if len(set(checked_opponents)) != len(checked_opponents):
+            raise ValueError("evaluation.opponent_policies must contain unique policies")
+
+        raw_eval_seeds = eval_doc["evaluation_seeds"]
+        if not isinstance(raw_eval_seeds, list) or len(raw_eval_seeds) < 3:
+            raise ValueError(
+                "evaluation.evaluation_seeds must contain at least three independent seeds"
+            )
+        checked_eval_seeds: list[int] = []
+        for s in raw_eval_seeds:
+            if type(s) is not int or s < 0:
+                raise ValueError("evaluation.evaluation_seeds must contain nonnegative integers")
+            checked_eval_seeds.append(s)
+        if len(set(checked_eval_seeds)) != len(checked_eval_seeds):
+            raise ValueError("evaluation.evaluation_seeds must be unique")
+
+        if not set(checked_eval_seeds).isdisjoint(set(checked_seeds)):
+            raise ValueError("evaluation.evaluation_seeds must be disjoint from training_seeds")
+
+        evaluation = EvaluationSpec(
+            test_teams=tuple(checked_test_teams),
+            opponent_policies=tuple(checked_opponents),
+            evaluation_seeds=tuple(checked_eval_seeds),
+        )
+
     return ExperimentSpec(
-        name, revision, information, tuple(checked_seeds), checked_variants, pending
+        name,
+        revision,
+        information,
+        tuple(checked_seeds),
+        checked_variants,
+        pending,
+        evaluation,
     )

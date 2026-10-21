@@ -29,5 +29,20 @@
     "team_manifest": "experiments/teams/protect-pp.json",
     "pairs_per_matchup": 15,
     "compute_budget_seconds": 18344
+  },
+  "evaluation": {
+    "test_teams": [
+      "test-annihilape-bulky",
+      "test-balance-pivot"
+    ],
+    "opponent_policies": [
+      "HeuristicBaseline",
+      "RandomBaseline"
+    ],
+    "evaluation_seeds": [
+      101,
+      202,
+      303
+    ]
   }
 }

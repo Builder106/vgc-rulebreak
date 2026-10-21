@@ -13,6 +13,10 @@ def test_spec_all_readiness_gates_complete() -> None:
     spec = validate_spec(json.loads(SPEC.read_text()))
     assert spec.variants == {"protect-16": 16, "protect-8": 8}
     assert spec.pending_gates == ()
+    assert spec.evaluation is not None
+    assert spec.evaluation.test_teams == ("test-annihilape-bulky", "test-balance-pivot")
+    assert spec.evaluation.opponent_policies == ("HeuristicBaseline", "RandomBaseline")
+    assert spec.evaluation.evaluation_seeds == (101, 202, 303)
 
 
 @pytest.mark.parametrize(
@@ -51,6 +55,55 @@ def test_spec_all_readiness_gates_complete() -> None:
                 "team_manifest": None,
                 "pairs_per_matchup": -1,
                 "compute_budget_seconds": None,
+            },
+        ),
+        ("evaluation", "not-a-dict"),
+        (
+            "evaluation",
+            {
+                "test_teams": [],
+                "opponent_policies": ["RandomBaseline"],
+                "evaluation_seeds": [101, 202, 303],
+            },
+        ),
+        (
+            "evaluation",
+            {
+                "test_teams": ["test-annihilape-bulky"],
+                "opponent_policies": ["UnknownPolicy"],
+                "evaluation_seeds": [101, 202, 303],
+            },
+        ),
+        (
+            "evaluation",
+            {
+                "test_teams": ["test-annihilape-bulky"],
+                "opponent_policies": ["RandomBaseline"],
+                "evaluation_seeds": [11, 202, 303],
+            },
+        ),
+        (
+            "evaluation",
+            {
+                "test_teams": ["test-annihilape-bulky"],
+                "opponent_policies": ["RandomBaseline"],
+                "evaluation_seeds": [101, 101, 303],
+            },
+        ),
+        (
+            "evaluation",
+            {
+                "test_teams": ["test-annihilape-bulky"],
+                "opponent_policies": ["RandomBaseline"],
+                "evaluation_seeds": [101, 202],
+            },
+        ),
+        (
+            "evaluation",
+            {
+                "test_teams": ["test-annihilape-bulky"],
+                "opponent_policies": [],
+                "evaluation_seeds": [101, 202, 303],
             },
         ),
     ],

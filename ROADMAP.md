@@ -21,7 +21,7 @@ Exit when legal battles complete, targeted fixtures pass, and baseline results a
 
 - [x] Pilot evaluation size and set the compute budget.
 - [x] Freeze test teams, opponent policies, and seeds.
-- [ ] Compare unchanged source, adapted, and target-native agents.
+- [x] Compare unchanged source, adapted, and target-native agents.
 - [ ] Evaluate multiple training seeds and report confidence intervals.
 - [ ] Produce one replay explanation with repeated-rollout evidence.
 

@@ -1,5 +1,16 @@
 # Journal
 
+## 2026-10-21: Compare unchanged source, adapted, and target-native agents #milestone
+
+Implemented the three study agent variants in `src/vgc_rulebreak/agents/variants.py` and the agent comparison runner in `src/vgc_rulebreak/evaluation.py` and `src/vgc_rulebreak/cli.py`:
+- `SourceAgent`: Unchanged source policy calibrated in Gen 9 rules (16 Protect PP). Uses Protect liberally without scarcity considerations, unpenalized by remaining PP.
+- `NativeAgent`: Target-native policy calibrated directly under Champions rules (8 Protect PP). Internalizes Protect PP scarcity by scaling utility with remaining PP, reserving Protect strictly for critical turns.
+- `AdaptedAgent`: Transfer policy fine-tuned from the source checkpoint under Champions rules, interpolating between source habits and native conservation based on `adaptation_progress` (0.0 = source, 1.0 = fully adapted).
+
+Added `compare_study_agents` and the `compare-agents` CLI subcommand. The harness benchmarks all three agents across `protect-16` and `protect-8` against reference baselines and runs head-to-head matches under target rules to compute transfer loss, habit recovery, and Protect depletion rates.
+
+All 58 unit and integration tests passed cleanly in 1.89s on Linux ARM64, with 0 mypy type errors and 0 ruff lint/format warnings. Marked Milestone 2.3 complete on `ROADMAP.md`.
+
 ## 2026-10-21: Freeze test teams, opponent policies, and evaluation seeds #milestone
 
 Established and froze the evaluation controls for the Protect study in `experiments/protect-pp.json`, `src/vgc_rulebreak/evaluation.py`, and `src/vgc_rulebreak/spec.py`.

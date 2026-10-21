@@ -228,6 +228,19 @@ class HeuristicAgent(BattleAgent):
         self._turns_active = {0: 0, 1: 0}
         self._tailwind_turns_left = 0
 
+    def score_protect(
+        self,
+        move_info: dict[str, Any],
+        slot_idx: int,
+        hp_ratio: float,
+    ) -> float:
+        """Score a Protect-like move (Protect, Detect, Spiky Shield)."""
+        if self._used_protect_last_turn.get(slot_idx, False):
+            return 0.0
+        if hp_ratio < 0.35:
+            return 95.0
+        return 50.0
+
     def choose_action(self, request: dict[str, Any]) -> str:
         # 1. Handle team preview: order by speed and offensive presence
         if request.get("teamPreview"):
@@ -306,14 +319,7 @@ class HeuristicAgent(BattleAgent):
                     move_id = move_info.get("id", "")
 
                     if move_id in {"protect", "spikyshield", "detect"}:
-                        # Check consecutive protect penalty
-                        if self._used_protect_last_turn.get(slot_idx, False):
-                            score = 0.0
-                        elif hp_ratio < 0.35:
-                            # Prioritize protect when threatened at low HP to preserve board
-                            score = 95.0
-                        else:
-                            score = 50.0
+                        score = self.score_protect(move_info, slot_idx, hp_ratio)
                     elif move_id == "tailwind":
                         # Tailwind setup is high priority on turn 1
                         score = 0.0 if self._tailwind_turns_left > 0 else 140.0

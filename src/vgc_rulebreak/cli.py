@@ -115,7 +115,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--agent",
         type=str,
         default="heuristic",
-        choices=["heuristic", "random"],
+        choices=["heuristic", "random", "source", "adapted", "native"],
         help="candidate agent to evaluate",
     )
     eval_cmd.add_argument(
@@ -150,6 +150,54 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="validate frozen evaluation setup without running battles",
     )
     eval_cmd.add_argument(
+        "--showdown-dir",
+        type=Path,
+        default=None,
+        help="path to local pokemon-showdown checkout",
+    )
+
+    # Subcommand: compare-agents
+    comp_cmd = subcommands.add_parser(
+        "compare-agents",
+        help="compare unchanged source, adapted, and target-native agents across Protect rulesets",
+    )
+    comp_cmd.add_argument(
+        "--spec",
+        type=Path,
+        default=Path("experiments/protect-pp.json"),
+        help="path to experiment spec",
+    )
+    comp_cmd.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("experiments/teams/protect-pp.json"),
+        help="path to Open Team Sheet manifest",
+    )
+    comp_cmd.add_argument(
+        "--opponent",
+        type=str,
+        default="RandomBaseline",
+        choices=["RandomBaseline", "HeuristicBaseline"],
+        help="reference opponent baseline for performance anchoring",
+    )
+    comp_cmd.add_argument(
+        "--pairs",
+        type=int,
+        default=1,
+        help="number of mirrored pairs per matchup (defaults to 1)",
+    )
+    comp_cmd.add_argument(
+        "--seed",
+        type=int,
+        default=101,
+        help="evaluation seed to use (defaults to 101)",
+    )
+    comp_cmd.add_argument(
+        "--quick",
+        action="store_true",
+        help="run cross-matchup only for rapid verification",
+    )
+    comp_cmd.add_argument(
         "--showdown-dir",
         type=Path,
         default=None,
@@ -328,6 +376,40 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 2
 
         print(json.dumps(dataclasses.asdict(summary), indent=2))
+        return 0
+
+    if args.command == "compare-agents":
+        from vgc_rulebreak.evaluation import compare_study_agents
+        from vgc_rulebreak.manifest import load_manifest
+
+        try:
+            raw_spec = json.loads(args.spec.read_text(encoding="utf-8"))
+            spec = validate_spec(raw_spec)
+        except Exception as e:
+            print(f"Failed to load spec {args.spec}: {e}", file=sys.stderr)
+            return 2
+
+        try:
+            manifest = load_manifest(args.manifest)
+        except Exception as e:
+            print(f"Failed to load manifest {args.manifest}: {e}", file=sys.stderr)
+            return 2
+
+        try:
+            comp_report = compare_study_agents(
+                spec=spec,
+                manifest=manifest,
+                opponent_policy=args.opponent,
+                eval_seed=args.seed,
+                pairs=args.pairs,
+                quick=args.quick,
+                showdown_dir=args.showdown_dir,
+            )
+        except Exception as e:
+            print(f"Agent comparison error: {e}", file=sys.stderr)
+            return 2
+
+        print(json.dumps(dataclasses.asdict(comp_report), indent=2))
         return 0
 
     return 0

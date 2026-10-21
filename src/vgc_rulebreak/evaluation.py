@@ -4,10 +4,12 @@ import time
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from vgc_rulebreak.agents.base import BattleAgent
 from vgc_rulebreak.agents.heuristic import HeuristicAgent
 from vgc_rulebreak.agents.random import RandomAgent
+from vgc_rulebreak.agents.variants import AdaptedAgent, NativeAgent, SourceAgent
 from vgc_rulebreak.manifest import TeamManifest
 from vgc_rulebreak.pilot import _check_protect_depleted, _count_protect_choices
 from vgc_rulebreak.simulator.battle import BattleSession
@@ -102,6 +104,12 @@ def create_candidate_agent(
         return HeuristicAgent("HeuristicCandidate")
     if agent_or_type == "random":
         return RandomAgent("RandomCandidate", seed=seed)
+    if agent_or_type == "source":
+        return SourceAgent("SourceAgent")
+    if agent_or_type == "native":
+        return NativeAgent("NativeAgent")
+    if agent_or_type == "adapted":
+        return AdaptedAgent("AdaptedAgent")
     raise ValueError(f"Unknown candidate agent type: {agent_or_type}")
 
 
@@ -450,4 +458,249 @@ def run_evaluation_suite(
         total_duration_seconds=round(total_duration, 3),
         decisions_per_second=round(dps, 2),
         matchup_summaries=tuple(matchup_summaries),
+    )
+
+
+@dataclass(frozen=True)
+class AgentComparisonEntry:
+    agent_name: str
+    variant: str
+    total_matches: int
+    wins: int
+    losses: int
+    ties: int
+    win_rate: float
+    avg_turns: float
+    protect_uses_per_match: float
+    protect_depletion_rate: float
+    avg_duration_seconds: float
+
+
+@dataclass(frozen=True)
+class HeadToHeadEntry:
+    agent_a: str
+    agent_b: str
+    variant: str
+    total_matches: int
+    a_wins: int
+    b_wins: int
+    ties: int
+    a_win_rate: float
+
+
+@dataclass(frozen=True)
+class AgentComparisonReport:
+    eval_seed: int
+    baseline_opponent: str
+    pairs_per_matchup: int
+    quick: bool
+    entries: tuple[AgentComparisonEntry, ...]
+    head_to_head: tuple[HeadToHeadEntry, ...]
+    findings: dict[str, Any]
+
+
+def compare_study_agents(
+    spec: ExperimentSpec,
+    manifest: TeamManifest,
+    opponent_policy: str = "RandomBaseline",
+    eval_seed: int = 101,
+    pairs: int = 1,
+    quick: bool = False,
+    showdown_dir: Path | str | None = None,
+) -> AgentComparisonReport:
+    """Compare Source, Adapted, and Target-Native agents across Protect rulesets."""
+    verify_frozen_evaluation(spec, manifest)
+    assert spec.evaluation is not None
+
+    agents = {
+        "source": SourceAgent("SourceAgent"),
+        "adapted": AdaptedAgent("AdaptedAgent", adaptation_progress=1.0),
+        "native": NativeAgent("NativeAgent"),
+    }
+
+    test_teams = spec.evaluation.test_teams
+    if quick and len(test_teams) >= 2:
+        matchups = [
+            (
+                test_teams[0],
+                manifest.teams[test_teams[0]].packed,
+                test_teams[1],
+                manifest.teams[test_teams[1]].packed,
+            )
+        ]
+    else:
+        matchups = build_test_matchups(manifest, test_teams)
+
+    opp_agent = create_opponent_agent(opponent_policy, seed=eval_seed)
+    entries: list[AgentComparisonEntry] = []
+
+    # 1. Benchmark each agent variant against reference opponent under protect-16 and protect-8
+    for _agent_key, agent in agents.items():
+        for var_idx, var_name in enumerate(("protect-16", "protect-8")):
+            pp = spec.variants[var_name]
+            format_id = FORMAT_BY_PP[pp]
+
+            m_wins = 0
+            m_losses = 0
+            m_ties = 0
+            m_turns = 0
+            m_protect = 0
+            m_depleted = 0
+            m_duration = 0.0
+            total_m = 0
+
+            for m_idx, (_t1_id, t1_packed, _t2_id, t2_packed) in enumerate(matchups):
+                for p_idx in range(pairs):
+                    seed_1 = make_eval_battle_seed(eval_seed, var_idx, 0, m_idx, p_idx, 0)
+                    r1 = run_evaluation_battle(
+                        candidate_agent=agent,
+                        opponent_agent=opp_agent,
+                        format_id=format_id,
+                        candidate_team=t1_packed,
+                        opponent_team=t2_packed,
+                        candidate_role="p1",
+                        seed=seed_1,
+                        showdown_dir=showdown_dir,
+                    )
+
+                    seed_2 = make_eval_battle_seed(eval_seed, var_idx, 0, m_idx, p_idx, 1)
+                    r2 = run_evaluation_battle(
+                        candidate_agent=agent,
+                        opponent_agent=opp_agent,
+                        format_id=format_id,
+                        candidate_team=t2_packed,
+                        opponent_team=t1_packed,
+                        candidate_role="p2",
+                        seed=seed_2,
+                        showdown_dir=showdown_dir,
+                    )
+
+                    for r in (r1, r2):
+                        total_m += 1
+                        m_turns += r.turns
+                        m_duration += r.duration_seconds
+                        m_protect += r.candidate_protect_uses
+                        if r.protect_depleted:
+                            m_depleted += 1
+                        if r.candidate_won:
+                            m_wins += 1
+                        elif r.winner == opp_agent.name:
+                            m_losses += 1
+                        else:
+                            m_ties += 1
+
+            entries.append(
+                AgentComparisonEntry(
+                    agent_name=agent.name,
+                    variant=var_name,
+                    total_matches=total_m,
+                    wins=m_wins,
+                    losses=m_losses,
+                    ties=m_ties,
+                    win_rate=m_wins / max(total_m, 1),
+                    avg_turns=round(m_turns / max(total_m, 1), 2),
+                    protect_uses_per_match=round(m_protect / max(total_m, 1), 2),
+                    protect_depletion_rate=round(m_depleted / max(total_m, 1), 3),
+                    avg_duration_seconds=round(m_duration / max(total_m, 1), 2),
+                )
+            )
+
+    # 2. Head-to-Head cross-play under target rules (protect-8)
+    head_to_head: list[HeadToHeadEntry] = []
+    h2h_pairs = [
+        ("SourceAgent", agents["source"], "NativeAgent", agents["native"]),
+        ("SourceAgent", agents["source"], "AdaptedAgent", agents["adapted"]),
+        ("AdaptedAgent", agents["adapted"], "NativeAgent", agents["native"]),
+    ]
+    format_8 = FORMAT_BY_PP[8]
+    for h_idx, (name_a, agent_a, name_b, agent_b) in enumerate(h2h_pairs):
+        a_wins = 0
+        b_wins = 0
+        h_ties = 0
+        h_total = 0
+        for m_idx, (_t1_id, t1_packed, _t2_id, t2_packed) in enumerate(matchups):
+            for p_idx in range(pairs):
+                s1 = make_eval_battle_seed(eval_seed, 1, h_idx + 10, m_idx, p_idx, 0)
+                r1 = run_evaluation_battle(
+                    candidate_agent=agent_a,
+                    opponent_agent=agent_b,
+                    format_id=format_8,
+                    candidate_team=t1_packed,
+                    opponent_team=t2_packed,
+                    candidate_role="p1",
+                    seed=s1,
+                    showdown_dir=showdown_dir,
+                )
+                s2 = make_eval_battle_seed(eval_seed, 1, h_idx + 10, m_idx, p_idx, 1)
+                r2 = run_evaluation_battle(
+                    candidate_agent=agent_a,
+                    opponent_agent=agent_b,
+                    format_id=format_8,
+                    candidate_team=t2_packed,
+                    opponent_team=t1_packed,
+                    candidate_role="p2",
+                    seed=s2,
+                    showdown_dir=showdown_dir,
+                )
+                for r in (r1, r2):
+                    h_total += 1
+                    if r.candidate_won:
+                        a_wins += 1
+                    elif r.winner == agent_b.name:
+                        b_wins += 1
+                    else:
+                        h_ties += 1
+        head_to_head.append(
+            HeadToHeadEntry(
+                agent_a=name_a,
+                agent_b=name_b,
+                variant="protect-8",
+                total_matches=h_total,
+                a_wins=a_wins,
+                b_wins=b_wins,
+                ties=h_ties,
+                a_win_rate=round(a_wins / max(h_total, 1), 3),
+            )
+        )
+
+    # 3. Aggregate transfer findings
+    source_16 = next(
+        (e for e in entries if e.agent_name == "SourceAgent" and e.variant == "protect-16"),
+        None,
+    )
+    source_8 = next(
+        (e for e in entries if e.agent_name == "SourceAgent" and e.variant == "protect-8"),
+        None,
+    )
+    native_8 = next(
+        (e for e in entries if e.agent_name == "NativeAgent" and e.variant == "protect-8"),
+        None,
+    )
+    adapted_8 = next(
+        (e for e in entries if e.agent_name == "AdaptedAgent" and e.variant == "protect-8"),
+        None,
+    )
+
+    findings: dict[str, Any] = {}
+    if source_16 and source_8:
+        findings["source_transfer_loss"] = round(source_16.win_rate - source_8.win_rate, 3)
+        findings["source_protect_drop"] = round(
+            source_16.protect_uses_per_match - source_8.protect_uses_per_match, 2
+        )
+        findings["source_8pp_depletion_rate"] = source_8.protect_depletion_rate
+    if native_8:
+        findings["native_8pp_win_rate"] = native_8.win_rate
+        findings["native_8pp_depletion_rate"] = native_8.protect_depletion_rate
+    if adapted_8 and source_8:
+        findings["adaptation_recovery"] = round(adapted_8.win_rate - source_8.win_rate, 3)
+        findings["adapted_8pp_depletion_rate"] = adapted_8.protect_depletion_rate
+
+    return AgentComparisonReport(
+        eval_seed=eval_seed,
+        baseline_opponent=opponent_policy,
+        pairs_per_matchup=pairs,
+        quick=quick,
+        entries=tuple(entries),
+        head_to_head=tuple(head_to_head),
+        findings=findings,
     )

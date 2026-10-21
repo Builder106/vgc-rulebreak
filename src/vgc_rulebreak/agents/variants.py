@@ -104,4 +104,3 @@ class AdaptedAgent(HeuristicAgent):
 
         alpha = self.adaptation_progress
         return (1.0 - alpha) * source_score + alpha * native_score
-

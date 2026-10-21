@@ -20,7 +20,7 @@ Exit when legal battles complete, targeted fixtures pass, and baseline results a
 ## 2. Produce the first Protect result
 
 - [x] Pilot evaluation size and set the compute budget.
-- [ ] Freeze test teams, opponent policies, and seeds.
+- [x] Freeze test teams, opponent policies, and seeds.
 - [ ] Compare unchanged source, adapted, and target-native agents.
 - [ ] Evaluate multiple training seeds and report confidence intervals.
 - [ ] Produce one replay explanation with repeated-rollout evidence.

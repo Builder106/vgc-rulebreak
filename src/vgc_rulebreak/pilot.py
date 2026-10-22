@@ -61,6 +61,24 @@ def _check_protect_depleted(request: dict[str, Any] | None) -> bool:
     return False
 
 
+def _count_protect_opportunities(request: dict[str, Any] | None) -> int:
+    """Count active slots that could legally choose a Protect move this decision."""
+    if not request or request.get("forceSwitch") or request.get("teamPreview"):
+        return 0
+    count = 0
+    for slot in request.get("active", []):
+        if not slot:
+            continue
+        if any(
+            move.get("id") in PROTECT_MOVE_IDS
+            and move.get("pp", 1) > 0
+            and not move.get("disabled", False)
+            for move in slot.get("moves", [])
+        ):
+            count += 1
+    return count
+
+
 def _count_protect_choices(request: dict[str, Any] | None, choice: str | None) -> int:
     """Count how many slots chose a Protect move in this turn."""
     if not request or not choice:

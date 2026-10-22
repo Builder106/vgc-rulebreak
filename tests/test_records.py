@@ -17,6 +17,7 @@ from vgc_rulebreak.evaluation import (
     run_evaluation_battle,
 )
 from vgc_rulebreak.manifest import load_manifest
+from vgc_rulebreak.pilot import _count_protect_opportunities
 from vgc_rulebreak.records import GameContext, GameRecorder, game_outcome
 from vgc_rulebreak.simulator.battle import BattleSession
 from vgc_rulebreak.spec import validate_spec
@@ -253,3 +254,20 @@ def test_cli_compare_agents_output_dir(tmp_path: Path, capsys: pytest.CaptureFix
     assert results["options"]["quick"] is True
     assert results["summary"]["eval_seed"] == 101
     assert "Wrote 0 games" in capsys.readouterr().err
+
+
+def test_count_protect_opportunities() -> None:
+    protect = {"id": "protect", "pp": 3}
+    request = {
+        "active": [
+            {"moves": [protect, {"id": "tackle", "pp": 35}]},
+            {"moves": [{"id": "protect", "pp": 0}]},
+        ]
+    }
+    assert _count_protect_opportunities(request) == 1
+    disabled = {"active": [{"moves": [{"id": "spikyshield", "pp": 5, "disabled": True}]}]}
+    assert _count_protect_opportunities(disabled) == 0
+    assert (
+        _count_protect_opportunities({"forceSwitch": [True], "active": [{"moves": [protect]}]}) == 0
+    )
+    assert _count_protect_opportunities(None) == 0

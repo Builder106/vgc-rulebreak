@@ -11,7 +11,11 @@ from vgc_rulebreak.agents.heuristic import HeuristicAgent
 from vgc_rulebreak.agents.random import RandomAgent
 from vgc_rulebreak.agents.variants import AdaptedAgent, NativeAgent, SourceAgent
 from vgc_rulebreak.manifest import TeamManifest
-from vgc_rulebreak.pilot import _check_protect_depleted, _count_protect_choices
+from vgc_rulebreak.pilot import (
+    _check_protect_depleted,
+    _count_protect_choices,
+    _count_protect_opportunities,
+)
 from vgc_rulebreak.records import GameContext, GameRecorder
 from vgc_rulebreak.simulator.battle import BattleSession
 from vgc_rulebreak.simulator.process import ShowdownProcess
@@ -46,6 +50,8 @@ class EvaluationBattleResult:
     candidate_won: bool
     end_reason: str = "unknown"
     replay: dict[str, Any] | None = None
+    # Candidate decisions where a Protect move was legal, counted per active slot.
+    candidate_protect_opportunities: int = 0
 
 
 @dataclass(frozen=True)
@@ -244,6 +250,7 @@ def run_evaluation_battle(
     cand_decisions = 0
     opp_decisions = 0
     cand_protect_uses = 0
+    cand_protect_chances = 0
     opp_protect_uses = 0
     protect_depleted = False
     decisions: list[dict[str, Any]] = []
@@ -305,6 +312,7 @@ def run_evaluation_battle(
                 if p1_can_act:
                     cand_decisions += 1
                     cand_protect_uses += _count_protect_choices(session.p1_request, p1_choice)
+                    cand_protect_chances += _count_protect_opportunities(session.p1_request)
                 if p2_can_act:
                     opp_decisions += 1
                     opp_protect_uses += _count_protect_choices(session.p2_request, p2_choice)
@@ -315,6 +323,7 @@ def run_evaluation_battle(
                 if p2_can_act:
                     cand_decisions += 1
                     cand_protect_uses += _count_protect_choices(session.p2_request, p2_choice)
+                    cand_protect_chances += _count_protect_opportunities(session.p2_request)
 
             turn_res = session.step(p1_choice, p2_choice)
             if turn_res.is_ended:
@@ -339,6 +348,7 @@ def run_evaluation_battle(
             protect_depleted=protect_depleted,
             candidate_won=candidate_won,
             end_reason=end_reason,
+            candidate_protect_opportunities=cand_protect_chances,
             replay={"log": list(session.log), "decisions": decisions},
         )
 

@@ -69,6 +69,7 @@ class GameRecorder:
                 "candidate_decisions": result.candidate_decisions,
                 "opponent_decisions": result.opponent_decisions,
                 "candidate_protect_uses": result.candidate_protect_uses,
+                "candidate_protect_opportunities": result.candidate_protect_opportunities,
                 "opponent_protect_uses": result.opponent_protect_uses,
                 "protect_depleted": result.protect_depleted,
                 "duration_seconds": round(result.duration_seconds, 3),

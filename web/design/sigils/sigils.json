@@ -1,0 +1,364 @@
+{
+  "size": 120,
+  "radius": 48,
+  "statCap": 160,
+  "axes": [
+    "hp",
+    "atk",
+    "def",
+    "spe",
+    "spd",
+    "spa"
+  ],
+  "cell": "60,12 101.57,36 101.57,84 60,108 18.43,84 18.43,36",
+  "typeColors": {
+    "Normal": "#9AA3B5",
+    "Fire": "#FF6B3D",
+    "Water": "#3D8BFF",
+    "Grass": "#3FCF6A",
+    "Electric": "#FFD23F",
+    "Ice": "#6FE0F0",
+    "Fighting": "#C9343A",
+    "Poison": "#B04BD9",
+    "Ground": "#D9A441",
+    "Flying": "#8FA8FF",
+    "Psychic": "#FF5C9A",
+    "Bug": "#9BC832",
+    "Rock": "#B8A06A",
+    "Ghost": "#6E5BC9",
+    "Dragon": "#5A4BFF",
+    "Dark": "#4A4458",
+    "Steel": "#8FB3C2",
+    "Fairy": "#F59CD9"
+  },
+  "sigils": {
+    "Amoonguss": {
+      "slug": "amoonguss",
+      "types": [
+        "Grass",
+        "Poison"
+      ],
+      "colors": [
+        "#3FCF6A",
+        "#B04BD9"
+      ],
+      "points": "60,25.8 82.08,47.25 78.19,70.5 60,69 39.22,72 37.92,47.25",
+      "speedTip": [
+        60.0,
+        69.0
+      ]
+    },
+    "Annihilape": {
+      "slug": "annihilape",
+      "types": [
+        "Fighting",
+        "Ghost"
+      ],
+      "colors": [
+        "#C9343A",
+        "#6E5BC9"
+      ],
+      "points": "60,27 89.88,42.75 80.78,72 60,87 36.62,73.5 47.01,52.5",
+      "speedTip": [
+        60.0,
+        87.0
+      ]
+    },
+    "Archaludon": {
+      "slug": "archaludon",
+      "types": [
+        "Steel",
+        "Dragon"
+      ],
+      "colors": [
+        "#8FB3C2",
+        "#5A4BFF"
+      ],
+      "points": "60,33 87.28,44.25 93.77,79.5 60,85.5 43.11,69.75 27.52,41.25",
+      "speedTip": [
+        60.0,
+        85.5
+      ]
+    },
+    "Chi-Yu": {
+      "slug": "chi-yu",
+      "types": [
+        "Dark",
+        "Fire"
+      ],
+      "colors": [
+        "#4A4458",
+        "#FF6B3D"
+      ],
+      "points": "60,43.5 80.78,48 80.78,72 60,90 28.82,78 24.93,39.75",
+      "speedTip": [
+        60.0,
+        90.0
+      ]
+    },
+    "Chien-Pao": {
+      "slug": "chien-pao",
+      "types": [
+        "Dark",
+        "Ice"
+      ],
+      "colors": [
+        "#4A4458",
+        "#6FE0F0"
+      ],
+      "points": "60,36 91.18,42 80.78,72 60,100.5 43.11,69.75 36.62,46.5",
+      "speedTip": [
+        60.0,
+        100.5
+      ]
+    },
+    "Farigiraf": {
+      "slug": "farigiraf",
+      "types": [
+        "Normal",
+        "Psychic"
+      ],
+      "colors": [
+        "#9AA3B5",
+        "#FF5C9A"
+      ],
+      "points": "60,24 83.38,46.5 78.19,70.5 60,78 41.81,70.5 31.42,43.5",
+      "speedTip": [
+        60.0,
+        78.0
+      ]
+    },
+    "Flutter Mane": {
+      "slug": "flutter-mane",
+      "types": [
+        "Ghost",
+        "Fairy"
+      ],
+      "colors": [
+        "#6E5BC9",
+        "#F59CD9"
+      ],
+      "points": "60,43.5 74.29,51.75 74.29,68.25 60,100.5 24.93,80.25 24.93,39.75",
+      "speedTip": [
+        60.0,
+        100.5
+      ]
+    },
+    "Incineroar": {
+      "slug": "incineroar",
+      "types": [
+        "Fire",
+        "Dark"
+      ],
+      "colors": [
+        "#FF6B3D",
+        "#4A4458"
+      ],
+      "points": "60,31.5 89.88,42.75 83.38,73.5 60,78 36.62,73.5 39.22,48",
+      "speedTip": [
+        60.0,
+        78.0
+      ]
+    },
+    "Kingambit": {
+      "slug": "kingambit",
+      "types": [
+        "Dark",
+        "Steel"
+      ],
+      "colors": [
+        "#4A4458",
+        "#8FB3C2"
+      ],
+      "points": "60,30 95.07,39.75 91.18,78 60,75 37.92,72.75 44.41,51",
+      "speedTip": [
+        60.0,
+        75.0
+      ]
+    },
+    "Landorus-Therian": {
+      "slug": "landorus-therian",
+      "types": [
+        "Ground",
+        "Flying"
+      ],
+      "colors": [
+        "#D9A441",
+        "#8FA8FF"
+      ],
+      "points": "60,33.3 97.67,38.25 83.38,73.5 60,87.3 39.22,72 32.72,44.25",
+      "speedTip": [
+        60.0,
+        87.3
+      ]
+    },
+    "Maushold": {
+      "slug": "maushold",
+      "types": [
+        "Normal"
+      ],
+      "colors": [
+        "#9AA3B5"
+      ],
+      "points": "60,37.8 79.49,48.75 78.19,70.5 60,93.3 40.51,71.25 43.11,50.25",
+      "speedTip": [
+        60.0,
+        93.3
+      ]
+    },
+    "Ogerpon-Cornerstone": {
+      "slug": "ogerpon-cornerstone",
+      "types": [
+        "Grass",
+        "Rock"
+      ],
+      "colors": [
+        "#3FCF6A",
+        "#B8A06A"
+      ],
+      "points": "60,36 91.18,42 81.82,72.6 60,93 35.06,74.4 44.41,51",
+      "speedTip": [
+        60.0,
+        93.0
+      ]
+    },
+    "Ogerpon-Wellspring": {
+      "slug": "ogerpon-wellspring",
+      "types": [
+        "Grass",
+        "Water"
+      ],
+      "colors": [
+        "#3FCF6A",
+        "#3D8BFF"
+      ],
+      "points": "60,36 91.18,42 81.82,72.6 60,93 35.06,74.4 44.41,51",
+      "speedTip": [
+        60.0,
+        93.0
+      ]
+    },
+    "Pelipper": {
+      "slug": "pelipper",
+      "types": [
+        "Water",
+        "Flying"
+      ],
+      "colors": [
+        "#3D8BFF",
+        "#8FA8FF"
+      ],
+      "points": "60,42 72.99,52.5 85.98,75 60,79.5 41.81,70.5 35.32,45.75",
+      "speedTip": [
+        60.0,
+        79.5
+      ]
+    },
+    "Rillaboom": {
+      "slug": "rillaboom",
+      "types": [
+        "Grass"
+      ],
+      "colors": [
+        "#3FCF6A"
+      ],
+      "points": "60,30 92.48,41.25 83.38,73.5 60,85.5 41.81,70.5 44.41,51",
+      "speedTip": [
+        60.0,
+        85.5
+      ]
+    },
+    "Ting-Lu": {
+      "slug": "ting-lu",
+      "types": [
+        "Dark",
+        "Ground"
+      ],
+      "colors": [
+        "#4A4458",
+        "#D9A441"
+      ],
+      "points": "60,13.5 88.58,43.5 92.48,78.75 60,73.5 39.22,72 45.71,51.75",
+      "speedTip": [
+        60.0,
+        73.5
+      ]
+    },
+    "Torkoal": {
+      "slug": "torkoal",
+      "types": [
+        "Fire"
+      ],
+      "colors": [
+        "#FF6B3D"
+      ],
+      "points": "60,39 82.08,47.25 96.37,81 60,66 41.81,70.5 37.92,47.25",
+      "speedTip": [
+        60.0,
+        66.0
+      ]
+    },
+    "Tornadus": {
+      "slug": "tornadus",
+      "types": [
+        "Flying"
+      ],
+      "colors": [
+        "#8FA8FF"
+      ],
+      "points": "60,36.3 89.88,42.75 78.19,70.5 60,93.3 39.22,72 27.52,41.25",
+      "speedTip": [
+        60.0,
+        93.3
+      ]
+    },
+    "Ursaluna-Bloodmoon": {
+      "slug": "ursaluna-bloodmoon",
+      "types": [
+        "Ground",
+        "Normal"
+      ],
+      "colors": [
+        "#D9A441",
+        "#9AA3B5"
+      ],
+      "points": "60,26.1 78.19,49.5 91.18,78 60,75.6 43.11,69.75 24.93,39.75",
+      "speedTip": [
+        60.0,
+        75.6
+      ]
+    },
+    "Urshifu": {
+      "slug": "urshifu",
+      "types": [
+        "Fighting",
+        "Dark"
+      ],
+      "colors": [
+        "#C9343A",
+        "#4A4458"
+      ],
+      "points": "60,30 93.77,40.5 85.98,75 60,89.1 44.41,69 43.63,50.55",
+      "speedTip": [
+        60.0,
+        89.1
+      ]
+    },
+    "Urshifu-Rapid-Strike": {
+      "slug": "urshifu-rapid-strike",
+      "types": [
+        "Fighting",
+        "Water"
+      ],
+      "colors": [
+        "#C9343A",
+        "#3D8BFF"
+      ],
+      "points": "60,30 93.77,40.5 85.98,75 60,89.1 44.41,69 43.63,50.55",
+      "speedTip": [
+        60.0,
+        89.1
+      ]
+    }
+  }
+}

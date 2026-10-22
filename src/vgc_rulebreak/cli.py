@@ -6,10 +6,47 @@ import json
 import sys
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from vgc_rulebreak.fixtures.mechanics import verify_all_mechanics
-from vgc_rulebreak.spec import validate_spec
+from vgc_rulebreak.spec import ExperimentSpec, validate_spec
+
+if TYPE_CHECKING:
+    from vgc_rulebreak.manifest import TeamManifest
+    from vgc_rulebreak.records import GameRecorder
+
+
+def make_recorder(output_dir: Path | None, manifest: "TeamManifest") -> "GameRecorder | None":
+    """Create a per-game recorder when an output directory was requested."""
+    if output_dir is None:
+        return None
+    from vgc_rulebreak.records import GameRecorder
+
+    packed = {team_id: team.packed for team_id, team in manifest.teams.items()}
+    return GameRecorder(output_dir, packed)
+
+
+def finish_recorder(
+    recorder: "GameRecorder",
+    command: str,
+    spec: ExperimentSpec,
+    args: argparse.Namespace,
+    summary: dict[str, Any],
+) -> None:
+    """Write results.json with the run's provenance and report where it went."""
+    options = {
+        key: str(value) if isinstance(value, Path) else value
+        for key, value in vars(args).items()
+        if key not in {"command", "showdown_dir", "output_dir"}
+    }
+    meta = {
+        "command": command,
+        "spec": spec.name,
+        "simulator_revision": spec.simulator_revision,
+        "options": options,
+    }
+    path = recorder.finish(meta, summary)
+    print(f"Wrote {len(recorder.games)} games to {path}", file=sys.stderr)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -155,6 +192,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=None,
         help="path to local pokemon-showdown checkout",
     )
+    eval_cmd.add_argument(
+        "--output-dir",
+        type=Path,
+        default=None,
+        help="write results.json and one replay per game here (for example runs/<name>)",
+    )
 
     # Subcommand: compare-agents
     comp_cmd = subcommands.add_parser(
@@ -202,6 +245,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         type=Path,
         default=None,
         help="path to local pokemon-showdown checkout",
+    )
+    comp_cmd.add_argument(
+        "--output-dir",
+        type=Path,
+        default=None,
+        help="write results.json and one replay per game here (for example runs/<name>)",
     )
 
     args = parser.parse_args(argv)
@@ -359,6 +408,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         target_opponents = [args.opponent] if args.opponent else None
         target_variants = [args.variant] if args.variant else None
         target_seeds = [args.seed] if args.seed else None
+        recorder = make_recorder(args.output_dir, manifest)
 
         try:
             summary = run_evaluation_suite(
@@ -370,12 +420,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                 variants=target_variants,
                 pairs_per_matchup=args.pairs,
                 showdown_dir=args.showdown_dir,
+                recorder=recorder,
             )
         except Exception as e:
             print(f"Evaluation error: {e}", file=sys.stderr)
             return 2
 
-        print(json.dumps(dataclasses.asdict(summary), indent=2))
+        summary_dict = dataclasses.asdict(summary)
+        if recorder is not None:
+            finish_recorder(recorder, "evaluate", spec, args, summary_dict)
+        print(json.dumps(summary_dict, indent=2))
         return 0
 
     if args.command == "compare-agents":
@@ -395,6 +449,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"Failed to load manifest {args.manifest}: {e}", file=sys.stderr)
             return 2
 
+        recorder = make_recorder(args.output_dir, manifest)
         try:
             comp_report = compare_study_agents(
                 spec=spec,
@@ -404,12 +459,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                 pairs=args.pairs,
                 quick=args.quick,
                 showdown_dir=args.showdown_dir,
+                recorder=recorder,
             )
         except Exception as e:
             print(f"Agent comparison error: {e}", file=sys.stderr)
             return 2
 
-        print(json.dumps(dataclasses.asdict(comp_report), indent=2))
+        report_dict = dataclasses.asdict(comp_report)
+        if recorder is not None:
+            finish_recorder(recorder, "compare-agents", spec, args, report_dict)
+        print(json.dumps(report_dict, indent=2))
         return 0
 
     return 0

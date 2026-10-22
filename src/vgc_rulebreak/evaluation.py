@@ -12,6 +12,7 @@ from vgc_rulebreak.agents.random import RandomAgent
 from vgc_rulebreak.agents.variants import AdaptedAgent, NativeAgent, SourceAgent
 from vgc_rulebreak.manifest import TeamManifest
 from vgc_rulebreak.pilot import _check_protect_depleted, _count_protect_choices
+from vgc_rulebreak.records import GameContext, GameRecorder
 from vgc_rulebreak.simulator.battle import BattleSession
 from vgc_rulebreak.simulator.process import ShowdownProcess
 from vgc_rulebreak.spec import ExperimentSpec
@@ -43,6 +44,8 @@ class EvaluationBattleResult:
     opponent_protect_uses: int
     protect_depleted: bool
     candidate_won: bool
+    end_reason: str = "unknown"
+    replay: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -243,6 +246,7 @@ def run_evaluation_battle(
     cand_protect_uses = 0
     opp_protect_uses = 0
     protect_depleted = False
+    decisions: list[dict[str, Any]] = []
 
     candidate_agent.reset()
     opponent_agent.reset()
@@ -288,6 +292,14 @@ def run_evaluation_battle(
                 if (p2_can_act and session.p2_request)
                 else None
             )
+            for side, request, choice in (
+                ("p1", session.p1_request, p1_choice),
+                ("p2", session.p2_request, p2_choice),
+            ):
+                if choice is not None:
+                    decisions.append(
+                        {"turn": session.turn, "side": side, "choice": choice, "request": request}
+                    )
 
             if candidate_role == "p1":
                 if p1_can_act:
@@ -310,6 +322,12 @@ def run_evaluation_battle(
 
         duration = time.perf_counter() - start_time
         candidate_won = session.winner == candidate_agent.name
+        if session.is_ended:
+            end_reason = "win" if session.winner is not None else "tie"
+        elif session.turn >= max_turns:
+            end_reason = "turn-limit"
+        else:
+            end_reason = "stalled"
         return EvaluationBattleResult(
             winner=session.winner,
             turns=session.turn,
@@ -320,6 +338,8 @@ def run_evaluation_battle(
             opponent_protect_uses=opp_protect_uses,
             protect_depleted=protect_depleted,
             candidate_won=candidate_won,
+            end_reason=end_reason,
+            replay={"log": list(session.log), "decisions": decisions},
         )
 
 
@@ -332,6 +352,7 @@ def run_evaluation_suite(
     variants: Sequence[str] | None = None,
     pairs_per_matchup: int | None = None,
     showdown_dir: Path | str | None = None,
+    recorder: GameRecorder | None = None,
 ) -> EvaluationSummary:
     """Execute evaluation matches across frozen test teams, opponents, and seeds."""
     verify_frozen_evaluation(spec, manifest)
@@ -397,6 +418,31 @@ def run_evaluation_suite(
                             seed=seed_g2,
                             showdown_dir=showdown_dir,
                         )
+
+                        if recorder is not None:
+                            for game, (res, seed, own, other, role) in enumerate(
+                                (
+                                    (res1, seed_g1, t1_id, t2_id, "p1"),
+                                    (res2, seed_g2, t2_id, t1_id, "p2"),
+                                )
+                            ):
+                                recorder.record(
+                                    GameContext(
+                                        stage="evaluate",
+                                        variant=var_name,
+                                        format_id=format_id,
+                                        eval_seed=eval_seed,
+                                        battle_seed=seed,
+                                        candidate=cand_agent.name,
+                                        opponent=opp_agent.name,
+                                        candidate_team=own,
+                                        opponent_team=other,
+                                        candidate_role=role,
+                                        pair_index=pair,
+                                        game_in_pair=game,
+                                    ),
+                                    res,
+                                )
 
                         for r in (res1, res2):
                             total_matches += 1
@@ -507,6 +553,7 @@ def compare_study_agents(
     pairs: int = 1,
     quick: bool = False,
     showdown_dir: Path | str | None = None,
+    recorder: GameRecorder | None = None,
 ) -> AgentComparisonReport:
     """Compare Source, Adapted, and Target-Native agents across Protect rulesets."""
     verify_frozen_evaluation(spec, manifest)
@@ -549,7 +596,7 @@ def compare_study_agents(
             m_duration = 0.0
             total_m = 0
 
-            for m_idx, (_t1_id, t1_packed, _t2_id, t2_packed) in enumerate(matchups):
+            for m_idx, (t1_id, t1_packed, t2_id, t2_packed) in enumerate(matchups):
                 for p_idx in range(pairs):
                     seed_1 = make_eval_battle_seed(eval_seed, var_idx, 0, m_idx, p_idx, 0)
                     r1 = run_evaluation_battle(
@@ -574,6 +621,31 @@ def compare_study_agents(
                         seed=seed_2,
                         showdown_dir=showdown_dir,
                     )
+
+                    if recorder is not None:
+                        for game, (res, seed, own, other, role) in enumerate(
+                            (
+                                (r1, seed_1, t1_id, t2_id, "p1"),
+                                (r2, seed_2, t2_id, t1_id, "p2"),
+                            )
+                        ):
+                            recorder.record(
+                                GameContext(
+                                    stage="benchmark",
+                                    variant=var_name,
+                                    format_id=format_id,
+                                    eval_seed=eval_seed,
+                                    battle_seed=seed,
+                                    candidate=agent.name,
+                                    opponent=opp_agent.name,
+                                    candidate_team=own,
+                                    opponent_team=other,
+                                    candidate_role=role,
+                                    pair_index=p_idx,
+                                    game_in_pair=game,
+                                ),
+                                res,
+                            )
 
                     for r in (r1, r2):
                         total_m += 1
@@ -618,7 +690,7 @@ def compare_study_agents(
         b_wins = 0
         h_ties = 0
         h_total = 0
-        for m_idx, (_t1_id, t1_packed, _t2_id, t2_packed) in enumerate(matchups):
+        for m_idx, (t1_id, t1_packed, t2_id, t2_packed) in enumerate(matchups):
             for p_idx in range(pairs):
                 s1 = make_eval_battle_seed(eval_seed, 1, h_idx + 10, m_idx, p_idx, 0)
                 r1 = run_evaluation_battle(
@@ -642,6 +714,27 @@ def compare_study_agents(
                     seed=s2,
                     showdown_dir=showdown_dir,
                 )
+                if recorder is not None:
+                    for game, (res, seed, own, other, role) in enumerate(
+                        ((r1, s1, t1_id, t2_id, "p1"), (r2, s2, t2_id, t1_id, "p2"))
+                    ):
+                        recorder.record(
+                            GameContext(
+                                stage="head-to-head",
+                                variant="protect-8",
+                                format_id=format_8,
+                                eval_seed=eval_seed,
+                                battle_seed=seed,
+                                candidate=name_a,
+                                opponent=name_b,
+                                candidate_team=own,
+                                opponent_team=other,
+                                candidate_role=role,
+                                pair_index=p_idx,
+                                game_in_pair=game,
+                            ),
+                            res,
+                        )
                 for r in (r1, r2):
                     h_total += 1
                     if r.candidate_won:

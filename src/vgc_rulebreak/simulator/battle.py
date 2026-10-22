@@ -32,6 +32,8 @@ class BattleSession:
         self.p1_request: dict[str, Any] | None = None
         self.p2_request: dict[str, Any] | None = None
         self.history: list[ParsedMessage] = []
+        # Raw protocol lines without requests, which belong to the decision records.
+        self.log: list[str] = []
 
     def start(
         self,
@@ -98,6 +100,8 @@ class BattleSession:
 
             collected.append(parsed)
             self.history.append(parsed)
+            if parsed.msg_type != "request":
+                self.log.append(parsed.raw)
 
             if parsed.msg_type == "turn" and parsed.args:
                 with contextlib.suppress(ValueError):

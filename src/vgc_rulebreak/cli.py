@@ -229,6 +229,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     train_cmd.add_argument("--showdown-dir", type=Path, default=None)
 
+    # Subcommand: summarize-recovery
+    recovery_cmd = subcommands.add_parser(
+        "summarize-recovery",
+        help="group checkpoint evaluations into habit-recovery series",
+    )
+    recovery_cmd.add_argument(
+        "--runs", type=Path, required=True, help="directory searched for results.json files"
+    )
+    recovery_cmd.add_argument("--output", type=Path, required=True)
+
     # Subcommand: compare-agents
     comp_cmd = subcommands.add_parser(
         "compare-agents",
@@ -508,6 +518,19 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
 
         print(json.dumps({"checkpoints": [str(p) for p in paths]}, indent=2))
+        return 0
+
+    if args.command == "summarize-recovery":
+        from vgc_rulebreak.recovery import summarize_recovery
+
+        dataset = summarize_recovery(args.runs.rglob("results.json"))
+        if not dataset["series"]:
+            print(f"No checkpoint evaluations found under {args.runs}", file=sys.stderr)
+            return 2
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(dataset, indent=2) + "\n", encoding="utf-8")
+        points = sum(len(s["points"]) for s in dataset["series"])
+        print(f"Wrote {len(dataset['series'])} series, {points} points to {args.output}")
         return 0
 
     if args.command == "compare-agents":

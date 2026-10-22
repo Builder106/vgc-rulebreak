@@ -35,6 +35,14 @@ uv run vgc-rulebreak verify-mechanics --spec experiments/protect-pp.json
 
 This verifies 16 versus 8 maximum Protect PP, Rage Fist hit counter reset upon switching, and Speed stat modifier formulas.
 
+Compare the source, adapted, and native agents and keep every game:
+
+```sh
+uv run vgc-rulebreak compare-agents --quick --output-dir runs/compare-quick
+```
+
+This writes `results.json` and one gzipped replay per game to `runs/compare-quick/`. The three agents are hand-written Protect scoring rules, not trained policies, so their results test the harness rather than the research question.
+
 ```sh
 uv run vgc-rulebreak check experiments/protect-pp.json --require-ready
 ```

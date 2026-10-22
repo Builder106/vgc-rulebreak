@@ -6,6 +6,12 @@ The 2026-10-21 entry described the source and native agents as policies calibrat
 
 The comparison harness is still useful plumbing, but its numbers compare hand-written rules, not learned behavior. "Transfer loss" and "adaptation recovery" from these agents measure the gap between two scoring rules. They are not evidence about training, and the showcase must not present them as habit recovery. The entry and the docstrings in `agents/variants.py` now say what the code does.
 
+## 2026-10-22: Record per-game results and replays #milestone
+
+`evaluate` and `compare-agents` take `--output-dir`. With it, each run writes `results.json` (provenance, the summary, and one record per game) and one gzipped replay per game in `replays/`. A replay holds the simulator's protocol log without requests, plus every decision: the side, the turn, the request that side received, and the choice it sent. The log and the decisions are what a replay viewer needs to rebuild the board and show what each agent could see. Each game also records why it ended: a win, a tie, the turn limit, or a stall.
+
+Outputs belong under the ignored `runs/` directory. A quick comparison of 18 games against the pinned simulator on Linux ARM64 took about 9.5 KB per replay, so a full 2,700-game evaluation needs about 26 MB. Showdown writes a wall-clock `|t:|` line into each log, so a replayed seed reproduces the battle but not the replay file's exact bytes.
+
 ## 2026-10-22: Show species as stat sigils, not sprites #decision
 
 The showcase will not use Pokémon sprites or official art. No licence covers Showdown's sprites: the client's AGPLv3 leaves out its `sprites/` directory, the Smogon Sprite Project grants non-profit use with credit only for its own drawings, and Nintendo's rights in the characters stay uncleared. The Pokémon Company's press kit is licensed for editorial use, but it forbids modification, has no art for most species in the team pool, and could suggest affiliation inside a game-styled interface. Drawing the creatures ourselves would still copy the characters.

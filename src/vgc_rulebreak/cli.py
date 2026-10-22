@@ -198,6 +198,36 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=None,
         help="write results.json and one replay per game here (for example runs/<name>)",
     )
+    eval_cmd.add_argument(
+        "--checkpoint",
+        type=Path,
+        default=None,
+        help="evaluate a trained Protect policy checkpoint instead of --agent",
+    )
+
+    # Subcommand: train
+    train_cmd = subcommands.add_parser(
+        "train",
+        help="train the Protect policy's parameters against game outcomes on training teams",
+    )
+    train_cmd.add_argument("--agent", required=True, choices=["source", "native", "adapted"])
+    train_cmd.add_argument(
+        "--seed", type=int, required=True, help="one of the spec's training seeds"
+    )
+    train_cmd.add_argument("--output-dir", type=Path, required=True)
+    train_cmd.add_argument(
+        "--init", type=Path, default=None, help="source checkpoint to adapt from (adapted only)"
+    )
+    train_cmd.add_argument("--generations", type=int, default=12)
+    train_cmd.add_argument("--population", type=int, default=12)
+    train_cmd.add_argument("--elites", type=int, default=4)
+    train_cmd.add_argument("--pairs", type=int, default=1, help="mirrored pairs per matchup")
+    train_cmd.add_argument("--workers", type=int, default=4, help="parallel battle processes")
+    train_cmd.add_argument("--spec", type=Path, default=Path("experiments/protect-pp.json"))
+    train_cmd.add_argument(
+        "--manifest", type=Path, default=Path("experiments/teams/protect-pp.json")
+    )
+    train_cmd.add_argument("--showdown-dir", type=Path, default=None)
 
     # Subcommand: compare-agents
     comp_cmd = subcommands.add_parser(
@@ -409,12 +439,21 @@ def main(argv: Sequence[str] | None = None) -> int:
         target_variants = [args.variant] if args.variant else None
         target_seeds = [args.seed] if args.seed else None
         recorder = make_recorder(args.output_dir, manifest)
+        candidate: Any = args.agent
+        if args.checkpoint is not None:
+            from vgc_rulebreak.agents.trained import checkpoint_agent
+
+            try:
+                candidate = checkpoint_agent(args.checkpoint)
+            except Exception as e:
+                print(f"Failed to load checkpoint {args.checkpoint}: {e}", file=sys.stderr)
+                return 2
 
         try:
             summary = run_evaluation_suite(
                 spec=spec,
                 manifest=manifest,
-                candidate=args.agent,
+                candidate=candidate,
                 opponent_policies=target_opponents,
                 evaluation_seeds=target_seeds,
                 variants=target_variants,
@@ -430,6 +469,45 @@ def main(argv: Sequence[str] | None = None) -> int:
         if recorder is not None:
             finish_recorder(recorder, "evaluate", spec, args, summary_dict)
         print(json.dumps(summary_dict, indent=2))
+        return 0
+
+    if args.command == "train":
+        from vgc_rulebreak.manifest import load_manifest
+        from vgc_rulebreak.training import TrainingConfig, train_protect_policy
+
+        try:
+            spec = validate_spec(json.loads(args.spec.read_text(encoding="utf-8")))
+            manifest = load_manifest(args.manifest)
+        except Exception as e:
+            print(f"Failed to load spec or manifest: {e}", file=sys.stderr)
+            return 2
+
+        config = TrainingConfig(
+            agent=args.agent,
+            training_seed=args.seed,
+            generations=args.generations,
+            population=args.population,
+            elites=args.elites,
+            pairs=args.pairs,
+            workers=args.workers,
+        )
+        try:
+            paths = train_protect_policy(
+                spec,
+                manifest,
+                config,
+                args.output_dir,
+                init_checkpoint=args.init,
+                showdown_dir=args.showdown_dir,
+            )
+        except ValueError as e:
+            print(f"Training setup error: {e}", file=sys.stderr)
+            return 2
+        except Exception as e:
+            print(f"Training error: {e}", file=sys.stderr)
+            return 1
+
+        print(json.dumps({"checkpoints": [str(p) for p in paths]}, indent=2))
         return 0
 
     if args.command == "compare-agents":

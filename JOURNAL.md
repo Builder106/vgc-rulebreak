@@ -1,5 +1,11 @@
 # Journal
 
+## 2026-10-22: Show species as stat sigils, not sprites #decision
+
+The showcase will not use Pokémon sprites or official art. No licence covers Showdown's sprites: the client's AGPLv3 leaves out its `sprites/` directory, the Smogon Sprite Project grants non-profit use with credit only for its own drawings, and Nintendo's rights in the characters stay uncleared. The Pokémon Company's press kit is licensed for editorial use, but it forbids modification, has no art for most species in the team pool, and could suggest affiliation inside a game-styled interface. Drawing the creatures ourselves would still copy the characters.
+
+Species appear as stat sigils instead. A sigil draws a species' base stats as a hexagon, split by its two type colors. The study agents appear as original robot coaches whose chest racks hold one hex cell per maximum Protect PP. Both are in `web/design/`. Self-hosted Smogon sprites remain a possible optional layer that the site must work without.
+
 ## 2026-10-21: Compare unchanged source, adapted, and target-native agents #milestone
 
 Implemented the three study agent variants in `src/vgc_rulebreak/agents/variants.py` and the agent comparison runner in `src/vgc_rulebreak/evaluation.py` and `src/vgc_rulebreak/cli.py`:

@@ -31,7 +31,9 @@ def linear(hex_color: str) -> tuple[float, float, float, float]:
     return (*out, 1.0)
 
 
-def material(name: str, color: str, roughness: float = 0.45, emission: float = 0.0, metallic: float = 0.0) -> bpy.types.Material:
+def material(
+    name: str, color: str, roughness: float = 0.45, emission: float = 0.0, metallic: float = 0.0
+) -> bpy.types.Material:
     mat = bpy.data.materials.get(PREFIX + name) or bpy.data.materials.new(PREFIX + name)
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes["Principled BSDF"]
@@ -52,7 +54,13 @@ def reset_scene() -> tuple[bpy.types.Scene, bpy.types.Collection]:
         for obj in list(old.collection.all_objects):
             bpy.data.objects.remove(obj, do_unlink=True)
         bpy.data.scenes.remove(old)
-    for block in (bpy.data.meshes, bpy.data.materials, bpy.data.cameras, bpy.data.lights, bpy.data.worlds):
+    for block in (
+        bpy.data.meshes,
+        bpy.data.materials,
+        bpy.data.cameras,
+        bpy.data.lights,
+        bpy.data.worlds,
+    ):
         for item in list(block):
             if item.name.startswith(PREFIX) and item.users == 0:
                 block.remove(item)
@@ -60,7 +68,14 @@ def reset_scene() -> tuple[bpy.types.Scene, bpy.types.Collection]:
     return scene, scene.collection
 
 
-def finish(name: str, bm: bmesh.types.BMesh, mat: bpy.types.Material, parent: bpy.types.Object, loc, smooth: bool = True) -> bpy.types.Object:
+def finish(
+    name: str,
+    bm: bmesh.types.BMesh,
+    mat: bpy.types.Material,
+    parent: bpy.types.Object,
+    loc,
+    smooth: bool = True,
+) -> bpy.types.Object:
     me = bpy.data.meshes.new(PREFIX + name)
     bm.to_mesh(me)
     bm.free()
@@ -101,9 +116,15 @@ def ellipsoid(name, size, loc, mat, parent, rot=(0, 0, 0)):
 
 def hex_cell(name, radius, depth, loc, mat, parent):
     bm = bmesh.new()
-    bmesh.ops.create_cone(bm, cap_ends=True, segments=6, radius1=radius, radius2=radius, depth=depth)
-    bmesh.ops.rotate(bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.radians(90), 3, "X"))
-    bmesh.ops.rotate(bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.radians(30), 3, "Y"))
+    bmesh.ops.create_cone(
+        bm, cap_ends=True, segments=6, radius1=radius, radius2=radius, depth=depth
+    )
+    bmesh.ops.rotate(
+        bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.radians(90), 3, "X")
+    )
+    bmesh.ops.rotate(
+        bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.radians(30), 3, "Y")
+    )
     obj = finish(name, bm, mat, parent, loc, smooth=False)
     bevel = obj.modifiers.new("bevel", "BEVEL")
     bevel.width = radius * 0.18
@@ -130,7 +151,9 @@ def honeycomb(prefix, parent, center, rows, cols, lit, mats):
             x = center[0] - width / 2 + CELL_RADIUS + col * pitch + offset
             z = center[2] + height / 2 - CELL_RADIUS - row * 1.5 * CELL_LAYOUT
             mat = mats["lit"] if index < lit else mats["capped"]
-            hex_cell(f"{prefix}-cell-{index:02d}", CELL_RADIUS, 0.02, (x, center[1], z), mat, parent)
+            hex_cell(
+                f"{prefix}-cell-{index:02d}", CELL_RADIUS, 0.02, (x, center[1], z), mat, parent
+            )
             index += 1
 
 
@@ -148,9 +171,29 @@ def build_agent(collection, name, x, spec, mats):
     head_z = torso_z + s["torso"][2] / 2 + 0.05 + s["head"][2] / 2
 
     for side in (-1, 1):
-        rounded_box(f"{name}-foot-{side}", (0.15, 0.22, 0.08), (side * s["hip"], -0.03, 0.04), trim, root, 0.45)
-        ellipsoid(f"{name}-leg-{side}", (0.11, 0.11, leg_h), (side * s["hip"], 0, 0.06 + leg_h / 2), body, root)
-    rounded_box(f"{name}-pelvis", (s["torso"][0] * 0.8, s["torso"][1] * 0.85, 0.12), (0, 0, pelvis_z), trim, root, 0.4)
+        rounded_box(
+            f"{name}-foot-{side}",
+            (0.15, 0.22, 0.08),
+            (side * s["hip"], -0.03, 0.04),
+            trim,
+            root,
+            0.45,
+        )
+        ellipsoid(
+            f"{name}-leg-{side}",
+            (0.11, 0.11, leg_h),
+            (side * s["hip"], 0, 0.06 + leg_h / 2),
+            body,
+            root,
+        )
+    rounded_box(
+        f"{name}-pelvis",
+        (s["torso"][0] * 0.8, s["torso"][1] * 0.85, 0.12),
+        (0, 0, pelvis_z),
+        trim,
+        root,
+        0.4,
+    )
     rounded_box(f"{name}-torso", s["torso"], (0, 0, torso_z), body, root, s["round"])
 
     shoulder_x = s["torso"][0] / 2 + 0.06
@@ -163,8 +206,16 @@ def build_agent(collection, name, x, spec, mats):
         shoulder.parent = root
         shoulder.location = (side * shoulder_x, 0, shoulder_z)
         shoulder.rotation_euler = (0, -side * swing, 0)
-        ellipsoid(f"{name}-arm-{side}", (0.1, 0.1, s["arm_h"]), (0, 0, -s["arm_h"] / 2 + 0.03), mat, shoulder)
-        ellipsoid(f"{name}-hand-{side}", (0.12, 0.12, 0.12), (0, 0, -s["arm_h"] + 0.02), trim, shoulder)
+        ellipsoid(
+            f"{name}-arm-{side}",
+            (0.1, 0.1, s["arm_h"]),
+            (0, 0, -s["arm_h"] / 2 + 0.03),
+            mat,
+            shoulder,
+        )
+        ellipsoid(
+            f"{name}-hand-{side}", (0.12, 0.12, 0.12), (0, 0, -s["arm_h"] + 0.02), trim, shoulder
+        )
 
     neck_z = head_z - s["head"][2] / 2 - 0.02
     rounded_box(f"{name}-neck", (0.12, 0.1, 0.08), (0, 0, neck_z), trim, root, 0.45)
@@ -176,8 +227,15 @@ def build_agent(collection, name, x, spec, mats):
     hz = head_z - neck_z
     rounded_box(f"{name}-head", s["head"], (0, 0, hz), body, head, s["round"])
     face_y = -s["head"][1] / 2
-    rounded_box(f"{name}-visor", (s["head"][0] * 0.8, 0.05, s["head"][2] * 0.5), (0, face_y + 0.005, hz - 0.005), mats["visor"], head, 0.45)
-    for side, style in zip((-1, 1), s["eyes"]):
+    rounded_box(
+        f"{name}-visor",
+        (s["head"][0] * 0.8, 0.05, s["head"][2] * 0.5),
+        (0, face_y + 0.005, hz - 0.005),
+        mats["visor"],
+        head,
+        0.45,
+    )
+    for side, style in zip((-1, 1), s["eyes"], strict=True):
         loc = (side * 0.075, face_y - 0.024, hz)
         if style == "bar":
             ellipsoid(f"{name}-eye-{side}", (0.085, 0.02, 0.026), loc, mats[s["eye_mat"]], head)
@@ -186,7 +244,14 @@ def build_agent(collection, name, x, spec, mats):
 
     if s.get("headset"):
         for side in (-1, 1):
-            rounded_box(f"{name}-ear-{side}", (0.06, 0.15, 0.15), (side * (s["head"][0] / 2 + 0.02), 0, hz), trim, head, 0.5)
+            rounded_box(
+                f"{name}-ear-{side}",
+                (0.06, 0.15, 0.15),
+                (side * (s["head"][0] / 2 + 0.02), 0, hz),
+                trim,
+                head,
+                0.5,
+            )
     if s.get("antenna"):
         top = hz + s["head"][2] / 2
         ellipsoid(f"{name}-antenna-stalk", (0.022, 0.022, 0.12), (0, 0, top + 0.05), trim, head)
@@ -196,32 +261,82 @@ def build_agent(collection, name, x, spec, mats):
     grid_w, grid_h = honeycomb_size(rows, cols)
     rack_z = torso_z + s["torso"][2] * 0.08
     rack_y = -s["torso"][1] / 2 - 0.01
-    rounded_box(f"{name}-rack", (grid_w + 0.05, 0.03, grid_h + 0.05), (0, rack_y, rack_z), mats["rack"], root, 0.3)
-    honeycomb(name, root, (0, rack_y - 0.02, rack_z), rows, cols, s["lit"], {"lit": mats[s["cells"]], "capped": mats["capped"]})
+    rounded_box(
+        f"{name}-rack",
+        (grid_w + 0.05, 0.03, grid_h + 0.05),
+        (0, rack_y, rack_z),
+        mats["rack"],
+        root,
+        0.3,
+    )
+    honeycomb(
+        name,
+        root,
+        (0, rack_y - 0.02, rack_z),
+        rows,
+        cols,
+        s["lit"],
+        {"lit": mats[s["cells"]], "capped": mats["capped"]},
+    )
     return root
 
 
 SPECS = {
     "source": {
-        "body": "amber", "trim": "violet", "eye_mat": "amber_glow", "eyes": ("bar", "bar"), "cells": "amber_glow",
-        "torso": (0.5, 0.32, 0.44), "head": (0.42, 0.34, 0.32), "round": 0.32,
-        "leg_h": 0.24, "arm_h": 0.36, "hip": 0.12, "headset": True,
-        "head_tilt": (8, 0, 4), "arm_swing": (10, 14),
-        "rack": (4, 4), "lit": 16,
+        "body": "amber",
+        "trim": "violet",
+        "eye_mat": "amber_glow",
+        "eyes": ("bar", "bar"),
+        "cells": "amber_glow",
+        "torso": (0.5, 0.32, 0.44),
+        "head": (0.42, 0.34, 0.32),
+        "round": 0.32,
+        "leg_h": 0.24,
+        "arm_h": 0.36,
+        "hip": 0.12,
+        "headset": True,
+        "head_tilt": (8, 0, 4),
+        "arm_swing": (10, 14),
+        "rack": (4, 4),
+        "lit": 16,
     },
     "adapted": {
-        "body": "amber", "trim": "indigo", "arm_left": "lavender", "eye_mat": "amber_glow", "eyes": ("bar", "hex"), "cells": "cyan_glow",
-        "torso": (0.5, 0.32, 0.44), "head": (0.42, 0.34, 0.32), "round": 0.32,
-        "leg_h": 0.24, "arm_h": 0.36, "hip": 0.12, "headset": True, "antenna": True,
-        "head_tilt": (0, -10, 0), "arm_swing": (14, 8),
-        "rack": (4, 4), "lit": 8,
+        "body": "amber",
+        "trim": "indigo",
+        "arm_left": "lavender",
+        "eye_mat": "amber_glow",
+        "eyes": ("bar", "hex"),
+        "cells": "cyan_glow",
+        "torso": (0.5, 0.32, 0.44),
+        "head": (0.42, 0.34, 0.32),
+        "round": 0.32,
+        "leg_h": 0.24,
+        "arm_h": 0.36,
+        "hip": 0.12,
+        "headset": True,
+        "antenna": True,
+        "head_tilt": (0, -10, 0),
+        "arm_swing": (14, 8),
+        "rack": (4, 4),
+        "lit": 8,
     },
     "native": {
-        "body": "lavender", "trim": "indigo", "eye_mat": "lime", "eyes": ("hex", "hex"), "cells": "cyan_glow",
-        "torso": (0.4, 0.27, 0.48), "head": (0.36, 0.32, 0.32), "round": 0.45,
-        "leg_h": 0.34, "arm_h": 0.42, "hip": 0.1, "antenna": True,
-        "head_tilt": (-6, 0, -6), "arm_swing": (6, 6),
-        "rack": (2, 4), "lit": 8,
+        "body": "lavender",
+        "trim": "indigo",
+        "eye_mat": "lime",
+        "eyes": ("hex", "hex"),
+        "cells": "cyan_glow",
+        "torso": (0.4, 0.27, 0.48),
+        "head": (0.36, 0.32, 0.32),
+        "round": 0.45,
+        "leg_h": 0.34,
+        "arm_h": 0.42,
+        "hip": 0.1,
+        "antenna": True,
+        "head_tilt": (-6, 0, -6),
+        "arm_swing": (6, 6),
+        "rack": (2, 4),
+        "lit": 8,
     },
 }
 

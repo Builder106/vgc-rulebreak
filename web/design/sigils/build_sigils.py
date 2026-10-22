@@ -72,7 +72,9 @@ def build() -> None:
         stats = entry["baseStats"]
         types = entry["types"]
         colors = [TYPE_COLORS[t] for t in types]
-        shape = fmt([point(angle, RADIUS * min(stats[key], STAT_CAP) / STAT_CAP) for key, angle in AXES])
+        shape = fmt(
+            [point(angle, RADIUS * min(stats[key], STAT_CAP) / STAT_CAP) for key, angle in AXES]
+        )
         speed_tip = point(90, RADIUS * min(stats["spe"], STAT_CAP) / STAT_CAP)
         sid = slug(name)
         sigils[name] = {
@@ -88,12 +90,35 @@ def build() -> None:
             {
                 "type": "linearGradient",
                 "id": f"fill-{sid}",
-                "attributes": {"gradientUnits": "userSpaceOnUse", "x1": "0", "y1": "0", "x2": f"{SIZE}", "y2": "0", "spreadMethod": "pad"},
+                "attributes": {
+                    "gradientUnits": "userSpaceOnUse",
+                    "x1": "0",
+                    "y1": "0",
+                    "x2": f"{SIZE}",
+                    "y2": "0",
+                    "spreadMethod": "pad",
+                },
                 "children": [
-                    {"type": "stop", "id": f"fill-{sid}-a", "attributes": {"offset": "0", "stop-color": first}},
-                    {"type": "stop", "id": f"fill-{sid}-b", "attributes": {"offset": "0.5", "stop-color": first}},
-                    {"type": "stop", "id": f"fill-{sid}-c", "attributes": {"offset": "0.5", "stop-color": second}},
-                    {"type": "stop", "id": f"fill-{sid}-d", "attributes": {"offset": "1", "stop-color": second}},
+                    {
+                        "type": "stop",
+                        "id": f"fill-{sid}-a",
+                        "attributes": {"offset": "0", "stop-color": first},
+                    },
+                    {
+                        "type": "stop",
+                        "id": f"fill-{sid}-b",
+                        "attributes": {"offset": "0.5", "stop-color": first},
+                    },
+                    {
+                        "type": "stop",
+                        "id": f"fill-{sid}-c",
+                        "attributes": {"offset": "0.5", "stop-color": second},
+                    },
+                    {
+                        "type": "stop",
+                        "id": f"fill-{sid}-d",
+                        "attributes": {"offset": "1", "stop-color": second},
+                    },
                 ],
             }
         )
@@ -104,16 +129,34 @@ def build() -> None:
                 "attributes": {"viewBox": f"0 0 {SIZE} {SIZE}"},
                 "children": [
                     {"type": "title", "id": f"sigil-{sid}-title", "text": f"{name} stat sigil"},
-                    {"type": "use", "id": f"sigil-{sid}-cell", "attributes": {"href": "#sigil-cell"}},
+                    {
+                        "type": "use",
+                        "id": f"sigil-{sid}-cell",
+                        "attributes": {"href": "#sigil-cell"},
+                    },
                     {
                         "type": "polygon",
                         "id": f"sigil-{sid}-shape",
-                        "attributes": {"points": shape, "fill": f"url(#fill-{sid})", "stroke": STROKE, "stroke-width": "2.5", "stroke-linejoin": "round"},
+                        "attributes": {
+                            "points": shape,
+                            "fill": f"url(#fill-{sid})",
+                            "stroke": STROKE,
+                            "stroke-width": "2.5",
+                            "stroke-linejoin": "round",
+                        },
                     },
                     {
                         "type": "line",
                         "id": f"sigil-{sid}-speed",
-                        "attributes": {"x1": f"{CENTER:g}", "y1": f"{CENTER:g}", "x2": f"{speed_tip[0]:g}", "y2": f"{speed_tip[1]:g}", "stroke": SPEED, "stroke-width": "3", "stroke-linecap": "round"},
+                        "attributes": {
+                            "x1": f"{CENTER:g}",
+                            "y1": f"{CENTER:g}",
+                            "x2": f"{speed_tip[0]:g}",
+                            "y2": f"{speed_tip[1]:g}",
+                            "stroke": SPEED,
+                            "stroke-width": "3",
+                            "stroke-linecap": "round",
+                        },
                     },
                 ],
             }
@@ -144,20 +187,40 @@ def build() -> None:
             {
                 "type": "polygon",
                 "id": "sigil-cell-frame",
-                "attributes": {"points": cell, "fill": GUIDE, "fill-opacity": "0.08", "stroke": GUIDE, "stroke-opacity": "0.35", "stroke-width": "1.5", "stroke-linejoin": "round"},
+                "attributes": {
+                    "points": cell,
+                    "fill": GUIDE,
+                    "fill-opacity": "0.08",
+                    "stroke": GUIDE,
+                    "stroke-opacity": "0.35",
+                    "stroke-width": "1.5",
+                    "stroke-linejoin": "round",
+                },
             },
             *[
                 {
                     "type": "line",
                     "id": f"sigil-cell-axis-{i}",
-                    "attributes": {"x1": f"{a[0]:g}", "y1": f"{a[1]:g}", "x2": f"{b[0]:g}", "y2": f"{b[1]:g}", "stroke": GUIDE, "stroke-opacity": "0.18", "stroke-width": "1"},
+                    "attributes": {
+                        "x1": f"{a[0]:g}",
+                        "y1": f"{a[1]:g}",
+                        "x2": f"{b[0]:g}",
+                        "y2": f"{b[1]:g}",
+                        "stroke": GUIDE,
+                        "stroke-opacity": "0.18",
+                        "stroke-width": "1",
+                    },
                 }
-                for i, (a, b) in enumerate(zip(spokes, opposite))
+                for i, (a, b) in enumerate(zip(spokes, opposite, strict=True))
             ],
         ],
     }
     (HERE / "glaxnimate-elements.json").write_text(
-        json.dumps([{"type": "defs", "id": "sigil-defs", "children": defs}, shared_cell, *symbols], ensure_ascii=False) + "\n",
+        json.dumps(
+            [{"type": "defs", "id": "sigil-defs", "children": defs}, shared_cell, *symbols],
+            ensure_ascii=False,
+        )
+        + "\n",
         encoding="utf-8",
     )
 

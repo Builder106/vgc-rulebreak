@@ -1,4 +1,8 @@
-"""Study agents for the Protect PP transfer experiment: Source, Adapted, and Target-Native."""
+"""Hand-written stand-ins for the Protect study's source, adapted, and target-native agents.
+
+None of these policies is trained. Each one changes only how the heuristic agent
+scores Protect. They exercise the comparison harness until trained checkpoints exist.
+"""
 
 from typing import Any
 
@@ -6,7 +10,7 @@ from vgc_rulebreak.agents.heuristic import HeuristicAgent
 
 
 class SourceAgent(HeuristicAgent):
-    """Source policy calibrated in standard Gen 9 rules (16 Protect PP).
+    """Source stand-in written for standard Gen 9 rules (16 Protect PP).
 
     In 16 PP doubles, Protect is virtually inexhaustible across a typical 7-12
     turn battle. The agent uses Protect liberally to scout, stall, and preserve
@@ -31,11 +35,10 @@ class SourceAgent(HeuristicAgent):
 
 
 class NativeAgent(HeuristicAgent):
-    """Target-native policy calibrated directly under Champions rules (8 Protect PP).
+    """Target-native stand-in written for Champions rules (8 Protect PP).
 
-    Internalizes Protect PP scarcity from the start: scales Protect utility with
-    remaining PP, reserving Protect strictly for high-yield or lethal incoming threats,
-    and avoiding non-essential pacing stalls.
+    Scores Protect lower as its PP runs out, so it saves Protect for turns where
+    its Pokemon is at low HP.
     """
 
     def __init__(self, name: str = "NativeAgent") -> None:
@@ -64,10 +67,10 @@ class NativeAgent(HeuristicAgent):
 
 
 class AdaptedAgent(HeuristicAgent):
-    """Adapted policy fine-tuned from source checkpoint under Champions rules.
+    """Adapted stand-in that blends the source and native Protect scores.
 
-    Interpolates between the source habit and the native conservation policy
-    as a function of adaptation progress (0.0 = source, 1.0 = fully adapted).
+    `adaptation_progress` is a hand-set weight, not training progress: 0.0 scores
+    exactly like the source agent and 1.0 scores exactly like the native agent.
     """
 
     def __init__(

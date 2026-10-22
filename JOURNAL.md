@@ -1,5 +1,11 @@
 # Journal
 
+## 2026-10-22: Correct the description of the study agents #incident
+
+The 2026-10-21 entry described the source and native agents as policies calibrated under each ruleset, and the adapted agent as fine-tuned from a source checkpoint. None of that happened. All three are the heuristic agent with a different hand-written Protect score, and no training run or checkpoint exists. `adaptation_progress` is a weight someone sets, and at the 1.0 used by `compare-agents` the adapted agent scores exactly like the native one.
+
+The comparison harness is still useful plumbing, but its numbers compare hand-written rules, not learned behavior. "Transfer loss" and "adaptation recovery" from these agents measure the gap between two scoring rules. They are not evidence about training, and the showcase must not present them as habit recovery. The entry and the docstrings in `agents/variants.py` now say what the code does.
+
 ## 2026-10-22: Show species as stat sigils, not sprites #decision
 
 The showcase will not use Pokémon sprites or official art. No licence covers Showdown's sprites: the client's AGPLv3 leaves out its `sprites/` directory, the Smogon Sprite Project grants non-profit use with credit only for its own drawings, and Nintendo's rights in the characters stay uncleared. The Pokémon Company's press kit is licensed for editorial use, but it forbids modification, has no art for most species in the team pool, and could suggest affiliation inside a game-styled interface. Drawing the creatures ourselves would still copy the characters.
@@ -9,9 +15,11 @@ Species appear as stat sigils instead. A sigil draws a species' base stats as a 
 ## 2026-10-21: Compare unchanged source, adapted, and target-native agents #milestone
 
 Implemented the three study agent variants in `src/vgc_rulebreak/agents/variants.py` and the agent comparison runner in `src/vgc_rulebreak/evaluation.py` and `src/vgc_rulebreak/cli.py`:
-- `SourceAgent`: Unchanged source policy calibrated in Gen 9 rules (16 Protect PP). Uses Protect liberally without scarcity considerations, unpenalized by remaining PP.
-- `NativeAgent`: Target-native policy calibrated directly under Champions rules (8 Protect PP). Internalizes Protect PP scarcity by scaling utility with remaining PP, reserving Protect strictly for critical turns.
-- `AdaptedAgent`: Transfer policy fine-tuned from the source checkpoint under Champions rules, interpolating between source habits and native conservation based on `adaptation_progress` (0.0 = source, 1.0 = fully adapted).
+- `SourceAgent`: Hand-written stand-in for Gen 9 rules (16 Protect PP). It scores Protect without regard to remaining PP.
+- `NativeAgent`: Hand-written stand-in for Champions rules (8 Protect PP). It scores Protect lower as its PP runs out.
+- `AdaptedAgent`: Hand-written blend of the two Protect scores, weighted by `adaptation_progress` (0.0 = source, 1.0 = native). The comparison runs it at 1.0, where it scores exactly like `NativeAgent`.
+
+These three descriptions were corrected on 2026-10-22. See that day's entry.
 
 Added `compare_study_agents` and the `compare-agents` CLI subcommand. The harness benchmarks all three agents across `protect-16` and `protect-8` against reference baselines and runs head-to-head matches under target rules to compute transfer loss, habit recovery, and Protect depletion rates.
 

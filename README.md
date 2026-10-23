@@ -4,17 +4,26 @@
 [![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
 
-Which Scarlet/Violet habits cost you games in Champions?
+VGC Rulebreak uses Pokémon Showdown to study how competitive agents handle rule changes. The first question: does cutting Protect from 16 PP to 8 make an agent's old habits costly?
 
-VGC Rulebreak is a research project about competitive Pokemon agents adapting to changed battle rules. The experiments measure which decisions become costly, how training changes those decisions, and whether improvements hold against opponents the agent did not train against.
-
-The first study investigates Protect's 16-versus-8 PP allowance. Its recorded games compared standard Gen 9 with the full Champions mod, which changed other mechanics too. New runs use a repository-owned Protect-only format pair; the recorded games have not been rerun. Later studies cover Rage Fist, Speed, full Champions transfer, and reciprocal Tera/Mega transfer.
+The first batch of games couldn't answer that question. It compared standard Gen 9 with the full Champions mod, which changes more than Protect. The code now has a pair of experimental formats whose overlay changes only Protect PP, but those games have not been rerun. The [research plan](RESEARCH.md) also covers Rage Fist, Speed, full Champions transfer, and Tera/Mega transfer.
 
 ## Project status
 
-The first Protect study has 99 checkpoints and 1,188 held-out games. No agent ran out of Protect PP. Those games used formats that differed in mechanics beyond Protect, so they cannot show whether a 16 PP habit hurts under an 8 PP cap. The [study audit](docs/protect-pp-audit.md) records the control failure and the corrected format pair. The [showcase](web/DESIGN.md) presents the recorded games and open team sheets. It is live at [vgc-rulebreak.vercel.app](https://vgc-rulebreak.vercel.app).
+The recorded study has 99 checkpoints and 1,188 held-out games. No agent ran out of Protect PP. Since the formats also differed in other mechanics, these games cannot tell us what the PP change alone did. The [study audit](docs/protect-pp-audit.md) explains the problem and what needs to happen before another outcome claim.
 
-Read the [research plan](RESEARCH.md), [roadmap](ROADMAP.md), and [showcase brief](docs/showcase.md).
+You can explore every recorded game and the open team sheets in the [live showcase](https://vgc-rulebreak.vercel.app). The [roadmap](ROADMAP.md), [showcase brief](docs/showcase.md), and [site design notes](web/DESIGN.md) cover the rest of the work.
+
+## The corrected Protect formats
+
+Both experimental formats copy the same pinned Gen 9 Doubles Custom Game rules. One leaves Protect at 16 PP; the other sets its starting and maximum PP to 8, including the move slot restored after a switch. Live simulator tests check the key format settings and battle requests. Broader paired checks and a scarcity pilot are still needed before measuring the effect on outcomes.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/protect-formats-dark.png">
+  <img src="assets/diagrams/protect-formats.png" alt="The pinned Gen 9 doubles format branches into Protect 16 and Protect 8 formats. Both feed the format fixtures, which compare their settings and battle requests." width="841">
+</picture>
+
+These are experimental formats, not official regulations. The existing 1,188 games still belong to the earlier Gen 9 versus full Champions comparison. [Edit this diagram](assets/diagrams/protect-formats.html).
 
 ## Run the study tools
 
@@ -25,7 +34,7 @@ uv sync --frozen --group dev
 uv run vgc-rulebreak check experiments/protect-pp.json
 ```
 
-The command checks the declared Protect PP variants, an immutable simulator revision, and independent training seeds. Live fixtures check the corrected format pair; the specification validator alone does not inspect effective simulator formats.
+This checks the declared PP variants, pinned simulator revision, and independent training seeds. It does not inspect the simulator's effective formats; the live tests in `tests/test_protect_formats.py` do that.
 
 Run deterministic mechanics verification against a local Pokémon Showdown process:
 
@@ -33,25 +42,25 @@ Run deterministic mechanics verification against a local Pokémon Showdown proce
 uv run vgc-rulebreak verify-mechanics --spec experiments/protect-pp.json
 ```
 
-This verifies 16 versus 8 maximum Protect PP, Rage Fist hit counter reset upon switching, and Speed stat modifier formulas.
+This checks Protect's 16 versus 8 maximum PP, Rage Fist's hit counter after switching, and the Speed formulas.
 
-Compare the source, adapted, and native agents and keep every game:
+To try the comparison harness with its hand-written source, adapted, and native agents, keep every game:
 
 ```sh
 uv run vgc-rulebreak compare-agents --quick --output-dir runs/compare-quick
 ```
 
-This writes `results.json` and one gzipped replay per game to `runs/compare-quick/`. The three agents are hand-written Protect scoring rules, not trained policies, so their results test the harness rather than the research question.
+This writes `results.json` and a gzipped replay for each game to `runs/compare-quick/`. These agents use hand-written Protect scoring rules, so this run checks the harness. It does not measure learned adaptation.
 
 ```sh
 uv run vgc-rulebreak check experiments/protect-pp.json --require-ready
 ```
 
-This exits with code 1 while the draft has missing declarations. See [CONTRIBUTING.md](CONTRIBUTING.md) for all checks and exit codes.
+This exits with code 1 while the study spec still has missing declarations. [CONTRIBUTING.md](CONTRIBUTING.md) lists the checks and exit codes.
 
 ## Run the showcase
 
-The static site is in `web/`. Install its locked dependencies, check the source, build it, and run the browser suite:
+The site lives in `web/`. To check and build it locally:
 
 ```sh
 cd web
@@ -63,11 +72,18 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-The committed `web/data/` export contains all 1,188 battle records. To regenerate it from evaluation runs, use `vgc-rulebreak export-showcase` with `--runs` pointing at the evaluation directory and `--output web/data`. The export reads move names from the pinned Showdown checkout. Set `SITE_URL` to the public origin when building for deployment; without it, the build omits canonical URLs and the sitemap.
+The committed `web/data/` export contains all 1,188 battle records. To rebuild it from evaluation runs, point `vgc-rulebreak export-showcase --runs` at the run directory and set `--output web/data`. The export gets move names from the pinned Showdown checkout. For a public build, set `SITE_URL` to its origin so Astro can write canonical URLs and the sitemap.
 
-## Current flow
+## Where the showcase data comes from
 
-The specification validator and deterministic simulator fixtures verify the rules before training. The training and evaluation commands record checkpoints and games, then `export-showcase` turns those artifacts into the static data that Astro builds into the site.
+Each evaluation run writes a `results.json` index and a compressed replay for each recorded game. `export-showcase` reads both, writes the compact `web/data/` export, and Astro uses that export to build the study, log, team, and battle pages.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/showcase-data-dark.png">
+  <img src="assets/diagrams/showcase-data.png" alt="The results index and compressed game replays join in export-showcase. It writes web/data, which Astro reads to build the public study and battle pages." width="876">
+</picture>
+
+The current export comes from the earlier comparison. Its format IDs and replays retain that provenance; the site does not turn those games into a Protect-only experiment. [Edit this diagram](assets/diagrams/showcase-data.html).
 
 ## Repository layout
 
@@ -82,8 +98,8 @@ The specification validator and deterministic simulator fixtures verify the rule
 | `docs/showcase.md` | Blunder Replay, Habit Recovery, and Matchup Desk brief |
 | `JOURNAL.md` | Decisions behind the project |
 
-Training data, checkpoints, raw evaluation replays, and generated reports are ignored by Git. The compact `web/data/` export is kept in the repository so each public battle page can be rebuilt from the recorded games.
+Training data, checkpoints, raw replays, and generated reports stay out of Git. The smaller `web/data/` export is committed so the public battle pages can be rebuilt.
 
 ## License
 
-Project code is licensed under [MIT](LICENSE). Third-party simulator code, Pokemon assets, datasets, and model weights retain their own terms.
+The project's code is licensed under [MIT](LICENSE). Third-party simulator code, Pokémon assets, datasets, and model weights keep their own terms.

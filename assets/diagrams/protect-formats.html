@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The corrected Protect format pair</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+:root { color-scheme: light dark; --bg: #ffffff; --ink: #1f2328; --muted: #59636e; --edge: #59636e; --box: #8c959f; --group: #d1d9e0; --groupfill: #f6f8fa; --accent: #0969da; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0d1117; --ink: #f0f6fc; --muted: #9198a1; --edge: #9198a1; --box: #656c76; --group: #3d444d; --groupfill: #151b23; --accent: #4493f8; } }
+html, body { margin: 0; background: var(--bg); }
+main { max-width: 841px; margin: 0 auto; }
+svg { display: block; width: 100%; height: auto; }
+text { font-family: "IBM Plex Sans", system-ui, sans-serif; fill: var(--ink); }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.muted { fill: var(--muted); }
+.accent-text { fill: var(--accent); }
+.bg, .halo { fill: var(--bg); }
+.node { fill: var(--bg); stroke-width: 1.25; }
+.node.box { stroke: var(--box); }
+.node.accent { stroke: var(--accent); stroke-width: 2; }
+.group { fill: var(--groupfill); stroke: var(--group); }
+.boundary { fill: none; stroke: var(--box); stroke-dasharray: 6 6; }
+.edge { fill: none; stroke: var(--edge); stroke-width: 1.5; }
+.edge.accent { stroke: var(--accent); stroke-width: 2; }
+.edge.dashed { stroke-dasharray: 6 5; }
+.lifeline { fill: none; stroke: var(--group); stroke-dasharray: 4 5; }
+.tip { fill: var(--edge); }
+.tip-accent { fill: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 841 279" role="img" aria-labelledby="diagram-title diagram-desc">
+<title id="diagram-title">The corrected Protect format pair</title>
+<desc id="diagram-desc">The pinned Gen 9 Doubles Custom Game format is copied into a 16 PP Protect format and an 8 PP Protect format. Live format fixtures compare both formats and their battle requests before the next pilot.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="tip" d="M0,0 L10,5 L0,10 Z"/></marker>
+<marker id="arrow-accent" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="tip-accent" d="M0,0 L10,5 L0,10 Z"/></marker>
+</defs>
+<rect class="bg" width="841" height="279"/>
+<rect class="node box" x="20" y="102" width="210" height="67" rx="6"/>
+<text x="34" y="129" font-size="16" font-weight="600">Gen 9 doubles base</text>
+<text x="34" y="150" font-size="14" class="muted">Pinned Showdown format</text>
+<rect class="node box" x="302" y="20" width="228" height="88" rx="6"/>
+<text x="316" y="47" font-size="16" font-weight="600">Protect 16 format</text>
+<text x="316" y="68" font-size="14" class="muted">Protect: 16 PP</text>
+<text x="316" y="89" font-size="14" class="muted">Other rules: Gen 9</text>
+<rect class="node accent" x="302" y="175" width="228" height="88" rx="6"/>
+<text x="316" y="202" font-size="16" font-weight="600">Protect 8 format</text>
+<text x="316" y="223" font-size="14" class="muted">Protect: 8 PP</text>
+<text x="316" y="244" font-size="14" class="muted">Other rules: Gen 9</text>
+<rect class="node box" x="618" y="99" width="207" height="88" rx="6"/>
+<text x="632" y="126" font-size="16" font-weight="600">Format fixtures</text>
+<text x="632" y="147" font-size="14" class="muted">Compare rule settings</text>
+<text x="632" y="168" font-size="14" class="muted">Check battle requests</text>
+<path class="edge" d="M230,125.45 L263,125 L263,64 L302,64" marker-end="url(#arrow)"/>
+<path class="edge accent" d="M230,145.55 L263,146 L263,219 L302,219" marker-end="url(#arrow-accent)"/>
+<path class="edge" d="M530,64 L574,64 L574,125 L618,125.4" marker-end="url(#arrow)"/>
+<path class="edge accent" d="M530,219 L574,219 L574,161 L618,160.6" marker-end="url(#arrow-accent)"/>
+</svg>
+</main>
+<script type="application/json" id="diagram-spec">
+{
+  "title": "The corrected Protect format pair",
+  "desc": "The pinned Gen 9 Doubles Custom Game format is copied into a 16 PP Protect format and an 8 PP Protect format. Live format fixtures compare both formats and their battle requests before the next pilot.",
+  "width": 880,
+  "nodes": [
+    {
+      "id": "base",
+      "x": 20,
+      "y": 102,
+      "w": 210,
+      "title": "Gen 9 doubles base",
+      "lines": [
+        "Pinned Showdown format"
+      ]
+    },
+    {
+      "id": "high",
+      "x": 302,
+      "y": 20,
+      "w": 228,
+      "title": "Protect 16 format",
+      "lines": [
+        "Protect: 16 PP",
+        "Other rules: Gen 9"
+      ]
+    },
+    {
+      "id": "low",
+      "x": 302,
+      "y": 175,
+      "w": 228,
+      "title": "Protect 8 format",
+      "lines": [
+        "Protect: 8 PP",
+        "Other rules: Gen 9"
+      ],
+      "accent": true
+    },
+    {
+      "id": "fixtures",
+      "x": 618,
+      "y": 99,
+      "w": 207,
+      "title": "Format fixtures",
+      "lines": [
+        "Compare rule settings",
+        "Check battle requests"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "base.r@0.35",
+      "to": "high.l@0.5",
+      "via": [
+        [
+          263,
+          125
+        ],
+        [
+          263,
+          64
+        ]
+      ]
+    },
+    {
+      "from": "base.r@0.65",
+      "to": "low.l@0.5",
+      "via": [
+        [
+          263,
+          146
+        ],
+        [
+          263,
+          219
+        ]
+      ],
+      "accent": true
+    },
+    {
+      "from": "high.r@0.5",
+      "to": "fixtures.l@0.3",
+      "via": [
+        [
+          574,
+          64
+        ],
+        [
+          574,
+          125
+        ]
+      ]
+    },
+    {
+      "from": "low.r@0.5",
+      "to": "fixtures.l@0.7",
+      "via": [
+        [
+          574,
+          219
+        ],
+        [
+          574,
+          161
+        ]
+      ],
+      "accent": true
+    }
+  ]
+}
+</script>
+</body>
+</html>

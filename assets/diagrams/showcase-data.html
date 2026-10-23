@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From recorded games to the static showcase</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+:root { color-scheme: light dark; --bg: #ffffff; --ink: #1f2328; --muted: #59636e; --edge: #59636e; --box: #8c959f; --group: #d1d9e0; --groupfill: #f6f8fa; --accent: #0969da; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0d1117; --ink: #f0f6fc; --muted: #9198a1; --edge: #9198a1; --box: #656c76; --group: #3d444d; --groupfill: #151b23; --accent: #4493f8; } }
+html, body { margin: 0; background: var(--bg); }
+main { max-width: 876px; margin: 0 auto; }
+svg { display: block; width: 100%; height: auto; }
+text { font-family: "IBM Plex Sans", system-ui, sans-serif; fill: var(--ink); }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.muted { fill: var(--muted); }
+.accent-text { fill: var(--accent); }
+.bg, .halo { fill: var(--bg); }
+.node { fill: var(--bg); stroke-width: 1.25; }
+.node.box { stroke: var(--box); }
+.node.accent { stroke: var(--accent); stroke-width: 2; }
+.group { fill: var(--groupfill); stroke: var(--group); }
+.boundary { fill: none; stroke: var(--box); stroke-dasharray: 6 6; }
+.edge { fill: none; stroke: var(--edge); stroke-width: 1.5; }
+.edge.accent { stroke: var(--accent); stroke-width: 2; }
+.edge.dashed { stroke-dasharray: 6 5; }
+.lifeline { fill: none; stroke: var(--group); stroke-dasharray: 4 5; }
+.tip { fill: var(--edge); }
+.tip-accent { fill: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 876 249" role="img" aria-labelledby="diagram-title diagram-desc">
+<title id="diagram-title">From recorded games to the static showcase</title>
+<desc id="diagram-desc">Each evaluation run writes a results.json index and compressed game replays. export-showcase reads both and writes the web/data export. Astro reads that export to build Study P, the Battle Log, and battle pages.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="tip" d="M0,0 L10,5 L0,10 Z"/></marker>
+<marker id="arrow-accent" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="tip-accent" d="M0,0 L10,5 L0,10 Z"/></marker>
+</defs>
+<rect class="bg" width="876" height="249"/>
+<rect class="node box" x="18" y="18" width="188" height="67" rx="6"/>
+<text x="32" y="45" font-size="16" class="mono" font-weight="600">results.json</text>
+<text x="32" y="66" font-size="14" class="muted">Game summaries</text>
+<rect class="node box" x="18" y="166" width="188" height="67" rx="6"/>
+<text x="32" y="193" font-size="16" font-weight="600">Replay files</text>
+<text x="32" y="214" font-size="14" class="muted">Compressed game logs</text>
+<rect class="node accent" x="252" y="91" width="193" height="67" rx="6"/>
+<text x="266" y="118" font-size="16" class="mono" font-weight="600">export-showcase</text>
+<text x="266" y="139" font-size="14" class="muted">Reads both sources</text>
+<path class="node box" d="M491,91 V169 A92,10 0 0 0 675,169 V91 A92,10 0 0 0 491,91 Z"/><ellipse class="node box" cx="583" cy="91" rx="92" ry="10"/>
+<text x="505" y="118" font-size="16" class="mono" font-weight="600">web/data/</text>
+<text x="505" y="139" font-size="14" class="muted">Index, teams, rates</text>
+<text x="505" y="160" font-size="14" class="muted">1,188 battle files</text>
+<rect class="node box" x="718" y="91" width="142" height="88" rx="6"/>
+<text x="732" y="118" font-size="16" font-weight="600">Astro build</text>
+<text x="732" y="139" font-size="14" class="muted">Study P, log</text>
+<text x="732" y="160" font-size="14" class="muted">Teams, battles</text>
+<path class="edge" d="M206,51.5 L229,51 L229,111 L252,111.1" marker-end="url(#arrow)"/>
+<path class="edge" d="M206,199.5 L229,199 L229,138 L252,137.9" marker-end="url(#arrow)"/>
+<path class="edge" d="M445,124.5 L468,124.5 L468,130 L491,130" marker-end="url(#arrow)"/>
+<path class="edge" d="M675,130 L696.5,130 L696.5,135 L718,135" marker-end="url(#arrow)"/>
+</svg>
+</main>
+<script type="application/json" id="diagram-spec">
+{
+  "title": "From recorded games to the static showcase",
+  "desc": "Each evaluation run writes a results.json index and compressed game replays. export-showcase reads both and writes the web/data export. Astro reads that export to build Study P, the Battle Log, and battle pages.",
+  "width": 880,
+  "nodes": [
+    {
+      "id": "results",
+      "x": 18,
+      "y": 18,
+      "w": 188,
+      "title": "results.json",
+      "mono_title": true,
+      "lines": [
+        "Game summaries"
+      ]
+    },
+    {
+      "id": "replays",
+      "x": 18,
+      "y": 166,
+      "w": 188,
+      "title": "Replay files",
+      "lines": [
+        "Compressed game logs"
+      ]
+    },
+    {
+      "id": "export",
+      "x": 252,
+      "y": 91,
+      "w": 193,
+      "title": "export-showcase",
+      "mono_title": true,
+      "lines": [
+        "Reads both sources"
+      ],
+      "accent": true
+    },
+    {
+      "id": "data",
+      "x": 491,
+      "y": 81,
+      "w": 184,
+      "title": "web/data/",
+      "mono_title": true,
+      "shape": "store",
+      "lines": [
+        "Index, teams, rates",
+        "1,188 battle files"
+      ]
+    },
+    {
+      "id": "astro",
+      "x": 718,
+      "y": 91,
+      "w": 142,
+      "title": "Astro build",
+      "lines": [
+        "Study P, log",
+        "Teams, battles"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "results.r@0.5",
+      "to": "export.l@0.3",
+      "via": [
+        [
+          229,
+          51
+        ],
+        [
+          229,
+          111
+        ]
+      ]
+    },
+    {
+      "from": "replays.r@0.5",
+      "to": "export.l@0.7",
+      "via": [
+        [
+          229,
+          199
+        ],
+        [
+          229,
+          138
+        ]
+      ]
+    },
+    {
+      "from": "export.r@0.5",
+      "to": "data.l@0.5"
+    },
+    {
+      "from": "data.r@0.5",
+      "to": "astro.l@0.5"
+    }
+  ]
+}
+</script>
+</body>
+</html>

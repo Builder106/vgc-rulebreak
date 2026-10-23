@@ -1,0 +1,158 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import lineup from '../../design/agents/agents-lineup.png';
+import { featured, totals } from '../lib/data';
+
+const t = totals();
+const fmt = (n: number) => n.toLocaleString('en-US');
+const useRate = Math.round((100 * t.protectUses) / t.protectOpportunities);
+const watch = featured().find((b) => b.agent === 'native') ?? featured()[0];
+const headline =
+  t.depleted === 0
+    ? `In ${fmt(t.games)} held-out games, no agent ran out of Protect.`
+    : `In ${fmt(t.games)} held-out games, agents ran out of Protect ${fmt(t.depleted)} times.`;
+
+const hints = [
+  { key: 'ArrowDown', keyLabel: '↑↓', label: 'Select', id: 'hint-select' },
+  { key: 'Enter', label: 'Open', id: 'hint-open' },
+  { key: 'L', label: 'Battle Log', href: '/log/' },
+];
+---
+<Base title="VGC Rulebreak" description={`${headline} A study of whether Scarlet/Violet Protect habits cost games under Champions rules, with every evaluated game replayable.`} hints={hints}>
+  <div class="title">
+    <div class="title__copy">
+      <p class="screen-tab slant" data-enter>VGC Rulebreak<span class="title__unofficial">Unofficial fan research</span></p>
+      <h1 class="title__headline" data-enter>{headline}</h1>
+      <p class="title__lede" data-enter>
+        Champions cuts Protect from 16 PP to 8. We trained agents under each cap and asked whether a 16 PP habit costs games under 8. In these games, agents used Protect on {useRate}% of the turns where it was legal, so the smaller cap never came into play.
+      </p>
+      <nav aria-label="Main menu" data-enter>
+        <ul class="menu" data-menu>
+          <li><a href="/studies/p/" data-note="The finding" data-selected><svg class="cursor-arrow" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#cursor-arrow" /></svg>Study P: Protect PP</a></li>
+          {watch && <li><a href={`/battle/${watch.id}/`} data-note={`Battle ${watch.id}`}><svg class="cursor-arrow" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#cursor-arrow" /></svg>Watch a game</a></li>}
+          <li><a href="/log/" data-note={`${fmt(t.games)} games`}><svg class="cursor-arrow" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#cursor-arrow" /></svg>Battle Log</a></li>
+          <li><a href="/studies/" data-note="1 of 5 run"><svg class="cursor-arrow" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#cursor-arrow" /></svg>Regulations</a></li>
+          <li><a href="/about/" data-note="Method and data"><svg class="cursor-arrow" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#cursor-arrow" /></svg>About this study</a></li>
+        </ul>
+      </nav>
+    </div>
+    <figure class="title__lineup" data-enter>
+      <Image src={lineup} alt="Three original robot coaches. Source is amber with 16 lit cells on its chest. Adapted has Source's body, a lavender arm, and 8 of its 16 cells capped. Native is lavender with 8 cells." widths={[640, 960, 1400]} sizes="(max-width: 1023px) 92vw, 46vw" loading="eager" />
+      <figcaption>
+        <span class="agent-source agent-swatch">Source</span> trains with 16 PP. <span class="agent-adapted agent-swatch">Adapted</span> continues from Source with 8. <span class="agent-native agent-swatch">Native</span> trains with 8 from the start.
+      </figcaption>
+    </figure>
+  </div>
+</Base>
+
+<script>
+  import { onPage } from '../engine';
+
+  onPage(() => {
+    const menu = document.querySelector<HTMLElement>('[data-menu]');
+    if (!menu) return;
+    const items = () => [...menu.querySelectorAll<HTMLAnchorElement>('a')];
+    const select = (a: HTMLAnchorElement) => {
+      items().forEach((x) => x.removeAttribute('data-selected'));
+      a.setAttribute('data-selected', '');
+    };
+    const onHover = (e: Event) => {
+      const a = (e.target as HTMLElement).closest('a');
+      if (a) select(a);
+    };
+    const next = () => {
+      const all = items();
+      const i = all.findIndex((a) => a.hasAttribute('data-selected'));
+      select(all[(i + 1) % all.length]);
+      all[(i + 1) % all.length].focus();
+    };
+    const open = () => menu.querySelector<HTMLAnchorElement>('a[data-selected]')?.click();
+    menu.addEventListener('pointerover', onHover);
+    menu.addEventListener('focusin', onHover);
+    const selectBtn = document.getElementById('hint-select');
+    const openBtn = document.getElementById('hint-open');
+    selectBtn?.addEventListener('click', next);
+    openBtn?.addEventListener('click', open);
+    return () => {
+      menu.removeEventListener('pointerover', onHover);
+      menu.removeEventListener('focusin', onHover);
+      selectBtn?.removeEventListener('click', next);
+      openBtn?.removeEventListener('click', open);
+    };
+  });
+</script>
+
+<style>
+  .title {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 32px 48px;
+    align-items: center;
+    max-width: 1440px;
+    min-height: calc(100dvh - var(--hint-h) - 72px);
+    margin: 0 auto;
+  }
+
+  .title__copy {
+    display: grid;
+    gap: 24px;
+  }
+
+  .title__unofficial {
+    color: var(--c-muted);
+    font-weight: 400;
+  }
+
+  .title__headline {
+    max-width: 16ch;
+    font-size: var(--t-2xl);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    text-wrap: balance;
+  }
+
+  .title__lede {
+    max-width: 52ch;
+    color: var(--c-muted);
+    font-size: var(--t-md);
+  }
+
+  .menu {
+    max-width: 560px;
+  }
+
+  .title__lineup {
+    display: grid;
+    gap: 12px;
+  }
+
+  .title__lineup img {
+    width: 100%;
+    height: auto;
+  }
+
+  .title__lineup figcaption {
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+    text-align: center;
+  }
+
+  .title__lineup figcaption span {
+    font-weight: 700;
+  }
+
+  @media (max-width: 1023px) {
+    .title {
+      grid-template-columns: minmax(0, 1fr);
+      min-height: 0;
+    }
+
+    .title__lineup {
+      order: -1;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+  }
+</style>

@@ -1,0 +1,65 @@
+---
+import Base from '../layouts/Base.astro';
+const hints = [
+  { key: 'L', label: 'Battle Log', href: '/log/' },
+  { key: 'Esc', label: 'Title', href: '/' },
+];
+---
+<Base title="No such game" description="This page does not exist. The Battle Log lists every evaluated game." hints={hints}>
+  <div class="lost">
+    <p class="screen-tab slant" data-enter>Battle ????</p>
+    <div class="lost__field panel" data-enter aria-hidden="true">
+      <span class="lost__slot"></span><span class="lost__slot"></span>
+      <span class="lost__slot"></span><span class="lost__slot"></span>
+    </div>
+    <h1 data-enter>No game with this ID was played.</h1>
+    <p data-enter>The address may be mistyped, or the page moved. Every evaluated game is in the <a href="/log/">Battle Log</a>.</p>
+  </div>
+</Base>
+
+<style>
+  .lost {
+    display: grid;
+    gap: 18px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .screen-tab {
+    justify-self: start;
+  }
+
+  .lost__field {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 40px;
+    padding: 32px 15% 32px 25%;
+  }
+
+  .lost__slot:nth-child(n + 3) {
+    translate: -40% 0;
+  }
+
+  .lost__slot {
+    display: block;
+    aspect-ratio: 1;
+    max-width: 88px;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    background: var(--c-line);
+    opacity: 0.6;
+  }
+
+  h1 {
+    font-size: var(--t-xl);
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    color: var(--c-muted);
+  }
+
+  a {
+    color: var(--c-ink);
+    text-underline-offset: 3px;
+  }
+</style>

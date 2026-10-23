@@ -46,7 +46,7 @@ Exit with a reproducible result and a replay whose explanation matches the aggre
 - [ ] Blunder Replay with PP, damage, Speed, and outcome evidence.
 - [ ] Habit Recovery charts with uncertainty and opportunity counts.
 - [ ] Matchup Desk with teams, replays, configuration, and provenance.
-- [ ] Keyboard and mobile replay navigation.
+- [x] Keyboard and mobile replay navigation.
 
 See [the showcase brief](docs/showcase.md) when the measured result is ready.
 

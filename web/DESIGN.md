@@ -231,11 +231,11 @@ Type colors come from `design/sigils/sigils.json` and appear only inside sigils 
 | Agent lineup and portraits | Blender | done, `design/agents/` |
 | Hex Protect shield, whole and cracked halves | Glaxnimate | done, `design/ui/shield.svg` |
 | Cursor arrow, PP pips, keycap for the hint row | Glaxnimate | done, `design/ui/kit.svg`; panel frames are CSS `clip-path` |
-| OG image: the battle screenshot frame | generated from the built page | at ship |
+| OG image: title screen with the finding and agent lineup | browser render of the built page | done, `public/og.png` |
 
 ## Stack
 
-Astro with static output and TypeScript, with the battle screen as one island. The site is a content showcase over static data, and every screen needs server-rendered HTML. GSAP for motion, no WebGL. Replays load as static gzip JSON per game.
+Astro with static output and TypeScript. Every screen has server-rendered HTML, and the battle page has a small script for stepping turns. GSAP handles motion; there is no WebGL. The build reads gzipped replay JSON and embeds each game's frames in its own static page.
 
 ## Data contract
 
@@ -245,16 +245,16 @@ The site reads files produced by the CLI. Nothing is computed in the browser bey
 |---|---|---|
 | Per-game record and replay | `evaluate --output-dir`: `results.json`, `replays/gNNNNN.json.gz` | exists for all 99 checkpoint runs |
 | Study P curves | `summarize-recovery` output | exists |
-| Board state per turn (HP, PP, field) | replay log plus each decision's request | exists; the client parses it |
+| Board state after each turn, choices and PP before it | replay log plus each decision's request | exported as turn frames |
 | Team sheets | team manifest | exists |
 | Blunder alternatives with repeated rollouts | not implemented | gap: the site shows actual choices only |
-| A curated set of featured games | a documented selection rule | gap: pick by rule (for example, most Protect uses per checkpoint), and print the rule on Study P |
+| A curated set of featured games | final-generation game with the most Protect presses for each agent; lowest battle ID breaks ties | implemented and printed on Study P |
 
-A small export step will copy the selected runs from `runs/` into `web/public/data/` with a manifest. 1,188 replays at about 9.5 KB each is about 11 MB, which is fine for static hosting.
+`export-showcase` writes all 1,188 games to `web/data/battles/`, plus an index, team sheets, and the recovery summary. The checked-in export is about 5.2 MB. Astro builds one page per game from it.
 
 ## Genericness test
 
 - **Skeleton:** no navbar, hero, sections, or footer. The site is client screens with a hint row and Esc, and the Battle Log is the list view. Passes.
 - **Title:** a generic model would put "Explore the research" over a gradient. Changed to the finding stated as a fact, plus the lineup render.
 - **Chart:** a generic model would plot win rate with a rising line. Changed to Protect use rate with depletion at zero, because that is what explains the result.
-- **Signature:** a generic model would add a particle shield on hover. Changed to the rule switch, which only fires on a real Protect press in a real game.
+- **Signature:** a generic model would add a particle shield on hover. The battle screen instead opens by showing the change from 16 to 8 Protect PP; the replay then shows the PP each side actually had before its choices.

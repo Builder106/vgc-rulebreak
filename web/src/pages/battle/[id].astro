@@ -1,0 +1,727 @@
+---
+import Base from '../../layouts/Base.astro';
+import Sigil from '../../components/Sigil.astro';
+import Shield from '../../components/Shield.astro';
+import {
+  AGENT_INFO,
+  battle as loadBattle,
+  battles,
+  ppCap,
+  resultWord,
+  sigilSheet,
+  teamName,
+  type Frame,
+  type Mon,
+  type Side,
+} from '../../lib/data';
+
+export function getStaticPaths() {
+  return battles().map((b) => ({ params: { id: b.id } }));
+}
+
+const { id } = Astro.params;
+const b = loadBattle(id!);
+const ally: Side = b.candidate_side;
+const foe: Side = ally === 'p1' ? 'p2' : 'p1';
+const cap = ppCap(b.variant);
+const info = AGENT_INFO[b.agent];
+const first: Frame | undefined = b.frames[0];
+const hasFrames = Boolean(first);
+
+const pct = (m: Mon | null) => (m && m.maxhp ? Math.round((100 * m.hp) / m.maxhp) : 0);
+const hpClass = (p: number) => (p > 50 ? 'high' : p > 20 ? 'mid' : 'low');
+const species = new Set<string>();
+for (const f of b.frames) for (const side of [ally, foe]) for (const m of f.after[side]) if (m) species.add(m.species);
+const sheet = sigilSheet().sigils;
+const sigils = Object.fromEntries([...species].filter((s) => sheet[s]).map((s) => [s, sheet[s]]));
+
+const payload = {
+  id: b.id,
+  ally,
+  foe,
+  labels: b.labels,
+  cap,
+  frames: b.frames,
+  sigils,
+};
+
+const resultText = b.end_reason === 'stalled' ? 'Stalled' : resultWord[b.result];
+const description = `${info.name} (seed ${b.seed}, generation ${b.generation}) against the baseline under ${cap} Protect PP: ${resultText.toLowerCase()} in ${b.turns} turns. Every turn shows the PP each side saw and the move it chose.`;
+
+const hints = [
+  { key: 'ArrowLeft', keyLabel: '←', label: 'Turn', id: 'hint-prev', hidden: !hasFrames },
+  { key: 'ArrowRight', keyLabel: '→', label: 'Turn', id: 'hint-next', hidden: !hasFrames },
+  { key: 'P', label: 'Switch side', id: 'hint-side', hidden: !hasFrames },
+  { key: 'I', label: 'Provenance', id: 'hint-info', controls: 'provenance' },
+  { key: 'L', label: 'Battle Log', href: '/log/' },
+  { key: 'Esc', label: 'Back', href: '/log/', id: 'hint-back' },
+];
+
+const slotName = (side: Side, i: number) => `${side}${'ab'[i]}`;
+---
+<Base title={`Battle ${b.id}`} description={description} hints={hints}>
+  <div class="battle" data-battle>
+    <header class="battle-head" data-enter>
+      <p class="screen-tab slant">
+        <a href="/">Title</a><span aria-hidden="true">/</span><a href="/log/">Battle Log</a><span aria-hidden="true">/</span><span aria-current="page">Battle {b.id}</span>
+      </p>
+      <div class="battle-head__row">
+        <div>
+          <h1 class="battle-title">
+            Battle {b.id}{hasFrames && <span class="battle-title__turn">, turn <span data-turn>{first.turn}</span> of {b.frames.length}</span>}
+          </h1>
+          <p class="battle-tags">
+            <span class={`tag tag--agent agent-${b.agent}`}>{info.name}, seed {b.seed}, generation {b.generation}</span>
+            <span class="tag">vs {b.labels[foe]}</span>
+            <span class="tag">{teamName(b.teams[ally])} vs {teamName(b.teams[foe])}</span>
+            <span class={`tag result-${b.end_reason === 'stalled' ? 'unfinished' : b.result}`}>{resultText}</span>
+          </p>
+        </div>
+        <div class="cap" data-cap-widget data-cap={cap}>
+          <Shield cap={cap} />
+          <p class="cap__text">
+            <span class="cap__num mono" aria-hidden="true"><span data-cap-old>16</span><span data-cap-new>{cap}</span></span>
+            <span class="cap__label">Protect PP cap<span class="visually-hidden">: {cap}</span></span>
+            <span class="cap__rules">{cap === 8 ? 'Champions rules' : 'Scarlet/Violet rules'}</span>
+          </p>
+        </div>
+      </div>
+    </header>
+
+    {hasFrames ? (
+      <div class="battle-grid">
+        <section class="stage panel" aria-label="Field after this turn" data-enter>
+          <p class="stage__moment">After turn <span data-turn>{first.turn}</span></p>
+          {[foe, ally].map((side) => (
+            <div class={`row row--${side === ally ? 'ally' : 'foe'}`}>
+              <p class="row__label"><span class={side === ally ? `agent-${b.agent} agent-swatch` : ''}>{b.labels[side]}</span></p>
+              {first.after[side].map((m, i) => (
+                <div class="slot" data-slot={slotName(side, i)} data-empty={m ? undefined : ''} data-fainted={m?.fainted ? '' : undefined}>
+                  <Sigil species={m?.species ?? null} uid={slotName(side, i)} size={88} />
+                  <div class="slot__meta">
+                    <p class="slot__name" data-name>{m?.species ?? 'Empty'}</p>
+                    <div class="hp" data-hp-level={hpClass(pct(m))}>
+                      <span class="hp__track" aria-hidden="true"><span class="hp__fill" data-hp-fill style={`clip-path: inset(0% ${100 - pct(m)}% 0% 0%)`} /></span>
+                      <span class="hp__pct mono" data-hp-text>{m ? `${pct(m)}%` : ''}</span>
+                    </div>
+                    <p class="slot__status mono" data-status>{m?.status ?? ''}</p>
+                  </div>
+                  <svg class="slot__guard" viewBox="0 0 160 160" aria-hidden="true" focusable="false"><polygon points="80,16 135.43,48 135.43,112 80,144 24.57,112 24.57,48" fill="#45D6EE" fill-opacity="0.12" stroke="#45D6EE" stroke-width="5" /></svg>
+                </div>
+              ))}
+            </div>
+          ))}
+        </section>
+
+        <section class="account panel" aria-labelledby="account-title" data-enter>
+          <h2 id="account-title" class="account__title">Turn <span data-turn>{first.turn}</span></h2>
+          <ol class="account__events" data-events aria-live="polite" aria-label="Turn events" tabindex="0">
+            {first.events.map((e) => <li>{e}</li>)}
+          </ol>
+          <div class="stepper">
+            <button type="button" class="step" data-step="-1" aria-label="Previous turn" disabled>◀</button>
+            <input class="scrub" type="range" min="0" max={b.frames.length - 1} value="0" step="1" aria-label="Turn" data-scrub />
+            <button type="button" class="step" data-step="1" aria-label="Next turn">▶</button>
+          </div>
+        </section>
+
+        <section class="console" aria-labelledby="console-title" data-enter>
+          <h2 id="console-title" class="console__title">
+            <span><span data-perspective-label>{b.labels[ally]}</span>{"'s choices"}</span>
+            <span class="console__note">The PP shown is what the request offered before the move.</span>
+          </h2>
+          <div class="console__slots" data-moves>
+            {[0, 1].map((i) => {
+              const choice = first.choices?.[ally]?.find((c) => c.slot === 'ab'[i]);
+              return (
+                <div class="moves panel" data-move-slot={i}>
+                  <h3 class="moves__who" data-move-who>{choice?.species ?? first.field[ally][i]?.species ?? 'Empty'}</h3>
+                  <ol class="moves__list" data-move-list>
+                    {[0, 1, 2, 3].map((k) => {
+                      const mv = choice?.moves[k];
+                      const chosen = choice?.chosen.kind === 'move' && choice.chosen.index === k;
+                      return (
+                        <li class="move" data-move={k} data-chosen={chosen ? '' : undefined} data-protect={mv?.protect ? '' : undefined} data-disabled={mv?.disabled ? '' : undefined} hidden={!mv}>
+                          <svg class="move__arrow" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#cursor-arrow" /></svg>
+                          <span class="move__name" data-move-name>{mv?.name}</span>
+                          <span class="move__pp mono" data-move-pp>{mv && mv.pp !== null ? `${mv.pp} / ${mv.maxpp}` : ''}</span>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                  <p class="moves__note" data-move-note>
+                    {!choice ? 'No decision this turn.' : choice.chosen.kind === 'switch' ? `Switched to ${choice.chosen.species}.` : choice.chosen.kind === 'pass' ? 'Passed.' : `Chose ${choice.chosen.name}.`}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </div>
+    ) : (
+      <section class="stalled panel" data-enter>
+        <h2>No log for this game</h2>
+        <p>The simulator stalled before turn 1 and returned no protocol log, so there is nothing to replay. The study scores a stalled game as half a point. Seven of the 1,188 evaluated games ended this way.</p>
+      </section>
+    )}
+
+    <aside id="provenance" class="provenance panel" aria-labelledby="provenance-title" data-provenance>
+      <h2 id="provenance-title">Provenance</h2>
+      <dl class="mono">
+        <div><dt>Battle</dt><dd>{b.id}</dd></div>
+        <div><dt>Run</dt><dd>{b.run}</dd></div>
+        <div><dt>Game</dt><dd>{b.game_id}</dd></div>
+        <div><dt>Checkpoint</dt><dd>{b.checkpoint}</dd></div>
+        <div><dt>Agent</dt><dd>{b.candidate} as {b.candidate_side}</dd></div>
+        <div><dt>Opponent</dt><dd>{b.opponent}</dd></div>
+        <div><dt>Ruleset</dt><dd>{b.variant}</dd></div>
+        <div><dt>Format</dt><dd>{b.format_id}</dd></div>
+        <div><dt>Eval seed</dt><dd>{b.eval_seed}</dd></div>
+        <div><dt>Battle seed</dt><dd>{b.battle_seed.join(', ')}</dd></div>
+        <div><dt>Simulator</dt><dd>{b.simulator_revision.slice(0, 12)}</dd></div>
+        <div><dt>Protect</dt><dd>{b.protect.uses} uses in {b.protect.opportunities} legal turns{b.protect.depleted ? ', ran out' : ', never ran out'}</dd></div>
+        <div><dt>Ended by</dt><dd>{b.end_reason}</dd></div>
+      </dl>
+      <p><a href={`/teams/${b.teams[ally]}/`}>Team sheet: {teamName(b.teams[ally])}</a></p>
+    </aside>
+
+    {hasFrames && (
+      <section class="gamelog" aria-labelledby="gamelog-title">
+        <h2 id="gamelog-title">Full game log</h2>
+        <ol class="gamelog__turns">
+          <li id="turn-0" class="gamelog__turn"><h3>Leads</h3><ul>{b.prelude.map((e) => <li>{e}</li>)}</ul></li>
+          {b.frames.map((f, i) => (
+            <li id={`turn-${f.turn}`} class="gamelog__turn">
+              <h3><a href={`?turn=${f.turn}`} data-goto={i}>Turn {f.turn}</a></h3>
+              <ul>{f.events.map((e) => <li>{e}</li>)}</ul>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )}
+
+    <p class="colophon-note">Unofficial fan research. Not affiliated with Nintendo, Game Freak, or The Pokémon Company. Species appear as stat sigils drawn from base stats.</p>
+  </div>
+  <script type="application/json" id="battle-data" set:html={JSON.stringify(payload)} />
+</Base>
+
+<script>
+  import '../../scripts/battle';
+</script>
+
+<style>
+  .battle {
+    display: grid;
+    gap: 20px;
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+
+  .battle-head__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px 32px;
+  }
+
+  .screen-tab span[aria-hidden] {
+    opacity: 0.5;
+  }
+
+  .battle-title {
+    font-size: var(--t-xl);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .battle-title__turn {
+    color: var(--c-muted);
+    font-weight: 600;
+  }
+
+  .battle-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .tag--agent {
+    color: var(--agent);
+  }
+
+  .cap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .cap__text {
+    display: grid;
+    line-height: 1.15;
+  }
+
+  .cap__num {
+    position: relative;
+    display: block;
+    height: 1.1em;
+    overflow: hidden;
+    font-size: var(--t-2xl);
+    font-weight: 500;
+    color: var(--c-native);
+  }
+
+  .cap__num span {
+    display: block;
+  }
+
+  [data-cap-old] {
+    position: absolute;
+    visibility: hidden;
+  }
+
+  .cap__label {
+    font-weight: 700;
+  }
+
+  .cap__rules {
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+  }
+
+  .battle-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+    grid-template-areas:
+      'stage account'
+      'console console';
+    gap: 16px;
+  }
+
+  .stage {
+    grid-area: stage;
+    position: relative;
+    display: grid;
+    gap: 8px;
+    padding: 20px 24px 24px;
+    background:
+      linear-gradient(162deg, transparent 0 46%, rgba(255, 255, 255, 0.04) 46% 47%, transparent 47%),
+      var(--c-panel);
+  }
+
+  .stage__moment {
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    color: var(--c-muted);
+    font-size: var(--t-xs);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 20px;
+    align-items: center;
+  }
+
+  .row--foe {
+    padding-left: 18%;
+  }
+
+  .row--ally {
+    padding-right: 18%;
+  }
+
+  .row__label {
+    grid-column: 1 / -1;
+    color: var(--c-muted);
+    font-size: var(--t-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .slot {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .slot :global(.sigil) {
+    flex: none;
+    width: clamp(64px, 7vw, 88px);
+    height: auto;
+  }
+
+  .slot__meta {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .slot__name {
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hp {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hp__track {
+    flex: 1;
+    height: 8px;
+    background: var(--c-ground);
+    clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
+  }
+
+  .hp__fill {
+    display: block;
+    height: 100%;
+    background: var(--c-hp-high);
+  }
+
+  [data-hp-level='mid'] .hp__fill {
+    background: var(--c-hp-mid);
+  }
+
+  [data-hp-level='low'] .hp__fill {
+    background: var(--c-hp-low);
+  }
+
+  .hp__pct {
+    min-width: 4ch;
+    font-size: var(--t-xs);
+    text-align: right;
+  }
+
+  .slot__status {
+    min-height: 1.2em;
+    color: var(--c-hp-mid);
+    font-size: var(--t-xs);
+    text-transform: uppercase;
+  }
+
+  .slot[data-fainted] .slot__name,
+  .slot[data-empty] .slot__name {
+    color: var(--c-muted);
+    text-decoration: line-through;
+  }
+
+  .slot__guard {
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    width: 108px;
+    height: 108px;
+    margin-top: -54px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .slot[data-guarded] .slot__guard {
+    opacity: 1;
+  }
+
+  .account {
+    grid-area: account;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 12px;
+    min-height: 0;
+    padding: 20px 24px;
+  }
+
+  .account__title {
+    font-size: var(--t-lg);
+  }
+
+  .account__events {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    max-height: 340px;
+    overflow-y: auto;
+    padding-right: 6px;
+    font-size: var(--t-sm);
+  }
+
+  .account__events li {
+    padding-left: 14px;
+    border-left: 2px solid var(--c-line);
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .step {
+    min-width: 48px;
+    min-height: 40px;
+    border: 0;
+    background: var(--c-panel-hi);
+    color: var(--c-ink);
+    cursor: pointer;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    transition: background-color 120ms var(--ease), translate 120ms var(--ease);
+  }
+
+  .step:hover:not(:disabled) {
+    background: var(--c-select);
+    color: var(--c-ground);
+  }
+
+  .step:active:not(:disabled) {
+    translate: 0 1px;
+  }
+
+  .step:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--c-select);
+  }
+
+  .step:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .scrub {
+    flex: 1;
+    accent-color: var(--c-select);
+    min-height: 32px;
+  }
+
+  .console {
+    grid-area: console;
+    display: grid;
+    gap: 10px;
+  }
+
+  .console__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 14px;
+    font-size: var(--t-lg);
+  }
+
+  .console__note {
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+    font-weight: 400;
+  }
+
+  .console__slots {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .moves {
+    padding: 16px 20px 14px;
+  }
+
+  .moves__who {
+    margin-bottom: 8px;
+    font-size: var(--t-md);
+  }
+
+  .moves__list {
+    display: grid;
+    gap: 4px;
+  }
+
+  .move {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 6px 16px 6px 38px;
+    background: var(--c-ground);
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  }
+
+  .move__arrow {
+    position: absolute;
+    left: 8px;
+    width: 22px;
+    height: 22px;
+    opacity: 0;
+  }
+
+  .move[data-chosen] {
+    background: var(--c-panel-hi);
+    outline: 2px solid var(--c-select);
+    outline-offset: -2px;
+  }
+
+  .move[data-chosen] .move__arrow {
+    opacity: 1;
+  }
+
+  .move__name {
+    flex: 1;
+    font-weight: 600;
+  }
+
+  .move[data-protect] .move__name::after {
+    content: ' (Protect)';
+    color: var(--c-native);
+    font-size: var(--t-xs);
+    font-weight: 500;
+  }
+
+  .move[data-protect] .move__pp {
+    color: var(--c-native);
+    font-size: var(--t-md);
+    font-weight: 500;
+  }
+
+  .move[data-disabled] {
+    opacity: 0.45;
+  }
+
+  .move__pp {
+    font-size: var(--t-sm);
+  }
+
+  .moves__note {
+    margin-top: 8px;
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+  }
+
+  .stalled {
+    display: grid;
+    gap: 10px;
+    max-width: 720px;
+    padding: 24px;
+  }
+
+  .provenance {
+    padding: 20px 24px;
+  }
+
+  .provenance h2 {
+    margin-bottom: 12px;
+    font-size: var(--t-lg);
+  }
+
+  .provenance dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px 24px;
+    font-size: var(--t-xs);
+  }
+
+  .provenance dt {
+    color: var(--c-muted);
+  }
+
+  .provenance dd {
+    overflow-wrap: anywhere;
+  }
+
+  .provenance p {
+    margin-top: 14px;
+  }
+
+  :global(html.js) .provenance:not([data-open]) {
+    display: none;
+  }
+
+  .gamelog {
+    display: grid;
+    gap: 12px;
+  }
+
+  .gamelog h2 {
+    font-size: var(--t-lg);
+  }
+
+  .gamelog__turns {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px 24px;
+    font-size: var(--t-sm);
+  }
+
+  .gamelog__turn h3 {
+    margin-bottom: 4px;
+    font-size: var(--t-sm);
+  }
+
+  .gamelog__turn a {
+    color: var(--c-select);
+  }
+
+  .gamelog__turn[data-current] h3 a {
+    color: var(--c-ink);
+  }
+
+  .gamelog__turn ul {
+    display: grid;
+    gap: 2px;
+    color: var(--c-muted);
+  }
+
+  @media (max-width: 1023px) {
+    .battle-grid {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'stage' 'console' 'account';
+    }
+  }
+
+  @media (max-width: 767px) {
+    .row--foe,
+    .row--ally {
+      padding: 0;
+    }
+
+    .row {
+      gap: 10px;
+    }
+
+    .slot {
+      flex-direction: column;
+      align-items: stretch;
+      text-align: left;
+    }
+
+    .slot :global(.sigil) {
+      width: 64px;
+    }
+
+    .slot__guard {
+      left: -6px;
+      top: 34px;
+      width: 76px;
+      height: 76px;
+      margin-top: -38px;
+    }
+
+    .stage {
+      padding: 16px;
+    }
+
+    .console__slots {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cap__num {
+      font-size: var(--t-xl);
+    }
+  }
+</style>

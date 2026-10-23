@@ -1,0 +1,33 @@
+---
+// A stat sigil drawn inline from design/sigils/sigils.json, so the battle script can
+// shrink and drain its shape. `uid` keeps gradient IDs unique on the page.
+import { sigilSheet } from '../lib/data';
+import { AXES, CELL } from '../lib/sigil';
+
+interface Props {
+  species: string | null;
+  uid: string;
+  size?: number;
+  label?: boolean;
+}
+const { species, uid, size = 96, label = true } = Astro.props;
+const sigil = species ? sigilSheet().sigils[species] : undefined;
+const [a, b] = sigil ? [sigil.colors[0], sigil.colors[1] ?? sigil.colors[0]] : ['#4A3F73', '#4A3F73'];
+const tip = sigil?.speedTip ?? [60, 60];
+---
+<svg class="sigil" viewBox="0 0 120 120" width={size} height={size} role={label && sigil ? 'img' : undefined} aria-label={label && species ? `${species} stat sigil` : undefined} aria-hidden={label && sigil ? undefined : 'true'} focusable="false" data-sigil={uid}>
+  <defs>
+    <linearGradient id={`fill-${uid}`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="120" y2="0">
+      <stop offset="0" stop-color={a} data-stop="a" />
+      <stop offset="0.5" stop-color={a} data-stop="a" />
+      <stop offset="0.5" stop-color={b} data-stop="b" />
+      <stop offset="1" stop-color={b} data-stop="b" />
+    </linearGradient>
+  </defs>
+  <polygon points={CELL} fill="#B9B4FF" fill-opacity="0.08" stroke="#B9B4FF" stroke-opacity="0.35" stroke-width="1.5" stroke-linejoin="round" />
+  {AXES.map(([x1, y1, x2, y2]) => <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#B9B4FF" stroke-opacity="0.18" stroke-width="1" />)}
+  <g class="sigil__body" data-body>
+    <polygon class="sigil__shape" data-shape points={sigil?.points ?? CELL} fill={`url(#fill-${uid})`} stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round" opacity={sigil ? 1 : 0} />
+    <line class="sigil__speed" data-speed x1="60" y1="60" x2={tip[0]} y2={tip[1]} stroke="#C8F031" stroke-width="3" stroke-linecap="round" opacity={sigil ? 1 : 0} />
+  </g>
+</svg>

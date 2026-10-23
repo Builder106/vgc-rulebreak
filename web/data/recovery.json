@@ -1,0 +1,1550 @@
+{
+ "schema_version": 1,
+ "opponent": [
+  "HeuristicBaseline"
+ ],
+ "simulator_revision": [
+  "9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e"
+ ],
+ "spec": [
+  "protect-pp"
+ ],
+ "series": [
+  {
+   "agent": "adapted",
+   "variant": "protect-8",
+   "points": [
+    {
+     "generation": 0,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.16666666666666666,
+       "protect_uses": 15,
+       "protect_opportunities": 107,
+       "protect_use_rate": 0.14018691588785046,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 3,
+       "protect_opportunities": 93,
+       "protect_use_rate": 0.03225806451612903,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.27777777777777773,
+      "min": 0.16666666666666666,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.05748166013465983,
+      "min": 0.0,
+      "max": 0.14018691588785046
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 290
+    },
+    {
+     "generation": 1,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.16666666666666666,
+       "protect_uses": 14,
+       "protect_opportunities": 106,
+       "protect_use_rate": 0.1320754716981132,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 3,
+       "protect_opportunities": 93,
+       "protect_use_rate": 0.03225806451612903,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.27777777777777773,
+      "min": 0.16666666666666666,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.054777845404747415,
+      "min": 0.0,
+      "max": 0.1320754716981132
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 289
+    },
+    {
+     "generation": 2,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.125,
+       "protect_uses": 10,
+       "protect_opportunities": 94,
+       "protect_use_rate": 0.10638297872340426,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.2916666666666667,
+       "protect_uses": 3,
+       "protect_opportunities": 88,
+       "protect_use_rate": 0.03409090909090909,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.25,
+      "min": 0.125,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.04682462927143779,
+      "min": 0.0,
+      "max": 0.10638297872340426
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 272
+    },
+    {
+     "generation": 3,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.16666666666666666,
+       "protect_uses": 14,
+       "protect_opportunities": 106,
+       "protect_use_rate": 0.1320754716981132,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 3,
+       "protect_opportunities": 93,
+       "protect_use_rate": 0.03225806451612903,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.27777777777777773,
+      "min": 0.16666666666666666,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.054777845404747415,
+      "min": 0.0,
+      "max": 0.1320754716981132
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 289
+    },
+    {
+     "generation": 4,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.16666666666666666,
+       "protect_uses": 14,
+       "protect_opportunities": 106,
+       "protect_use_rate": 0.1320754716981132,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 3,
+       "protect_opportunities": 93,
+       "protect_use_rate": 0.03225806451612903,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.27777777777777773,
+      "min": 0.16666666666666666,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.054777845404747415,
+      "min": 0.0,
+      "max": 0.1320754716981132
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 289
+    },
+    {
+     "generation": 5,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.16666666666666666,
+       "protect_uses": 14,
+       "protect_opportunities": 106,
+       "protect_use_rate": 0.1320754716981132,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.2916666666666667,
+       "protect_uses": 3,
+       "protect_opportunities": 85,
+       "protect_use_rate": 0.03529411764705882,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.2638888888888889,
+      "min": 0.16666666666666666,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.05578986311505735,
+      "min": 0.0,
+      "max": 0.1320754716981132
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 281
+    },
+    {
+     "generation": 6,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.20833333333333334,
+       "protect_uses": 14,
+       "protect_opportunities": 99,
+       "protect_use_rate": 0.1414141414141414,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 3,
+       "protect_opportunities": 93,
+       "protect_use_rate": 0.03225806451612903,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.2916666666666667,
+      "min": 0.20833333333333334,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.05789073531009015,
+      "min": 0.0,
+      "max": 0.1414141414141414
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 282
+    },
+    {
+     "generation": 7,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.16666666666666666,
+       "protect_uses": 14,
+       "protect_opportunities": 106,
+       "protect_use_rate": 0.1320754716981132,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 3,
+       "protect_opportunities": 93,
+       "protect_use_rate": 0.03225806451612903,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.27777777777777773,
+      "min": 0.16666666666666666,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.054777845404747415,
+      "min": 0.0,
+      "max": 0.1320754716981132
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 289
+    },
+    {
+     "generation": 8,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.16666666666666666,
+       "protect_uses": 14,
+       "protect_opportunities": 106,
+       "protect_use_rate": 0.1320754716981132,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.2916666666666667,
+       "protect_uses": 3,
+       "protect_opportunities": 85,
+       "protect_use_rate": 0.03529411764705882,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.2638888888888889,
+      "min": 0.16666666666666666,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.05578986311505735,
+      "min": 0.0,
+      "max": 0.1320754716981132
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 281
+    },
+    {
+     "generation": 9,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.16666666666666666,
+       "protect_uses": 14,
+       "protect_opportunities": 106,
+       "protect_use_rate": 0.1320754716981132,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 3,
+       "protect_opportunities": 93,
+       "protect_use_rate": 0.03225806451612903,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.27777777777777773,
+      "min": 0.16666666666666666,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.054777845404747415,
+      "min": 0.0,
+      "max": 0.1320754716981132
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 289
+    },
+    {
+     "generation": 10,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.125,
+       "protect_uses": 10,
+       "protect_opportunities": 94,
+       "protect_use_rate": 0.10638297872340426,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 3,
+       "protect_opportunities": 93,
+       "protect_use_rate": 0.03225806451612903,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.2638888888888889,
+      "min": 0.125,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.046213681079844436,
+      "min": 0.0,
+      "max": 0.10638297872340426
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 277
+    }
+   ]
+  },
+  {
+   "agent": "native",
+   "variant": "protect-8",
+   "points": [
+    {
+     "generation": 0,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.3333333333333333,
+      "min": 0.3333333333333333,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 270
+    },
+    {
+     "generation": 1,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.3333333333333333,
+      "min": 0.3333333333333333,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 270
+    },
+    {
+     "generation": 2,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.3333333333333333,
+      "min": 0.3333333333333333,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 270
+    },
+    {
+     "generation": 3,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.3333333333333333,
+      "min": 0.3333333333333333,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 270
+    },
+    {
+     "generation": 4,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.3333333333333333,
+      "min": 0.3333333333333333,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 270
+    },
+    {
+     "generation": 5,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.3333333333333333,
+      "min": 0.3333333333333333,
+      "max": 0.3333333333333333
+     },
+     "protect_use_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 270
+    },
+    {
+     "generation": 6,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.5833333333333334,
+       "protect_uses": 10,
+       "protect_opportunities": 105,
+       "protect_use_rate": 0.09523809523809523,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.4166666666666667,
+      "min": 0.3333333333333333,
+      "max": 0.5833333333333334
+     },
+     "protect_use_rate": {
+      "mean": 0.031746031746031744,
+      "min": 0.0,
+      "max": 0.09523809523809523
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 285
+    },
+    {
+     "generation": 7,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.5833333333333334,
+       "protect_uses": 10,
+       "protect_opportunities": 105,
+       "protect_use_rate": 0.09523809523809523,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.4166666666666667,
+      "min": 0.3333333333333333,
+      "max": 0.5833333333333334
+     },
+     "protect_use_rate": {
+      "mean": 0.031746031746031744,
+      "min": 0.0,
+      "max": 0.09523809523809523
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 285
+    },
+    {
+     "generation": 8,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.5833333333333334,
+       "protect_uses": 10,
+       "protect_opportunities": 105,
+       "protect_use_rate": 0.09523809523809523,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.4166666666666667,
+      "min": 0.3333333333333333,
+      "max": 0.5833333333333334
+     },
+     "protect_use_rate": {
+      "mean": 0.031746031746031744,
+      "min": 0.0,
+      "max": 0.09523809523809523
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 285
+    },
+    {
+     "generation": 9,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.5833333333333334,
+       "protect_uses": 10,
+       "protect_opportunities": 105,
+       "protect_use_rate": 0.09523809523809523,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.4166666666666667,
+      "min": 0.3333333333333333,
+      "max": 0.5833333333333334
+     },
+     "protect_use_rate": {
+      "mean": 0.031746031746031744,
+      "min": 0.0,
+      "max": 0.09523809523809523
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 285
+    },
+    {
+     "generation": 10,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.5833333333333334,
+       "protect_uses": 10,
+       "protect_opportunities": 105,
+       "protect_use_rate": 0.09523809523809523,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 90,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.4166666666666667,
+      "min": 0.3333333333333333,
+      "max": 0.5833333333333334
+     },
+     "protect_use_rate": {
+      "mean": 0.031746031746031744,
+      "min": 0.0,
+      "max": 0.09523809523809523
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 285
+    }
+   ]
+  },
+  {
+   "agent": "source",
+   "variant": "protect-16",
+   "points": [
+    {
+     "generation": 0,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.5,
+       "protect_uses": 1,
+       "protect_opportunities": 130,
+       "protect_use_rate": 0.007692307692307693,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.5,
+       "protect_uses": 1,
+       "protect_opportunities": 130,
+       "protect_use_rate": 0.007692307692307693,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.5,
+       "protect_uses": 1,
+       "protect_opportunities": 130,
+       "protect_use_rate": 0.007692307692307693,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.5,
+      "min": 0.5,
+      "max": 0.5
+     },
+     "protect_use_rate": {
+      "mean": 0.007692307692307693,
+      "min": 0.007692307692307693,
+      "max": 0.007692307692307693
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 390
+    },
+    {
+     "generation": 1,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.25,
+       "protect_uses": 14,
+       "protect_opportunities": 157,
+       "protect_use_rate": 0.08917197452229299,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.4166666666666667,
+       "protect_uses": 0,
+       "protect_opportunities": 144,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.5,
+       "protect_uses": 6,
+       "protect_opportunities": 129,
+       "protect_use_rate": 0.046511627906976744,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.3888888888888889,
+      "min": 0.25,
+      "max": 0.5
+     },
+     "protect_use_rate": {
+      "mean": 0.045227867476423246,
+      "min": 0.0,
+      "max": 0.08917197452229299
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 430
+    },
+    {
+     "generation": 2,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.25,
+       "protect_uses": 14,
+       "protect_opportunities": 157,
+       "protect_use_rate": 0.08917197452229299,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.4166666666666667,
+       "protect_uses": 0,
+       "protect_opportunities": 144,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.5,
+       "protect_uses": 7,
+       "protect_opportunities": 129,
+       "protect_use_rate": 0.05426356589147287,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.3888888888888889,
+      "min": 0.25,
+      "max": 0.5
+     },
+     "protect_use_rate": {
+      "mean": 0.047811846804588616,
+      "min": 0.0,
+      "max": 0.08917197452229299
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 430
+    },
+    {
+     "generation": 3,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.25,
+       "protect_uses": 14,
+       "protect_opportunities": 157,
+       "protect_use_rate": 0.08917197452229299,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.4583333333333333,
+       "protect_uses": 0,
+       "protect_opportunities": 121,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.5833333333333334,
+       "protect_uses": 6,
+       "protect_opportunities": 115,
+       "protect_use_rate": 0.05217391304347826,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.4305555555555556,
+      "min": 0.25,
+      "max": 0.5833333333333334
+     },
+     "protect_use_rate": {
+      "mean": 0.04711529585525708,
+      "min": 0.0,
+      "max": 0.08917197452229299
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 393
+    },
+    {
+     "generation": 4,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.25,
+       "protect_uses": 14,
+       "protect_opportunities": 157,
+       "protect_use_rate": 0.08917197452229299,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.4166666666666667,
+       "protect_uses": 0,
+       "protect_opportunities": 144,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.5,
+       "protect_uses": 6,
+       "protect_opportunities": 129,
+       "protect_use_rate": 0.046511627906976744,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.3888888888888889,
+      "min": 0.25,
+      "max": 0.5
+     },
+     "protect_use_rate": {
+      "mean": 0.045227867476423246,
+      "min": 0.0,
+      "max": 0.08917197452229299
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 430
+    },
+    {
+     "generation": 5,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 12,
+       "protect_opportunities": 150,
+       "protect_use_rate": 0.08,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.4166666666666667,
+       "protect_uses": 0,
+       "protect_opportunities": 144,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.5833333333333334,
+       "protect_uses": 6,
+       "protect_opportunities": 115,
+       "protect_use_rate": 0.05217391304347826,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.4444444444444445,
+      "min": 0.3333333333333333,
+      "max": 0.5833333333333334
+     },
+     "protect_use_rate": {
+      "mean": 0.04405797101449275,
+      "min": 0.0,
+      "max": 0.08
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 409
+    },
+    {
+     "generation": 6,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.25,
+       "protect_uses": 14,
+       "protect_opportunities": 157,
+       "protect_use_rate": 0.08917197452229299,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.4166666666666667,
+       "protect_uses": 0,
+       "protect_opportunities": 144,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.5833333333333334,
+       "protect_uses": 6,
+       "protect_opportunities": 115,
+       "protect_use_rate": 0.05217391304347826,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.4166666666666667,
+      "min": 0.25,
+      "max": 0.5833333333333334
+     },
+     "protect_use_rate": {
+      "mean": 0.04711529585525708,
+      "min": 0.0,
+      "max": 0.08917197452229299
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 416
+    },
+    {
+     "generation": 7,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 11,
+       "protect_opportunities": 150,
+       "protect_use_rate": 0.07333333333333333,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.4166666666666667,
+       "protect_uses": 0,
+       "protect_opportunities": 144,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.5833333333333334,
+       "protect_uses": 6,
+       "protect_opportunities": 115,
+       "protect_use_rate": 0.05217391304347826,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.4444444444444445,
+      "min": 0.3333333333333333,
+      "max": 0.5833333333333334
+     },
+     "protect_use_rate": {
+      "mean": 0.04183574879227053,
+      "min": 0.0,
+      "max": 0.07333333333333333
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 409
+    },
+    {
+     "generation": 8,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.3333333333333333,
+       "protect_uses": 11,
+       "protect_opportunities": 150,
+       "protect_use_rate": 0.07333333333333333,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.4166666666666667,
+       "protect_uses": 0,
+       "protect_opportunities": 144,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.5833333333333334,
+       "protect_uses": 6,
+       "protect_opportunities": 115,
+       "protect_use_rate": 0.05217391304347826,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.4444444444444445,
+      "min": 0.3333333333333333,
+      "max": 0.5833333333333334
+     },
+     "protect_use_rate": {
+      "mean": 0.04183574879227053,
+      "min": 0.0,
+      "max": 0.07333333333333333
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 409
+    },
+    {
+     "generation": 9,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.25,
+       "protect_uses": 13,
+       "protect_opportunities": 157,
+       "protect_use_rate": 0.08280254777070063,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.4166666666666667,
+       "protect_uses": 0,
+       "protect_opportunities": 144,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.5833333333333334,
+       "protect_uses": 6,
+       "protect_opportunities": 115,
+       "protect_use_rate": 0.05217391304347826,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.4166666666666667,
+      "min": 0.25,
+      "max": 0.5833333333333334
+     },
+     "protect_use_rate": {
+      "mean": 0.0449921536047263,
+      "min": 0.0,
+      "max": 0.08280254777070063
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 416
+    },
+    {
+     "generation": 10,
+     "seeds": {
+      "11": {
+       "games": 12,
+       "points_per_game": 0.25,
+       "protect_uses": 14,
+       "protect_opportunities": 157,
+       "protect_use_rate": 0.08917197452229299,
+       "depletion_rate": 0.0
+      },
+      "29": {
+       "games": 12,
+       "points_per_game": 0.4166666666666667,
+       "protect_uses": 0,
+       "protect_opportunities": 144,
+       "protect_use_rate": 0.0,
+       "depletion_rate": 0.0
+      },
+      "47": {
+       "games": 12,
+       "points_per_game": 0.5833333333333334,
+       "protect_uses": 6,
+       "protect_opportunities": 115,
+       "protect_use_rate": 0.05217391304347826,
+       "depletion_rate": 0.0
+      }
+     },
+     "points_per_game": {
+      "mean": 0.4166666666666667,
+      "min": 0.25,
+      "max": 0.5833333333333334
+     },
+     "protect_use_rate": {
+      "mean": 0.04711529585525708,
+      "min": 0.0,
+      "max": 0.08917197452229299
+     },
+     "depletion_rate": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+     },
+     "games": 36,
+     "protect_opportunities": 416
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+---
+// The hint row: every key is a real control. scripts/keys.ts clicks the control whose
+// data-key matches a key press, so keyboard, pointer, and touch share one path.
+export interface Hint {
+  key: string;
+  label: string;
+  href?: string;
+  id?: string;
+  keyLabel?: string;
+  hidden?: boolean;
+  controls?: string;
+}
+interface Props {
+  hints: Hint[];
+}
+const { hints } = Astro.props;
+---
+<nav class="hints" aria-label="Controls">
+  {hints.map((h) =>
+    h.href ? (
+      <a class="hint" href={h.href} data-key={h.key} id={h.id} hidden={h.hidden}>
+        <kbd><svg viewBox="0 0 32 24" preserveAspectRatio="none" aria-hidden="true" focusable="false"><use href="#keycap" /></svg><span>{h.keyLabel ?? h.key}</span></kbd>
+        {h.label}
+      </a>
+    ) : (
+      <button class="hint" type="button" data-key={h.key} id={h.id} hidden={h.hidden} aria-controls={h.controls}>
+        <kbd><svg viewBox="0 0 32 24" preserveAspectRatio="none" aria-hidden="true" focusable="false"><use href="#keycap" /></svg><span>{h.keyLabel ?? h.key}</span></kbd>
+        {h.label}
+      </button>
+    ),
+  )}
+</nav>

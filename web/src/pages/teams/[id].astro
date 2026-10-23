@@ -1,0 +1,220 @@
+---
+import Base from '../../layouts/Base.astro';
+import Sigil from '../../components/Sigil.astro';
+import { AGENT_INFO, AGENTS, battles, teamName, testTeams } from '../../lib/data';
+
+export function getStaticPaths() {
+  return testTeams().map((team) => ({ params: { id: team.id }, props: { team } }));
+}
+
+const { team } = Astro.props;
+const rows = battles().filter((b) => b.candidate_team === team.id);
+const opponents = testTeams().map((t) => t.id);
+const cell = (agent: string, opp: string) => {
+  const games = rows.filter((r) => r.agent === agent && r.opponent_team === opp);
+  return {
+    games: games.length,
+    wins: games.filter((g) => g.result === 'win').length,
+    protect: games.reduce((n, g) => n + g.protect_uses, 0),
+    chances: games.reduce((n, g) => n + g.protect_opportunities, 0),
+  };
+};
+const evs = (e: Record<string, number>) =>
+  Object.entries(e)
+    .filter(([, v]) => v > 0)
+    .map(([k, v]) => `${v} ${({ hp: 'HP', atk: 'Atk', def: 'Def', spa: 'SpA', spd: 'SpD', spe: 'Spe' } as Record<string, string>)[k] ?? k}`)
+    .join(', ');
+const other = testTeams().find((t) => t.id !== team.id);
+
+const hints = [
+  ...(other ? [{ key: 'T', label: teamName(other.id), href: `/teams/${other.id}/` }] : []),
+  { key: 'L', label: 'Battle Log', href: '/log/' },
+  { key: 'Esc', label: 'Study P', href: '/studies/p/' },
+];
+---
+<Base title={`Team: ${teamName(team.id)}`} description={`Open team sheet for ${teamName(team.id)}, a ${team.family} test team in the Protect PP study, with cross-play results for every agent.`} hints={hints}>
+  <div class="team">
+    <p class="screen-tab slant" data-enter><a href="/">Title</a><span aria-hidden="true">/</span><a href="/studies/p/">Study P</a><span aria-hidden="true">/</span><span aria-current="page">Team select</span></p>
+    <header data-enter>
+      <h1>{teamName(team.id)}</h1>
+      <p class="team__lede">A {team.family} archetype from the held-out test split. Agents never trained on it. Sheets are open: every set is listed in full.</p>
+    </header>
+
+    <ol class="sheet">
+      {team.pokemon.map((m, i) => (
+        <li class="member panel" data-enter>
+          <Sigil species={m.species} uid={`team-${i}`} size={84} />
+          <div class="member__body">
+            <h2>{m.species}</h2>
+            <p class="member__line"><span>{m.item}</span><span>{m.ability}</span><span>Tera {m.teraType}</span></p>
+            <ul class="member__moves">{m.moves.map((mv) => <li>{mv}</li>)}</ul>
+            <p class="member__evs mono">{m.nature}, {evs(m.evs)}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <section class="cross" aria-labelledby="cross-title" data-enter>
+      <h2 id="cross-title">Cross-play with this team</h2>
+      <p class="cross__lede">Wins out of games for each agent across all checkpoints, then Protect presses out of legal turns.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">Agent</th>{opponents.map((o) => <th scope="col">vs {teamName(o)}</th>)}</tr>
+          </thead>
+          <tbody>
+            {AGENTS.map((a) => (
+              <tr>
+                <th scope="row"><span class={`agent-${a} agent-swatch`}>{AGENT_INFO[a].name}</span></th>
+                {opponents.map((o) => {
+                  const c = cell(a, o);
+                  return (
+                    <td class="mono">
+                      <span class="cross__wins">{c.wins} / {c.games} wins</span>
+                      <span class="cross__protect">{c.protect} / {c.chances} Protect</span>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .team {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+
+  .screen-tab span[aria-hidden] {
+    opacity: 0.5;
+  }
+
+  h1 {
+    font-size: var(--t-2xl);
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+  }
+
+  .team__lede,
+  .cross__lede {
+    max-width: 62ch;
+    margin-top: 10px;
+    color: var(--c-muted);
+  }
+
+  .sheet {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .member {
+    display: flex;
+    gap: 16px;
+    min-width: 0;
+    padding: 18px;
+  }
+
+  .member :global(.sigil) {
+    flex: none;
+  }
+
+  .member__body {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .member h2 {
+    font-size: var(--t-lg);
+    line-height: 1.15;
+  }
+
+  .member__line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 14px;
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+  }
+
+  .member__moves {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    font-size: var(--t-sm);
+  }
+
+  .member__moves li {
+    padding: 3px 10px;
+    background: var(--c-ground);
+    clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .member__evs {
+    color: var(--c-muted);
+    font-size: var(--t-xs);
+  }
+
+  .cross h2 {
+    font-size: var(--t-lg);
+  }
+
+  .table-wrap {
+    margin-top: 14px;
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 520px;
+    border-collapse: collapse;
+    font-size: var(--t-sm);
+  }
+
+  th,
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--c-line);
+    text-align: left;
+  }
+
+  thead th {
+    color: var(--c-muted);
+    font-size: var(--t-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .cross__wins {
+    display: block;
+  }
+
+  .cross__protect {
+    color: var(--c-muted);
+    font-size: var(--t-xs);
+  }
+
+  @media (max-width: 1023px) {
+    .sheet {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 679px) {
+    .sheet {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

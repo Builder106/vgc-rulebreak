@@ -1,0 +1,156 @@
+---
+import Base from '../../layouts/Base.astro';
+import { totals } from '../../lib/data';
+
+const t = totals();
+const slots = [
+  { code: 'P', name: 'Protect PP', change: 'Protect drops from 16 PP to 8.', href: '/studies/p/', state: `Run: ${t.games.toLocaleString('en-US')} games` },
+  { code: 'R', name: 'Rage Fist', change: 'Rage Fist power under the Champions rules.', state: 'Not run yet' },
+  { code: 'S', name: 'Speed', change: 'Speed tiers and turn order under the new ruleset.', state: 'Not run yet' },
+  { code: 'F', name: 'Full transfer', change: 'Every Champions rule at once, on a dated regulation.', state: 'Not run yet' },
+  { code: 'T', name: 'Tera and Mega', change: 'Terastallization and Mega Evolution.', state: 'Not run yet' },
+];
+const hints = [
+  { key: 'Enter', label: 'Open Study P', href: '/studies/p/' },
+  { key: 'L', label: 'Battle Log', href: '/log/' },
+  { key: 'Esc', label: 'Title', href: '/' },
+];
+---
+<Base title="Regulations" description="The studies planned for VGC Rulebreak. Each changes one rule between Scarlet/Violet and Champions. Only Study P has been run." hints={hints}>
+  <div class="regs">
+    <p class="screen-tab slant" data-enter><a href="/">Title</a><span aria-hidden="true">/</span><span aria-current="page">Regulations</span></p>
+    <h1 data-enter>Each study changes one rule</h1>
+    <p class="regs__lede" data-enter>A study holds teams, opponents, and seeds fixed and changes a single rule between Scarlet/Violet and Champions. Only Study P has results. The rest are planned and shown here so the site never implies more than it has.</p>
+    <ol class="regs__slots">
+      {slots.map((s) => (
+        <li class:list={['reg', 'panel', { 'reg--locked': !s.href }]} data-enter>
+          <p class="reg__code mono" aria-hidden="true">{s.code}</p>
+          <h2 class="reg__name">{s.href ? <a href={s.href}>Study {s.code}: {s.name}</a> : <>Study {s.code}: {s.name}</>}</h2>
+          <p class="reg__change">{s.change}</p>
+          <p class="reg__state">{s.state}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</Base>
+
+<style>
+  .regs {
+    display: grid;
+    gap: 20px;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+
+  .screen-tab span[aria-hidden] {
+    opacity: 0.5;
+  }
+
+  h1 {
+    font-size: var(--t-2xl);
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+  }
+
+  .regs__lede {
+    max-width: 62ch;
+    color: var(--c-muted);
+  }
+
+  .regs__slots {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .reg {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: 10px;
+    min-height: 260px;
+    padding: 20px;
+    transition: background-color 160ms var(--ease), translate 160ms var(--ease);
+  }
+
+  .reg__code {
+    font-size: var(--t-2xl);
+    font-weight: 500;
+    line-height: 1;
+    color: var(--c-native);
+  }
+
+  .reg__name {
+    font-size: var(--t-lg);
+    line-height: 1.2;
+  }
+
+  .reg__name a {
+    text-decoration: none;
+  }
+
+  .reg__name a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .reg:has(a):hover {
+    background: var(--c-panel-hi);
+    translate: 0 -4px;
+  }
+
+  .reg:has(a:focus-visible) {
+    box-shadow: inset 0 0 0 2px var(--c-select);
+  }
+
+  .reg__name a:focus-visible {
+    outline: none;
+  }
+
+  .reg:has(a):active {
+    translate: 0 0;
+  }
+
+  .reg__change {
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+  }
+
+  .reg__state {
+    font-family: var(--f-mono);
+    font-size: var(--t-xs);
+    color: var(--c-select);
+  }
+
+  .reg--locked {
+    background: transparent;
+    outline: 1px dashed var(--c-line);
+    outline-offset: -1px;
+  }
+
+  .reg--locked .reg__code {
+    color: var(--c-muted);
+  }
+
+  .reg--locked .reg__state {
+    color: var(--c-muted);
+  }
+
+  @media (max-width: 1023px) {
+    .regs__slots {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 599px) {
+    .regs__slots {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .reg {
+      min-height: 0;
+    }
+  }
+</style>

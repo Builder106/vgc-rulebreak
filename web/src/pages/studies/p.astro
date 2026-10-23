@@ -1,0 +1,550 @@
+---
+import Base from '../../layouts/Base.astro';
+import { AGENT_INFO, AGENTS, featured, recovery, study, teamName, testTeams, totals, type Agent } from '../../lib/data';
+
+const series = recovery();
+const t = totals();
+const meta = study();
+const fmt = (n: number) => n.toLocaleString('en-US');
+const pct1 = (x: number) => `${(100 * x).toFixed(1)}%`;
+const byAgent = (a: Agent) => series.find((s) => s.agent === a)!;
+const gens = byAgent('source').points.map((p) => p.generation);
+const lastGen = gens[gens.length - 1];
+
+// Chart geometry: one axis, Protect use rate per legal turn.
+const W = 720;
+const H = 340;
+const M = { top: 20, right: 92, bottom: 44, left: 52 };
+const yMax = 0.15;
+const x = (g: number) => M.left + ((W - M.left - M.right) * g) / lastGen;
+const y = (v: number) => M.top + (H - M.top - M.bottom) * (1 - v / yMax);
+const yTicks = [0, 0.05, 0.1, 0.15];
+
+const lines = AGENTS.map((agent) => {
+  const pts = byAgent(agent).points;
+  const line = pts.map((p) => `${x(p.generation).toFixed(1)},${y(p.protect_use_rate.mean).toFixed(1)}`).join(' ');
+  const band = [
+    ...pts.map((p) => `${x(p.generation).toFixed(1)},${y(p.protect_use_rate.max).toFixed(1)}`),
+    ...[...pts].reverse().map((p) => `${x(p.generation).toFixed(1)},${y(p.protect_use_rate.min).toFixed(1)}`),
+  ].join(' ');
+  const last = pts[pts.length - 1];
+  return { agent, line, band, labelY: y(last.protect_use_rate.mean), pts };
+});
+// Keep end labels apart when lines finish close together.
+const sorted = [...lines].sort((a, b) => a.labelY - b.labelY);
+for (let i = 1; i < sorted.length; i++) {
+  if (sorted[i].labelY - sorted[i - 1].labelY < 16) sorted[i].labelY = sorted[i - 1].labelY + 16;
+}
+
+const chartData = gens.map((g) => ({
+  g,
+  values: AGENTS.map((a) => {
+    const p = byAgent(a).points.find((q) => q.generation === g)!;
+    return { agent: a, mean: p.protect_use_rate.mean, min: p.protect_use_rate.min, max: p.protect_use_rate.max, n: p.protect_opportunities };
+  }),
+}));
+
+const ns = series.flatMap((s) => s.points.map((p) => p.protect_opportunities));
+const points = AGENTS.map((a) => {
+  const pts = byAgent(a).points;
+  return { agent: a, first: pts[0].points_per_game.mean, last: pts[pts.length - 1].points_per_game.mean };
+});
+const picks = featured();
+
+const hints = [
+  { key: 'W', label: 'Watch a game', href: picks[0] ? `/battle/${picks[0].id}/` : '/log/' },
+  { key: 'L', label: 'Battle Log', href: '/log/' },
+  { key: 'Esc', label: 'Regulations', href: '/studies/' },
+];
+---
+<Base title="Study P: Protect PP" description={`Under Champions rules Protect has 8 PP instead of 16. Across ${fmt(t.games)} held-out games no agent ran out, so the habit the study looked for never had a chance to form.`} hints={hints}>
+  <article class="study">
+    <p class="screen-tab slant" data-enter><a href="/">Title</a><span aria-hidden="true">/</span><a href="/studies/">Regulations</a><span aria-hidden="true">/</span><span aria-current="page">Study P: Protect PP</span></p>
+
+    <header class="study__head" data-enter>
+      <h1>Did 16 PP habits cost games under 8 PP?</h1>
+      <p class="study__answer">Not in this setup. The cap never bound.</p>
+    </header>
+
+    <div class="study__grid">
+      <figure class="chart panel" data-enter>
+        <figcaption class="chart__head">
+          <h2>Protect use per legal turn, by checkpoint</h2>
+          <ul class="legend" aria-label="Legend">
+            {AGENTS.map((a) => <li><span class={`legend__mark mark-${a}`} aria-hidden="true" />{AGENT_INFO[a].name}, {AGENT_INFO[a].pp} PP</li>)}
+          </ul>
+        </figcaption>
+        <div class="chart__plot" data-chart role="region" aria-label="Protect use chart, scroll horizontally for all generations" tabindex="0">
+          <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="chart-desc" focusable="false">
+            <desc id="chart-desc">Line chart. Protect use per legal turn stays between {pct1(Math.min(...series.flatMap((s) => s.points.map((p) => p.protect_use_rate.mean))))} and {pct1(Math.max(...series.flatMap((s) => s.points.map((p) => p.protect_use_rate.mean))))} for all three agents across training generations 0 to {lastGen}. The table below lists every value.</desc>
+            {yTicks.map((v) => (
+              <g class="grid">
+                <line x1={M.left} x2={W - M.right} y1={y(v)} y2={y(v)} />
+                <text x={M.left - 10} y={y(v)} dy="0.32em" text-anchor="end">{Math.round(v * 100)}%</text>
+              </g>
+            ))}
+            {gens.map((g) => <text class="tick" x={x(g)} y={H - M.bottom + 20} text-anchor="middle">{g}</text>)}
+            <text class="axis-title" x={(M.left + W - M.right) / 2} y={H - 6} text-anchor="middle">Training generation</text>
+            {lines.map((l) => <polygon class={`band band-${l.agent}`} points={l.band} />)}
+            {lines.map((l) => <polyline class={`line line-${l.agent}`} points={l.line} />)}
+            {lines.map((l) => <text class="end-label" x={W - M.right + 10} y={l.labelY} dy="0.32em">{AGENT_INFO[l.agent].name}</text>)}
+            <line class="crosshair" data-crosshair x1="0" x2="0" y1={M.top} y2={H - M.bottom} />
+            {lines.map((l) => <circle class={`dot dot-${l.agent}`} data-dot={l.agent} r="5" cx="-20" cy="-20" />)}
+            <rect class="hit" data-hit x={M.left} y={M.top} width={W - M.left - M.right} height={H - M.top - M.bottom} />
+          </svg>
+          <div class="tip" data-tip hidden></div>
+        </div>
+        <p class="chart__note">Lines are the mean across training seeds 11, 29, and 47. Bands span the lowest and highest seed. Each point pools 36 held-out games against {meta.opponent.join(', ')} on eval seed {meta.eval_seed.join(', ')}, with {fmt(Math.min(...ns))} to {fmt(Math.max(...ns))} legal Protect turns.</p>
+        <details class="chart__table">
+          <summary>Table view</summary>
+          <div class="table-wrap">
+            <table>
+              <caption class="visually-hidden">Protect use per legal turn by agent and generation</caption>
+              <thead><tr><th scope="col">Generation</th>{AGENTS.map((a) => <th scope="col">{AGENT_INFO[a].name} mean (range)</th>)}</tr></thead>
+              <tbody>
+                {chartData.map((row) => (
+                  <tr><th scope="row">{row.g}</th>{row.values.map((v) => <td class="mono">{pct1(v.mean)} ({pct1(v.min)} to {pct1(v.max)}), n {v.n}</td>)}</tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </figure>
+
+      <aside class="facts" aria-label="Key numbers" data-enter>
+        <div class="fact panel">
+          <h2>Ran out of Protect PP</h2>
+          <p class="fact__big mono">{fmt(t.depleted)} <span>of {fmt(t.games)} games</span></p>
+          <p>Agents pressed Protect {fmt(t.protectUses)} times in {fmt(t.protectOpportunities)} turns where it was legal.</p>
+        </div>
+        <div class="fact panel">
+          <h2>Held-out points per game</h2>
+          <ul class="fact__rows">
+            {points.map((p) => <li><span>{AGENT_INFO[p.agent].name}</span><span class="mono">{p.first.toFixed(2)} to {p.last.toFixed(2)}</span></li>)}
+          </ul>
+          <p>Generation 0 to {lastGen}, mean of three seeds. A win is 1 and a loss is 0. One game moves a seed's score by 0.083, so none of these changes is beyond noise.</p>
+        </div>
+        <div class="fact panel">
+          <h2>Stalled games</h2>
+          <p class="fact__big mono">{fmt(t.stalled)}</p>
+          <p>The simulator returned no log. They count as half a point and appear in the Battle Log.</p>
+        </div>
+      </aside>
+    </div>
+
+    <section class="study__next" data-enter>
+      <h2>What would make this testable</h2>
+      <p>The study needs games where 8 PP actually runs out. That means longer games, an opponent that rewards Protect, and more evaluation games per checkpoint, enough to see a change of a few points. Until then, the right reading is that this setup cannot answer the question, not that the habit does not exist.</p>
+    </section>
+
+    <section class="study__games" aria-labelledby="games-title" data-enter>
+      <h2 id="games-title">Games to watch</h2>
+      <p class="study__rule">Selection rule: for each agent, the generation {lastGen} game with the most Protect presses. Ties go to the lowest battle number.</p>
+      <ul class="menu">
+        {picks.map((b) => (
+          <li><a href={`/battle/${b.id}/`} data-note={`${b.protect_uses} Protect, ${b.turns} turns`}><svg class="cursor-arrow" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#cursor-arrow" /></svg>Battle {b.id}: {AGENT_INFO[b.agent].name}, seed {b.seed}</a></li>
+        ))}
+      </ul>
+      <p class="study__teams">Test teams: {testTeams().map((tm, i) => <>{i > 0 && ' and '}<a href={`/teams/${tm.id}/`}>{teamName(tm.id)}</a></>)}. Data: <a href="https://github.com/Builder106/vgc-rulebreak/blob/main/web/data/recovery.json">recovery.json</a>.</p>
+    </section>
+  </article>
+  <script type="application/json" id="chart-data" set:html={JSON.stringify({ data: chartData, names: Object.fromEntries(AGENTS.map((a) => [a, AGENT_INFO[a].name])), x: gens.map(x), scale: { top: M.top, bottom: H - M.bottom, max: yMax }, W })} />
+</Base>
+
+<script>
+  import { onPage } from '../../engine';
+
+  interface Row {
+    g: number;
+    values: { agent: string; mean: number; min: number; max: number; n: number }[];
+  }
+
+  onPage(() => {
+    const plot = document.querySelector<HTMLElement>('[data-chart]');
+    const raw = document.getElementById('chart-data')?.textContent;
+    if (!plot || !raw) return;
+    const { data, names, x, scale, W } = JSON.parse(raw) as {
+      data: Row[];
+      names: Record<string, string>;
+      x: number[];
+      scale: { top: number; bottom: number; max: number };
+      W: number;
+    };
+    const svg = plot.querySelector('svg')!;
+    const hit = plot.querySelector<SVGRectElement>('[data-hit]')!;
+    const cross = plot.querySelector<SVGLineElement>('[data-crosshair]')!;
+    const tip = plot.querySelector<HTMLElement>('[data-tip]')!;
+    const y = (v: number) => scale.top + (scale.bottom - scale.top) * (1 - v / scale.max);
+
+    const show = (clientX: number) => {
+      const box = svg.getBoundingClientRect();
+      const vx = ((clientX - box.left) / box.width) * W;
+      let i = 0;
+      x.forEach((px, k) => {
+        if (Math.abs(px - vx) < Math.abs(x[i] - vx)) i = k;
+      });
+      const row = data[i];
+      cross.setAttribute('x1', String(x[i]));
+      cross.setAttribute('x2', String(x[i]));
+      cross.classList.add('is-on');
+      row.values.forEach((v) => {
+        const dot = plot.querySelector<SVGCircleElement>(`[data-dot="${v.agent}"]`)!;
+        dot.setAttribute('cx', String(x[i]));
+        dot.setAttribute('cy', String(y(v.mean)));
+      });
+      tip.replaceChildren(
+        Object.assign(document.createElement('strong'), { textContent: `Generation ${row.g}` }),
+        ...row.values.map((v) => {
+          const li = document.createElement('p');
+          li.innerHTML = `<span class="tip__mark mark-${v.agent}"></span>${names[v.agent]} <b>${(100 * v.mean).toFixed(1)}%</b> <small>${(100 * v.min).toFixed(1)} to ${(100 * v.max).toFixed(1)}, n ${v.n}</small>`;
+          return li;
+        }),
+      );
+      tip.hidden = false;
+      const left = (x[i] / W) * box.width;
+      tip.style.left = `${Math.min(Math.max(left, 110), box.width - 110)}px`;
+    };
+    const hide = () => {
+      tip.hidden = true;
+      cross.classList.remove('is-on');
+      plot.querySelectorAll('[data-dot]').forEach((d) => d.setAttribute('cx', '-20'));
+    };
+    const onMove = (e: PointerEvent) => show(e.clientX);
+    hit.addEventListener('pointermove', onMove);
+    hit.addEventListener('pointerdown', onMove);
+    hit.addEventListener('pointerleave', hide);
+    return () => {
+      hit.removeEventListener('pointermove', onMove);
+      hit.removeEventListener('pointerdown', onMove);
+      hit.removeEventListener('pointerleave', hide);
+    };
+  });
+</script>
+
+<style>
+  .study {
+    display: grid;
+    gap: 28px;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+
+  .screen-tab span[aria-hidden] {
+    opacity: 0.5;
+  }
+
+  .study__head h1 {
+    max-width: 22ch;
+    font-size: var(--t-2xl);
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+
+  .study__answer {
+    margin-top: 12px;
+    color: var(--c-select);
+    font-size: var(--t-xl);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .study__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) minmax(260px, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+
+  .chart {
+    display: grid;
+    gap: 14px;
+    padding: 22px 24px;
+  }
+
+  .chart__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+  }
+
+  .chart__head h2 {
+    font-size: var(--t-lg);
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: var(--t-sm);
+  }
+
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .legend__mark,
+  :global(.tip__mark) {
+    display: inline-block;
+    width: 18px;
+    height: 3px;
+    border-radius: 2px;
+  }
+
+  .mark-source,
+  :global(.tip__mark.mark-source) {
+    background: #d9721a;
+  }
+
+  .mark-native,
+  :global(.tip__mark.mark-native) {
+    background: #1aa4c0;
+  }
+
+  .mark-adapted,
+  :global(.tip__mark.mark-adapted) {
+    background: #9573f7;
+  }
+
+  .chart__plot {
+    position: relative;
+    overflow-x: auto;
+  }
+
+  .chart__plot svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .grid line {
+    stroke: var(--c-line);
+    stroke-width: 1;
+  }
+
+  .grid text,
+  .tick,
+  .axis-title {
+    fill: var(--c-muted);
+    font-family: var(--f-mono);
+    font-size: 12px;
+  }
+
+  .axis-title {
+    font-family: var(--f-ui);
+  }
+
+  .band {
+    opacity: 0.16;
+  }
+
+  .line {
+    fill: none;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  .band-source { fill: #d9721a; }
+  .band-native { fill: #1aa4c0; }
+  .band-adapted { fill: #9573f7; }
+  .line-source { stroke: #d9721a; }
+  .line-native { stroke: #1aa4c0; }
+  .line-adapted { stroke: #9573f7; }
+  .dot-source { fill: #d9721a; }
+  .dot-native { fill: #1aa4c0; }
+  .dot-adapted { fill: #9573f7; }
+
+  .dot {
+    stroke: var(--c-panel);
+    stroke-width: 2;
+  }
+
+  .end-label {
+    fill: var(--c-ink);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .crosshair {
+    stroke: var(--c-muted);
+    stroke-dasharray: 3 3;
+    opacity: 0;
+  }
+
+  :global(.crosshair.is-on) {
+    opacity: 1;
+  }
+
+  .hit {
+    fill: transparent;
+    cursor: crosshair;
+  }
+
+  .tip {
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    display: grid;
+    gap: 2px;
+    width: 220px;
+    padding: 10px 12px;
+    background: var(--c-ground);
+    border: 1px solid var(--c-line);
+    font-size: var(--t-xs);
+    pointer-events: none;
+    translate: -50% 0;
+  }
+
+  .tip[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 600px) {
+    .chart__plot svg {
+      min-width: 620px;
+    }
+  }
+
+  .tip :global(p) {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tip :global(small) {
+    width: 100%;
+    padding-left: 24px;
+    color: var(--c-muted);
+  }
+
+  .chart__note {
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+  }
+
+  .chart__table summary {
+    width: fit-content;
+    min-height: 32px;
+    color: var(--c-select);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .table-wrap {
+    margin-top: 10px;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--t-xs);
+  }
+
+  th,
+  td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--c-line);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  thead th {
+    color: var(--c-muted);
+  }
+
+  .facts {
+    display: grid;
+    gap: 16px;
+  }
+
+  .fact {
+    display: grid;
+    gap: 8px;
+    padding: 18px 22px;
+    font-size: var(--t-sm);
+  }
+
+  .fact h2 {
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+    font-weight: 600;
+  }
+
+  .fact__big {
+    font-size: var(--t-xl);
+    font-weight: 500;
+    line-height: 1.1;
+  }
+
+  .fact__big span {
+    color: var(--c-muted);
+    font-family: var(--f-ui);
+    font-size: var(--t-md);
+  }
+
+  .fact__rows {
+    display: grid;
+    gap: 4px;
+    font-size: var(--t-md);
+  }
+
+  .fact__rows li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .study__next {
+    display: grid;
+    gap: 10px;
+    max-width: 72ch;
+  }
+
+  .study__next h2,
+  .study__games h2 {
+    font-size: var(--t-lg);
+  }
+
+  .study__next p {
+    color: var(--c-muted);
+  }
+
+  .study__games {
+    display: grid;
+    gap: 12px;
+    max-width: 760px;
+  }
+
+  .study__rule,
+  .study__teams {
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+  }
+
+  .study__teams a {
+    color: var(--c-ink);
+  }
+
+  @media (max-width: 1023px) {
+    .study__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .chart {
+      padding: 16px;
+    }
+
+    .menu a {
+      font-size: var(--t-md);
+      flex-wrap: wrap;
+    }
+  }
+</style>

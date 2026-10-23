@@ -1,5 +1,15 @@
 # Journal
 
+## 2026-10-23: Build the local Champions client showcase #milestone
+
+The Astro showcase now builds a title screen, Study P, Battle Log, two team sheets, an about page, a 404 page, and one battle page for each of the 1,188 evaluated games. `export-showcase` reads the 99 checkpoint runs and writes a 5.2 MB static export under `web/data/`. The Battle Log includes all seven games that stalled before turn 1 and labels their missing logs plainly. No recovery curve is shown: none of these games depleted Protect PP.
+
+Each battle page shows the field after a turn and the choices and available PP from before that turn. The distinction matters when a turn knocks out or switches a Pokémon; showing the opening field beside the full turn account gave a contradictory picture. The exporter records both snapshots. Keyboard shortcuts, touch controls, query-string turn links, a text account, and provenance work from the same static page.
+
+The title image and stat sigils are original assets. A browser render of the finding and agent lineup supplies `web/public/og.png`. A real deployment origin must be supplied as `SITE_URL`; local builds omit canonical and sitemap tags instead of publishing a placeholder domain. The showcase has not been deployed. The browser suite covers navigation, filtering, mobile widths, replay state, and automated accessibility checks, and the CI workflow is configured to run it after the static checks and build.
+
+Linux ARM64 verification passed: Python type, lint, and format checks; 92 Python tests; wheel validation; dependency audits; Astro check and lint; a 1,196-page build; and all five browser tests. The browser suite found no automated WCAG A or AA violations on the title and battle screens.
+
 ## 2026-10-23: First Protect training shows no habit to recover #result
 
 `train` now fits the five Protect-score parameters of `TrainedProtectAgent` with the cross-entropy method against `HeuristicBaseline`, using the training split only. Each run had 10 generations, a population of 10, and 3 elites, with one mirrored pair per matchup. Source runs train under 16 Protect PP and native runs under 8, both starting from the heuristic's parameters. Adapted runs continue from the final source checkpoint under 8 PP. There were three seeds per agent (11, 29, 47). Each checkpoint was then evaluated on held-out eval seed 101 with two pairs per team matchup, 12 games per seed, and `summarize-recovery` turned those results into one series per agent.

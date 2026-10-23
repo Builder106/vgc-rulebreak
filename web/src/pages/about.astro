@@ -1,0 +1,117 @@
+---
+import Base from '../layouts/Base.astro';
+import { study, totals } from '../lib/data';
+
+const meta = study();
+const t = totals();
+const fmt = (n: number) => n.toLocaleString('en-US');
+const repo = 'https://github.com/Builder106/vgc-rulebreak';
+const hints = [
+  { key: 'P', label: 'Study P', href: '/studies/p/' },
+  { key: 'L', label: 'Battle Log', href: '/log/' },
+  { key: 'Esc', label: 'Title', href: '/' },
+];
+---
+<Base title="About this study" description="How the VGC Rulebreak Protect PP study was run: agents, training, evaluation, data, and what the showcase does and does not claim." hints={hints}>
+  <article class="about">
+    <p class="screen-tab slant" data-enter><a href="/">Title</a><span aria-hidden="true">/</span><span aria-current="page">About this study</span></p>
+    <h1 data-enter>About this study</h1>
+
+    <section data-enter>
+      <h2>The question</h2>
+      <p>Pokémon Champions gives Protect 8 PP instead of the 16 it has in Scarlet/Violet. Players who learned doubles on 16 PP may press Protect out of habit and run dry. VGC Rulebreak asks whether agents show that habit, and whether it costs games.</p>
+    </section>
+
+    <section data-enter>
+      <h2>Agents and training</h2>
+      <p>All three agents share one heuristic doubles policy and differ only in how they score Protect: five numbers covering the base score, a low-HP bonus and its threshold, and how fast the score drops as PP runs short. Training fits those numbers with the cross-entropy method against a fixed baseline on the training teams.</p>
+      <ul>
+        <li><strong>Source</strong> trains with 16 PP, starting from the heuristic's own numbers.</li>
+        <li><strong>Native</strong> trains with 8 PP from the same start.</li>
+        <li><strong>Adapted</strong> starts from Source's final checkpoint and keeps training with 8 PP.</li>
+      </ul>
+      <p>Each agent trained on three seeds for 10 generations. Both games of a training pair share one battle seed with the seats swapped, so seat luck cancels out.</p>
+    </section>
+
+    <section data-enter>
+      <h2>Evaluation</h2>
+      <p>Every checkpoint played 12 games on the held-out test teams against {meta.opponent.join(', ')} with eval seed {meta.eval_seed.join(', ')}: {fmt(t.checkpoints)} checkpoints and {fmt(t.games)} games. Each game records its protocol log, every decision with the request the agent saw, and how the game ended. {fmt(t.stalled)} games stalled before turn 1 and have no log.</p>
+    </section>
+
+    <section data-enter>
+      <h2>What this site claims</h2>
+      <p>Only what the recorded games show. The battle screen displays the move an agent actually chose and the PP it was offered. It never suggests a better move, because that would need repeated rollouts from the same position, which this study has not run. Agent behavior is described from recorded actions, not from guesses about what an agent intended.</p>
+    </section>
+
+    <section data-enter>
+      <h2>Data and code</h2>
+      <ul>
+        <li><a href={`${repo}`}>Source code and journal</a></li>
+        <li><a href={`${repo}/tree/main/web/data`}>Exported games and recovery series</a></li>
+        <li>Simulator: Pokémon Showdown at revision <span class="mono">{meta.simulator_revision[0].slice(0, 12)}</span></li>
+      </ul>
+    </section>
+
+    <section data-enter>
+      <h2>Art and trademarks</h2>
+      <p>This is unofficial fan research, not affiliated with or endorsed by Nintendo, Game Freak, Creatures, or The Pokémon Company. Pokémon names are used to identify species. The site uses no Pokémon artwork: each species appears as a stat sigil drawn from its base stats, and the three agents are original characters.</p>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .about {
+    display: grid;
+    gap: 26px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .screen-tab {
+    justify-self: start;
+  }
+
+  .screen-tab span[aria-hidden] {
+    opacity: 0.5;
+  }
+
+  h1 {
+    font-size: var(--t-2xl);
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+  }
+
+  section {
+    display: grid;
+    gap: 10px;
+  }
+
+  h2 {
+    font-size: var(--t-lg);
+  }
+
+  p,
+  li {
+    color: var(--c-muted);
+  }
+
+  strong {
+    color: var(--c-ink);
+  }
+
+  ul {
+    display: grid;
+    gap: 6px;
+    padding-left: 18px;
+    list-style: square;
+  }
+
+  a {
+    color: var(--c-ink);
+    text-underline-offset: 3px;
+  }
+
+  a:hover {
+    color: var(--c-select);
+  }
+</style>

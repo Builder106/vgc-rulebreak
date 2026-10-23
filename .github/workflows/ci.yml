@@ -47,6 +47,35 @@ jobs:
       - name: Audit dependencies
         run: uv run pip-audit --strict --disable-pip --require-hashes --cache-dir /tmp/vgc-rulebreak-audit-cache --requirement /tmp/vgc-rulebreak-requirements.txt
 
+  showcase:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install locked frontend dependencies
+        working-directory: web
+        run: npm ci
+      - name: Check frontend types and markup
+        working-directory: web
+        run: npm run check
+      - name: Lint frontend and reject deprecated APIs
+        working-directory: web
+        run: npm run lint
+      - name: Build static showcase
+        working-directory: web
+        run: npm run build
+      - name: Install Chromium
+        working-directory: web
+        run: npx playwright install --with-deps chromium
+      - name: Test browser interactions and accessibility
+        working-directory: web
+        run: npm run test:browser
+
   secrets:
     runs-on: ubuntu-24.04
     timeout-minutes: 5

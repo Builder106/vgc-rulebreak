@@ -1,6 +1,6 @@
 # Public showcase brief
 
-The first screen asks: "Which Scarlet/Violet habits cost you games in Champions?" A reader can watch an evaluated match, inspect the costly decision, and open the experiment behind it.
+The first screen reports what the Protect study found: across 1,188 held-out games, no agent ran out of Protect. A reader can replay a game and trace its choices and scores to the recorded artifacts. Claims about costly alternatives still need repeated rollouts.
 
 ## Blunder Replay
 
@@ -20,4 +20,4 @@ Show legal, dated reference teams with open team sheets. Include complete cross-
 
 The interface needs readable battle states, keyboard replay navigation, useful mobile controls, and a link from every score to its provenance. Provide a text account of replay events alongside the visual board. Keep explanations grounded in recorded behavior rather than invented agent thoughts.
 
-The visual implementation starts after the first evaluated result. No live demo or deployment is claimed by this scaffold. Add browser interaction and accessibility checks with the first rendered interface.
+The local Astro showcase now has battle replay, a Protect-use chart, team sheets, and a filterable game log. Browser interaction and automated accessibility checks are in `web/tests/`. The repeated-rollout explanations above and a hosted demo remain open.

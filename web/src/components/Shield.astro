@@ -1,0 +1,21 @@
+---
+// The Protect shield (design/ui/shield.svg). Under 8 PP the right half rests cracked away:
+// that is the no-JS and reduced-motion state. The battle script plays the crack on entry.
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+interface Props {
+  cap: number;
+  size?: number;
+}
+const { cap, size = 72 } = Astro.props;
+let svg = readFileSync(resolve(process.cwd(), 'design/ui/shield.svg'), 'utf8')
+  .replace('width="160" height="160"', `width="${size}" height="${size}" class="shield" aria-hidden="true" focusable="false" data-shield data-cap="${cap}"`)
+  .replaceAll('id="', 'data-part="');
+if (cap === 8) {
+  svg = svg
+    .replace('data-part="shield-right"', 'data-part="shield-right" transform="translate(14 10) rotate(9 108 80)" opacity="0.35"')
+    .replace('data-part="shield-seam"', 'data-part="shield-seam" opacity="0"');
+}
+---
+<Fragment set:html={svg} />

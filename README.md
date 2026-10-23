@@ -12,11 +12,11 @@ The first study isolates Protect's 16-versus-8 PP allowance. Later studies cover
 
 ## Project status
 
-The scaffold includes a Python CLI, a draft Protect experiment, tests, locked development tools, and CI. Simulator integration, training, results, and the public demo are upcoming work. There are no measured performance claims yet.
+The first Protect study has 99 checkpoints and 1,188 held-out games. No agent ran out of Protect PP, so this setup cannot show whether a 16 PP habit hurts under an 8 PP cap. The local [showcase](web/DESIGN.md) presents that result, every recorded game, and the open team sheets. It has not been deployed.
 
 Read the [research plan](RESEARCH.md), [roadmap](ROADMAP.md), and [showcase brief](docs/showcase.md).
 
-## Try the scaffold
+## Run the study tools
 
 Use Python 3.12 and uv 0.12.5:
 
@@ -49,9 +49,25 @@ uv run vgc-rulebreak check experiments/protect-pp.json --require-ready
 
 This exits with code 1 while the draft has missing declarations. See [CONTRIBUTING.md](CONTRIBUTING.md) for all checks and exit codes.
 
+## Run the showcase
+
+The static site is in `web/`. Install its locked dependencies, check the source, build it, and run the browser suite:
+
+```sh
+cd web
+npm ci
+npm run check
+npm run lint
+npm run build
+npx playwright install chromium
+npm run test:browser
+```
+
+The committed `web/data/` export contains all 1,188 battle records. To regenerate it from evaluation runs, use `vgc-rulebreak export-showcase` with `--runs` pointing at the evaluation directory and `--output web/data`. The export reads move names from the pinned Showdown checkout. Set `SITE_URL` to the public origin when building for deployment; without it, the build omits canonical URLs and the sitemap.
+
 ## Current flow
 
-A draft Protect specification goes through the Python validator, which returns a JSON summary and lists declarations that still need to be filled in. Deterministic simulator fixtures verify rule mechanics before agent training begins.
+The specification validator and deterministic simulator fixtures verify the rules before training. The training and evaluation commands record checkpoints and games, then `export-showcase` turns those artifacts into the static data that Astro builds into the site.
 
 ## Repository layout
 
@@ -60,12 +76,13 @@ A draft Protect specification goes through the Python validator, which returns a
 | `src/vgc_rulebreak/` | Specification validation, simulator adapter, fixtures, and CLI |
 | `experiments/` | Versioned study specifications |
 | `tests/` | Control-validation and CLI checks |
+| `web/` | Static showcase, exported games, and browser checks |
 | `RESEARCH.md` | Questions, controls, evaluation, and sources |
 | `ROADMAP.md` | Implementation milestones and exit criteria |
 | `docs/showcase.md` | Blunder Replay, Habit Recovery, and Matchup Desk brief |
 | `JOURNAL.md` | Decisions behind the project |
 
-Datasets, checkpoints, raw replays, and generated reports are ignored by Git. Add simulator and learning dependencies with their first implementation milestone.
+Training data, checkpoints, raw evaluation replays, and generated reports are ignored by Git. The compact `web/data/` export is kept in the repository so each public battle page can be rebuilt from the recorded games.
 
 ## License
 

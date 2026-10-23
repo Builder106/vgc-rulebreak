@@ -1,0 +1,65 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import Kit from '../components/Kit.astro';
+import Hints, { type Hint } from '../components/Hints.astro';
+import '../styles/tokens.css';
+import '../styles/base.css';
+
+interface Props {
+  title: string;
+  description: string;
+  hints: Hint[];
+}
+const { title, description, hints } = Astro.props;
+const siteName = 'VGC Rulebreak';
+const fullTitle = title === siteName ? `${siteName}: does losing 8 Protect PP break a habit?` : `${title} | ${siteName}`;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL('og.png', Astro.site).href : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Dataset',
+  name: 'VGC Rulebreak Protect PP study',
+  description: 'Evaluated doubles games from agents trained under 16 and 8 Protect PP, with replays and provenance.',
+  url: canonical,
+  isAccessibleForFree: true,
+};
+---
+<!doctype html>
+<html lang="en" transition:animate="none">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta name="theme-color" content="#17112B" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {Astro.site && <link rel="sitemap" href="/sitemap-index.xml" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && <meta name="twitter:card" content="summary_large_image" />}
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
+    </script>
+    <ClientRouter fallback="swap" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div id="curtain" transition:persist="curtain" aria-hidden="true"><div class="curtain__panel"></div></div>
+    <Kit />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Hints hints={hints} />
+    <script>
+      import { start } from '../engine/astro';
+      import '../scripts/keys';
+      start();
+    </script>
+  </body>
+</html>

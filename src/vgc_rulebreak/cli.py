@@ -239,6 +239,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     recovery_cmd.add_argument("--output", type=Path, required=True)
 
+    # Subcommand: export-showcase
+    showcase_cmd = subcommands.add_parser(
+        "export-showcase",
+        help="export evaluated games and recovery series as static data for the showcase",
+    )
+    showcase_cmd.add_argument(
+        "--runs", type=Path, required=True, help="directory searched for results.json files"
+    )
+    showcase_cmd.add_argument("--output", type=Path, required=True, help="output directory")
+    showcase_cmd.add_argument(
+        "--showdown-dir", type=Path, default=None, help="path to local pokemon-showdown checkout"
+    )
+
     # Subcommand: compare-agents
     comp_cmd = subcommands.add_parser(
         "compare-agents",
@@ -531,6 +544,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.output.write_text(json.dumps(dataset, indent=2) + "\n", encoding="utf-8")
         points = sum(len(s["points"]) for s in dataset["series"])
         print(f"Wrote {len(dataset['series'])} series, {points} points to {args.output}")
+        return 0
+
+    if args.command == "export-showcase":
+        from vgc_rulebreak.showcase import export_showcase, load_dex_names
+        from vgc_rulebreak.simulator.process import ShowdownProcess
+
+        try:
+            showdown_dir = ShowdownProcess._resolve_showdown_dir(args.showdown_dir)
+        except FileNotFoundError as exc:
+            print(exc, file=sys.stderr)
+            return 2
+        meta = export_showcase(
+            args.runs, args.output, lambda ids: load_dex_names(showdown_dir, ids)
+        )
+        if not meta["games"]:
+            print(f"No checkpoint evaluations found under {args.runs}", file=sys.stderr)
+            return 2
+        print(f"Wrote {meta['games']} battles from {meta['checkpoints']} runs to {args.output}")
         return 0
 
     if args.command == "compare-agents":

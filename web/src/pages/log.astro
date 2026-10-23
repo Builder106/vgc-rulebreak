@@ -1,0 +1,470 @@
+---
+import Base from '../layouts/Base.astro';
+import { AGENT_INFO, AGENTS, battles, ppCap, resultWord, teamName, totals } from '../lib/data';
+
+const rows = battles();
+const t = totals();
+const fmt = (n: number) => n.toLocaleString('en-US');
+const gens = [...new Set(rows.map((r) => r.generation))].sort((a, b) => a - b);
+const seeds = [...new Set(rows.map((r) => r.seed))].sort((a, b) => a - b);
+const outcome = (r: (typeof rows)[number]) => (r.end_reason === 'stalled' ? 'stalled' : r.result);
+
+const hints = [
+  { key: 'F', label: 'Filters', id: 'hint-filters' },
+  { key: 'P', label: 'Study P', href: '/studies/p/' },
+  { key: 'Esc', label: 'Title', href: '/' },
+];
+---
+<Base title="Battle Log" description={`All ${fmt(t.games)} evaluated games from the Protect PP study, filterable by agent, ruleset, seed, generation, and result. Every row opens a full replay.`} hints={hints}>
+  <div class="log">
+    <p class="screen-tab slant" data-enter><a href="/">Title</a><span aria-hidden="true">/</span><span aria-current="page">Battle Log</span></p>
+    <header class="log__head" data-enter>
+      <h1>Battle Log</h1>
+      <p class="log__lede">Every evaluated game: {fmt(t.checkpoints)} checkpoints, 12 games each, all against the held-out baseline. Open a row to replay it turn by turn.</p>
+    </header>
+
+    <form class="filters panel" id="filters" aria-label="Filter games" data-filters data-enter>
+      <fieldset>
+        <legend>Agent</legend>
+        <div class="chips">
+          <label><input type="radio" name="agent" value="" checked /><span>All</span></label>
+          {AGENTS.map((a) => <label><input type="radio" name="agent" value={a} /><span>{AGENT_INFO[a].name}</span></label>)}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Result</legend>
+        <div class="chips">
+          <label><input type="radio" name="result" value="" checked /><span>All</span></label>
+          <label><input type="radio" name="result" value="win" /><span>Win</span></label>
+          <label><input type="radio" name="result" value="loss" /><span>Loss</span></label>
+          <label><input type="radio" name="result" value="stalled" /><span>Stalled</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Protect</legend>
+        <div class="chips">
+          <label><input type="radio" name="protect" value="" checked /><span>All</span></label>
+          <label><input type="radio" name="protect" value="used" /><span>Used</span></label>
+          <label><input type="radio" name="protect" value="none" /><span>Never</span></label>
+        </div>
+      </fieldset>
+      <label class="select">
+        <span>Seed</span>
+        <select name="seed">
+          <option value="">All</option>
+          {seeds.map((s) => <option value={s}>{s}</option>)}
+        </select>
+      </label>
+      <label class="select">
+        <span>Generation</span>
+        <select name="gen">
+          <option value="">All</option>
+          {gens.map((g) => <option value={g}>{g}</option>)}
+        </select>
+      </label>
+      <p class="filters__count" aria-live="polite" data-count>{fmt(rows.length)} games</p>
+    </form>
+
+    <div class="table-wrap" data-enter>
+      <table class="games" data-games>
+        <caption class="visually-hidden">Evaluated games. Column headers sort the table.</caption>
+        <thead>
+          <tr>
+            <th scope="col" aria-sort="ascending"><button type="button" data-sort="id">Battle</button></th>
+            <th scope="col"><button type="button" data-sort="agent">Agent</button></th>
+            <th scope="col"><button type="button" data-sort="seed">Seed</button></th>
+            <th scope="col"><button type="button" data-sort="gen">Gen</button></th>
+            <th scope="col">Rules</th>
+            <th scope="col">Teams</th>
+            <th scope="col"><button type="button" data-sort="result">Result</button></th>
+            <th scope="col"><button type="button" data-sort="turns">Turns</button></th>
+            <th scope="col"><button type="button" data-sort="protect">Protect</button></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr data-agent={r.agent} data-seed={r.seed} data-gen={r.generation} data-result={outcome(r)} data-turns={r.turns} data-protect={r.protect_uses} data-id={r.id}>
+              <th scope="row"><a href={`/battle/${r.id}/`} class="mono">{r.id}</a></th>
+              <td><span class={`agent-${r.agent} agent-name`}>{AGENT_INFO[r.agent].name}</span></td>
+              <td class="mono" data-label="Seed">{r.seed}</td>
+              <td class="mono" data-label="Gen">{r.generation}</td>
+              <td class="mono" data-label="Rules">{ppCap(r.variant)} PP</td>
+              <td class="teams" data-label="Teams">{teamName(r.candidate_team)} vs {teamName(r.opponent_team)}</td>
+              <td class={`result-${outcome(r) === 'stalled' ? 'unfinished' : r.result}`} data-label="Result">{outcome(r) === 'stalled' ? 'Stalled' : resultWord[r.result]}</td>
+              <td class="mono" data-label="Turns">{r.turns}</td>
+              <td class="mono" data-label="Protect">{r.protect_uses} / {r.protect_opportunities}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p class="log__empty" data-empty hidden>No games match these filters.</p>
+    </div>
+    <p class="log__note">Protect shows presses out of the turns where Protect was legal for the agent. No game in the log ran out of Protect PP.</p>
+  </div>
+</Base>
+
+<script>
+  import { onPage } from '../engine';
+
+  const FILTERS = ['agent', 'result', 'protect', 'seed', 'gen'] as const;
+  const AGENT_ORDER = ['source', 'native', 'adapted'];
+  const RESULT_ORDER = ['win', 'loss', 'tie', 'stalled', 'unfinished'];
+
+  onPage(() => {
+    const form = document.querySelector<HTMLFormElement>('[data-filters]');
+    const table = document.querySelector<HTMLTableElement>('[data-games]');
+    if (!form || !table) return;
+    const gamesTable = table;
+    const tbody = gamesTable.tBodies[0];
+    const rows = [...tbody.rows];
+    const count = document.querySelector<HTMLElement>('[data-count]')!;
+    const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+    let sortKey = 'id';
+    let sortDir = 1;
+
+    const params = new URLSearchParams(location.search);
+    for (const name of FILTERS) {
+      const value = params.get(name);
+      if (value === null) continue;
+      const field = form.elements.namedItem(name);
+      if (field instanceof RadioNodeList || field instanceof HTMLSelectElement) field.value = value;
+    }
+    if (params.get('sort')) {
+      sortKey = params.get('sort')!.replace(/^-/, '');
+      sortDir = params.get('sort')!.startsWith('-') ? -1 : 1;
+    }
+
+    const value = (name: string) => {
+      const field = form.elements.namedItem(name);
+      return field instanceof RadioNodeList || field instanceof HTMLSelectElement ? field.value : '';
+    };
+
+    const key = (tr: HTMLTableRowElement): string | number => {
+      const d = tr.dataset;
+      switch (sortKey) {
+        case 'agent': return AGENT_ORDER.indexOf(d.agent!);
+        case 'result': return RESULT_ORDER.indexOf(d.result!);
+        case 'seed': return Number(d.seed);
+        case 'gen': return Number(d.gen);
+        case 'turns': return Number(d.turns);
+        case 'protect': return Number(d.protect);
+        default: return d.id!;
+      }
+    };
+
+    function apply() {
+      const f = Object.fromEntries(FILTERS.map((n) => [n, value(n)]));
+      let shown = 0;
+      for (const tr of rows) {
+        const d = tr.dataset;
+        const ok =
+          (!f.agent || d.agent === f.agent) &&
+          (!f.result || d.result === f.result) &&
+          (!f.seed || d.seed === f.seed) &&
+          (!f.gen || d.gen === f.gen) &&
+          (!f.protect || (f.protect === 'used' ? Number(d.protect) > 0 : Number(d.protect) === 0));
+        tr.hidden = !ok;
+        if (ok) shown++;
+      }
+      const sorted = [...rows].sort((a, b) => {
+        const ka = key(a);
+        const kb = key(b);
+        return (ka < kb ? -1 : ka > kb ? 1 : a.dataset.id!.localeCompare(b.dataset.id!)) * sortDir;
+      });
+      tbody.append(...sorted);
+      gamesTable.querySelectorAll('th[scope="col"]').forEach((th) => th.removeAttribute('aria-sort'));
+      gamesTable.querySelector(`[data-sort="${sortKey}"]`)?.closest('th')?.setAttribute('aria-sort', sortDir > 0 ? 'ascending' : 'descending');
+      count.textContent = `${shown.toLocaleString('en-US')} games`;
+      empty.hidden = shown > 0;
+
+      const url = new URL(location.href);
+      FILTERS.forEach((n) => (f[n] ? url.searchParams.set(n, f[n]) : url.searchParams.delete(n)));
+      if (sortKey !== 'id' || sortDir < 0) url.searchParams.set('sort', `${sortDir < 0 ? '-' : ''}${sortKey}`);
+      else url.searchParams.delete('sort');
+      history.replaceState(history.state, '', url);
+    }
+
+    const onSort = (e: Event) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-sort]');
+      if (!btn) return;
+      const k = btn.dataset.sort!;
+      sortDir = k === sortKey ? -sortDir : 1;
+      sortKey = k;
+      apply();
+    };
+    const focusFilters = () => form.querySelector<HTMLInputElement>('input:checked')?.focus();
+    const hint = document.getElementById('hint-filters');
+
+    form.addEventListener('change', apply);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    table.tHead!.addEventListener('click', onSort);
+    hint?.addEventListener('click', focusFilters);
+    apply();
+    return () => {
+      form.removeEventListener('change', apply);
+      table.tHead!.removeEventListener('click', onSort);
+      hint?.removeEventListener('click', focusFilters);
+    };
+  });
+</script>
+
+<style>
+  .log {
+    display: grid;
+    gap: 20px;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+
+  .screen-tab span[aria-hidden] {
+    opacity: 0.5;
+  }
+
+  .log__head h1 {
+    font-size: var(--t-2xl);
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+  }
+
+  .log__lede {
+    max-width: 62ch;
+    margin-top: 10px;
+    color: var(--c-muted);
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 14px 28px;
+    padding: 18px 22px;
+  }
+
+  fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  legend,
+  .select span {
+    margin-bottom: 6px;
+    padding: 0;
+    color: var(--c-muted);
+    font-size: var(--t-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .chips label {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .chips input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .chips span {
+    display: inline-grid;
+    place-items: center;
+    min-height: 36px;
+    padding: 0 16px;
+    background: var(--c-ground);
+    font-size: var(--t-sm);
+    font-weight: 600;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    transition: background-color 120ms var(--ease), color 120ms var(--ease), translate 120ms var(--ease);
+  }
+
+  .chips label:hover span {
+    background: var(--c-panel-hi);
+    translate: 0 -2px;
+  }
+
+  .chips input:checked + span {
+    background: var(--c-select);
+    color: var(--c-ground);
+  }
+
+  .chips input:focus-visible + span {
+    box-shadow: inset 0 0 0 2px var(--c-ink);
+    outline: 2px solid var(--c-select);
+  }
+
+  .select {
+    display: grid;
+  }
+
+  .select select {
+    min-height: 36px;
+    min-width: 96px;
+    padding: 0 10px;
+    border: 1px solid var(--c-line);
+    background: var(--c-ground);
+    color: var(--c-ink);
+    font: inherit;
+    font-size: var(--t-sm);
+  }
+
+  .filters__count {
+    margin-left: auto;
+    font-family: var(--f-mono);
+    font-size: var(--t-sm);
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  .games {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--t-sm);
+  }
+
+  .games th,
+  .games td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--c-line);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .games thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--c-ground);
+    color: var(--c-muted);
+    font-size: var(--t-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .games thead button {
+    min-height: 32px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+  }
+
+  .games thead button:hover {
+    color: var(--c-ink);
+  }
+
+  [aria-sort] button::after {
+    content: ' ▲';
+    color: var(--c-select);
+  }
+
+  [aria-sort='descending'] button::after {
+    content: ' ▼';
+  }
+
+  .games tbody tr {
+    position: relative;
+    transition: background-color 120ms var(--ease);
+  }
+
+  .games tbody tr:hover,
+  .games tbody tr:focus-within {
+    background: var(--c-panel);
+  }
+
+  .games tbody th a {
+    color: var(--c-select);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .games tbody th a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .agent-name {
+    color: var(--agent);
+    font-weight: 600;
+  }
+
+  .teams {
+    color: var(--c-muted);
+  }
+
+  .log__empty,
+  .log__note {
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+  }
+
+  .log__empty {
+    padding: 24px 0;
+  }
+
+  @media (max-width: 767px) {
+    .games thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    .games,
+    .games tbody {
+      display: block;
+    }
+
+    .games tbody tr {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px 12px;
+      padding: 12px 4px;
+      border-bottom: 1px solid var(--c-line);
+    }
+
+    .games tbody tr[hidden] {
+      display: none;
+    }
+
+    .games tbody th,
+    .games tbody td {
+      padding: 0;
+      border: 0;
+    }
+
+    .games td[data-label]::before {
+      content: attr(data-label) ' ';
+      color: var(--c-muted);
+      font-family: var(--f-ui);
+      font-size: var(--t-xs);
+    }
+
+    .games .teams {
+      grid-column: 1 / -1;
+      white-space: normal;
+    }
+
+    .filters__count {
+      margin-left: 0;
+    }
+  }
+</style>

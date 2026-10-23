@@ -34,3 +34,8 @@ assets/demos/*.mp4
 assets/demos/*.webm
 static/demos/*.mp4
 static/demos/*.webm
+
+# Showcase site
+node_modules/
+.astro/
+.shots/

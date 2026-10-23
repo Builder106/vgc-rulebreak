@@ -1,0 +1,355 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--c-ground);
+  color: var(--c-ink);
+  font-family: var(--f-ui);
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background:
+    radial-gradient(120% 80% at 85% -10%, #2b1f57 0%, transparent 60%),
+    linear-gradient(180deg, #1b1433 0%, var(--c-ground) 55%);
+  background-attachment: fixed;
+  font-size: var(--t-md);
+  line-height: 1.5;
+  padding-bottom: calc(var(--hint-h) + 8px);
+}
+
+h1,
+h2,
+h3,
+p,
+ol,
+ul,
+dl,
+dd,
+figure {
+  margin: 0;
+}
+
+ol,
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.mono {
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-select);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 10px 16px;
+  background: var(--c-select);
+  color: var(--c-ground);
+  font-weight: 700;
+  text-decoration: none;
+  translate: 0 -200%;
+}
+
+.skip-link:focus-visible {
+  translate: 0 0;
+}
+
+main {
+  padding: 24px var(--edge) 32px;
+  outline: none;
+}
+
+/* Shape rule: short bars are 12 degree parallelograms; large panels cut two corners at that angle. */
+.slant {
+  --cut: calc(1lh * var(--slant-x) + 6px);
+  clip-path: polygon(var(--cut) 0, 100% 0, calc(100% - var(--cut)) 100%, 0 100%);
+}
+
+.panel {
+  --cut: 18px;
+  background: var(--c-panel);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+
+/* The screen's name sits top left in a slanted tab. */
+.screen-tab {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.6em;
+  margin: 0 0 20px;
+  padding: 6px 28px 6px 22px;
+  background: var(--c-panel);
+  color: var(--c-muted);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.screen-tab a {
+  color: var(--c-muted);
+  text-decoration: none;
+}
+
+.screen-tab a:hover {
+  color: var(--c-ink);
+}
+
+.screen-tab [aria-current='page'] {
+  color: var(--c-ink);
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px 14px;
+  background: var(--c-panel-hi);
+  color: var(--c-ink);
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+}
+
+.agent-source {
+  --agent: var(--c-source);
+}
+
+.agent-native {
+  --agent: var(--c-native);
+}
+
+.agent-adapted {
+  --agent: var(--c-adapted);
+}
+
+.agent-swatch {
+  color: var(--agent);
+}
+
+.result-win {
+  color: var(--c-win);
+}
+
+.result-loss {
+  color: var(--c-loss);
+}
+
+.result-unfinished,
+.result-tie {
+  color: var(--c-muted);
+}
+
+/* Menu items: the lime cursor arrow jumps to the selected or hovered row. */
+.menu {
+  display: grid;
+  gap: 6px;
+}
+
+.menu a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 8px 32px 8px 44px;
+  color: var(--c-ink);
+  font-size: var(--t-lg);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 160ms var(--ease);
+}
+
+.menu a::after {
+  content: attr(data-note);
+  margin-left: auto;
+  padding-left: 16px;
+  color: var(--c-muted);
+  font-size: var(--t-sm);
+  font-weight: 400;
+}
+
+.menu .cursor-arrow {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  margin-top: -14px;
+  opacity: 0;
+  translate: -6px 0;
+  transition:
+    opacity 120ms var(--ease),
+    translate 120ms var(--ease);
+}
+
+.menu a:hover,
+.menu a:focus-visible,
+.menu a[data-selected] {
+  background: var(--c-panel);
+}
+
+.menu a:hover .cursor-arrow,
+.menu a:focus-visible .cursor-arrow,
+.menu a[data-selected] .cursor-arrow {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.menu a:active {
+  background: var(--c-panel-hi);
+}
+
+/* The hint row: real controls, fixed to the bottom edge. Each key also works from the keyboard. */
+.hints {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 4px 18px;
+  min-height: var(--hint-h);
+  padding: 8px var(--edge);
+  background: var(--c-ground);
+  border-top: 1px solid var(--c-line);
+  overflow-x: auto;
+}
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--c-ink);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.hint kbd {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-width: 40px;
+  height: 28px;
+  padding: 0 10px;
+  font-family: var(--f-ui);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  color: var(--c-ink);
+}
+
+.hint kbd svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hint kbd span {
+  position: relative;
+}
+
+.hint:hover kbd span,
+.hint:focus-visible kbd span {
+  color: var(--c-select);
+}
+
+.hint:hover kbd svg,
+.hint:focus-visible kbd svg {
+  translate: 0 -2px;
+}
+
+.hint:active kbd svg {
+  translate: 0 1px;
+}
+
+.hint kbd svg {
+  transition: translate 120ms var(--ease);
+}
+
+.hint[hidden] {
+  display: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .hint kbd {
+    display: none;
+  }
+
+  .hint {
+    min-height: 48px;
+    padding: 0 12px;
+    background: var(--c-panel);
+  }
+}
+
+.colophon-note {
+  color: var(--c-muted);
+  font-size: var(--t-xs);
+}
+
+/* Page transition: panels slide out along their slant; the curtain only covers the swap. */
+#curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.curtain__panel {
+  position: absolute;
+  inset: -10% -30%;
+  background: var(--c-panel);
+  clip-path: polygon(22% 0, 100% 0, 78% 100%, 0 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+  }
+}

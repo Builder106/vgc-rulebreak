@@ -1,0 +1,51 @@
+@import '@fontsource/chakra-petch/400.css';
+@import '@fontsource/chakra-petch/600.css';
+@import '@fontsource/chakra-petch/700.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+
+:root {
+  color-scheme: dark;
+
+  --c-ground: #17112b;
+  --c-panel: #2a2148;
+  --c-panel-hi: #352a5c;
+  --c-line: #4a3f73;
+  --c-ink: #ffffff;
+  --c-muted: #b9b2d6;
+  --c-select: #c8f542;
+  --c-source: #ff9f2e;
+  --c-native: #45d6ee;
+  --c-adapted: #e4e1ff;
+  --c-win: #c8f542;
+  --c-loss: #ff7a8a;
+  --c-hp-high: #5ee08a;
+  --c-hp-mid: #ffd23f;
+  --c-hp-low: #ff6b3d;
+
+  --f-ui: 'Chakra Petch', system-ui, sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Fluid scale from 390 px to 1440 px. */
+  --t-xs: clamp(0.75rem, 0.72rem + 0.12vw, 0.8125rem);
+  --t-sm: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
+  --t-md: clamp(1rem, 0.97rem + 0.12vw, 1.0625rem);
+  --t-lg: clamp(1.25rem, 1.12rem + 0.5vw, 1.5rem);
+  --t-xl: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+  --t-2xl: clamp(2.25rem, 1.5rem + 3.1vw, 4.25rem);
+
+  --gutter: 24px;
+  --edge: clamp(16px, 4vw, 48px);
+  --slant: 12deg;
+  --slant-x: 0.2126; /* tan(12deg) */
+  --hint-h: 52px;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --gutter: 16px;
+    --hint-h: 64px;
+  }
+}

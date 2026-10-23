@@ -1,0 +1,237 @@
+{
+ "schema_version": 1,
+ "teams": {
+  "test-annihilape-bulky": [
+   {
+    "species": "Annihilape",
+    "item": "Leftovers",
+    "ability": "Defiant",
+    "moves": [
+     "Rage Fist",
+     "Drain Punch",
+     "Bulk Up",
+     "Protect"
+    ],
+    "stats": {
+     "hp": 424,
+     "atk": 267,
+     "def": 215,
+     "spa": 122,
+     "spd": 280,
+     "spe": 221
+    }
+   },
+   {
+    "species": "Maushold",
+    "item": "Wide Lens",
+    "ability": "Friend Guard",
+    "moves": [
+     "Population Bomb",
+     "Follow Me",
+     "Super Fang",
+     "Protect"
+    ],
+    "stats": {
+     "hp": 352,
+     "atk": 187,
+     "def": 176,
+     "spa": 149,
+     "spd": 186,
+     "spe": 353
+    }
+   },
+   {
+    "species": "Ting-Lu",
+    "item": "Assault Vest",
+    "ability": "Vessel of Ruin",
+    "moves": [
+     "Stomping Tantrum",
+     "Ruination",
+     "Heavy Slam",
+     "Throat Chop"
+    ],
+    "stats": {
+     "hp": 514,
+     "atk": 257,
+     "def": 295,
+     "spa": 131,
+     "spd": 273,
+     "spe": 127
+    }
+   },
+   {
+    "species": "Flutter Mane",
+    "item": "Booster Energy",
+    "ability": "Protosynthesis",
+    "moves": [
+     "Moonblast",
+     "Shadow Ball",
+     "Icy Wind",
+     "Protect"
+    ],
+    "stats": {
+     "hp": 280,
+     "atk": 131,
+     "def": 193,
+     "spa": 335,
+     "spd": 307,
+     "spe": 359
+    }
+   },
+   {
+    "species": "Rillaboom",
+    "item": "Miracle Seed",
+    "ability": "Grassy Surge",
+    "moves": [
+     "Grassy Glide",
+     "Wood Hammer",
+     "High Horsepower",
+     "Fake Out"
+    ],
+    "stats": {
+     "hp": 404,
+     "atk": 383,
+     "def": 217,
+     "spa": 140,
+     "spd": 176,
+     "spe": 206
+    }
+   },
+   {
+    "species": "Urshifu-Rapid-Strike",
+    "item": "Choice Scarf",
+    "ability": "Unseen Fist",
+    "moves": [
+     "Surging Strikes",
+     "Close Combat",
+     "Aqua Jet",
+     "U-turn"
+    ],
+    "stats": {
+     "hp": 342,
+     "atk": 394,
+     "def": 236,
+     "spa": 145,
+     "spd": 156,
+     "spe": 293
+    }
+   }
+  ],
+  "test-balance-pivot": [
+   {
+    "species": "Incineroar",
+    "item": "Sitrus Berry",
+    "ability": "Intimidate",
+    "moves": [
+     "Fake Out",
+     "Knock Off",
+     "Flare Blitz",
+     "Parting Shot"
+    ],
+    "stats": {
+     "hp": 394,
+     "atk": 267,
+     "def": 255,
+     "spa": 176,
+     "spd": 264,
+     "spe": 156
+    }
+   },
+   {
+    "species": "Rillaboom",
+    "item": "Assault Vest",
+    "ability": "Grassy Surge",
+    "moves": [
+     "Grassy Glide",
+     "Wood Hammer",
+     "High Horsepower",
+     "U-turn"
+    ],
+    "stats": {
+     "hp": 404,
+     "atk": 368,
+     "def": 221,
+     "spa": 140,
+     "spd": 185,
+     "spe": 207
+    }
+   },
+   {
+    "species": "Flutter Mane",
+    "item": "Focus Sash",
+    "ability": "Protosynthesis",
+    "moves": [
+     "Moonblast",
+     "Shadow Ball",
+     "Dazzling Gleam",
+     "Protect"
+    ],
+    "stats": {
+     "hp": 252,
+     "atk": 131,
+     "def": 146,
+     "spa": 369,
+     "spd": 306,
+     "spe": 405
+    }
+   },
+   {
+    "species": "Urshifu-Rapid-Strike",
+    "item": "Mystic Water",
+    "ability": "Unseen Fist",
+    "moves": [
+     "Surging Strikes",
+     "Close Combat",
+     "Aqua Jet",
+     "Detect"
+    ],
+    "stats": {
+     "hp": 342,
+     "atk": 394,
+     "def": 236,
+     "spa": 145,
+     "spd": 156,
+     "spe": 293
+    }
+   },
+   {
+    "species": "Ogerpon-Cornerstone",
+    "item": "Cornerstone Mask",
+    "ability": "Sturdy",
+    "moves": [
+     "Ivy Cudgel",
+     "Horn Leech",
+     "Follow Me",
+     "Spiky Shield"
+    ],
+    "stats": {
+     "hp": 302,
+     "atk": 339,
+     "def": 204,
+     "spa": 140,
+     "spd": 228,
+     "spe": 350
+    }
+   },
+   {
+    "species": "Landorus-Therian",
+    "item": "Choice Scarf",
+    "ability": "Intimidate",
+    "moves": [
+     "Stomping Tantrum",
+     "Rock Slide",
+     "U-turn",
+     "Tera Blast"
+    ],
+    "stats": {
+     "hp": 320,
+     "atk": 427,
+     "def": 216,
+     "spa": 221,
+     "spd": 196,
+     "spe": 281
+    }
+   }
+  ]
+ }
+}

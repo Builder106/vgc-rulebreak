@@ -1,0 +1,15 @@
+---
+// The battle UI kit sprite (design/ui/kit.svg), inlined once per page for <use> references.
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const svg = readFileSync(resolve(process.cwd(), 'design/ui/kit.svg'), 'utf8')
+  .replace('width="32" height="32"', 'width="0" height="0" class="kit-sprite" aria-hidden="true" focusable="false"');
+---
+<Fragment set:html={svg} />
+<style is:global>
+  .kit-sprite {
+    position: absolute;
+    overflow: hidden;
+  }
+</style>

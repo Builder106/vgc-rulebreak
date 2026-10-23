@@ -229,8 +229,8 @@ Type colors come from `design/sigils/sigils.json` and appear only inside sigils 
 |---|---|---|
 | Stat sigils, 21 species | Glaxnimate | done, `design/sigils/` |
 | Agent lineup and portraits | Blender | done, `design/agents/` |
-| Hex Protect shield, whole and cracked halves | Glaxnimate | to draw |
-| Cursor arrow, panel frames, PP pips, key glyphs for the hint row | Glaxnimate | to draw |
+| Hex Protect shield, whole and cracked halves | Glaxnimate | done, `design/ui/shield.svg` |
+| Cursor arrow, PP pips, keycap for the hint row | Glaxnimate | done, `design/ui/kit.svg`; panel frames are CSS `clip-path` |
 | OG image: the battle screenshot frame | generated from the built page | at ship |
 
 ## Stack

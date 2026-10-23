@@ -40,3 +40,17 @@ The three study agents as original toy-robot coaches, built in Blender from `bui
 The renders use Cycles, the Standard view transform, and a shadow catcher, so they sit on any ground. They are masters. Convert to WebP during the site build.
 
 The racks show rule capacity, not a live PP count. The battle board shows the live count.
+
+## Protect shield and UI kit (`ui/`)
+
+The shield is a hexagon split down a zigzag seam. Its face holds 16 hex cells, 8 per half: one per Protect PP under Scarlet/Violet rules. Under `protect-8`, the right half cracks away on the game's first Protect, leaving the 8 cells Champions allows. Under `protect-16` it stays whole. The cells can also go dark one at a time as the live PP count falls.
+
+| File | Contents |
+| --- | --- |
+| `build_ui.py` | Computes the shield and kit geometry. Writes `shield-elements.json` and `kit-elements.json`. Standard library only. |
+| `shield.svg` | The Glaxnimate drawing. Groups `shield-left` and `shield-right` each hold a face, a rim, and 8 cells (`shield-cell-01` to `-08` on the left, `-09` to `-16` on the right), plus the faint `shield-seam` shown only while whole. |
+| `kit.svg` | A sprite of battle-screen symbols: `cursor-arrow` (lime selection arrow), `pp-pip-full` and `pp-pip-empty`, and `keycap` (a 12° slanted key frame; the key's label stays HTML text). |
+
+Motion (GSAP, design pattern A): to crack, hide the seam, then move `shield-right` 14 px right and 10 px down and turn it 9° about (108, 80) while it fades to 35% opacity. Under reduced motion, show the cracked end state. Panel frames are CSS `clip-path` parallelograms, not drawings.
+
+The empty pip uses the muted color because it carries meaning and needs 3:1 contrast against the ground. To change a shape, edit `build_ui.py`, run `python3 build_ui.py`, and redraw the SVG from its element list with the Glaxnimate MCP.

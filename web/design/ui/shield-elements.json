@@ -1,0 +1,193 @@
+[
+ {
+  "type": "g",
+  "id": "shield-left",
+  "children": [
+   {
+    "type": "polygon",
+    "id": "shield-left-face",
+    "attributes": {
+     "points": "80,16 88,38 73,58 87,80 72,102 86,124 80,144 24.57,112 24.57,48",
+     "fill": "#45D6EE",
+     "fill-opacity": "0.16"
+    }
+   },
+   {
+    "type": "polyline",
+    "id": "shield-left-rim",
+    "attributes": {
+     "points": "80,144 24.57,112 24.57,48 80,16",
+     "fill": "none",
+     "stroke": "#45D6EE",
+     "stroke-width": "4",
+     "stroke-linejoin": "miter"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-01",
+    "attributes": {
+     "points": "62,43 68.06,46.5 68.06,53.5 62,57 55.94,53.5 55.94,46.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-02",
+    "attributes": {
+     "points": "46,43 52.06,46.5 52.06,53.5 46,57 39.94,53.5 39.94,46.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-03",
+    "attributes": {
+     "points": "54,63 60.06,66.5 60.06,73.5 54,77 47.94,73.5 47.94,66.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-04",
+    "attributes": {
+     "points": "38,63 44.06,66.5 44.06,73.5 38,77 31.94,73.5 31.94,66.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-05",
+    "attributes": {
+     "points": "62,83 68.06,86.5 68.06,93.5 62,97 55.94,93.5 55.94,86.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-06",
+    "attributes": {
+     "points": "46,83 52.06,86.5 52.06,93.5 46,97 39.94,93.5 39.94,86.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-07",
+    "attributes": {
+     "points": "54,103 60.06,106.5 60.06,113.5 54,117 47.94,113.5 47.94,106.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-08",
+    "attributes": {
+     "points": "38,103 44.06,106.5 44.06,113.5 38,117 31.94,113.5 31.94,106.5",
+     "fill": "#45D6EE"
+    }
+   }
+  ]
+ },
+ {
+  "type": "g",
+  "id": "shield-right",
+  "children": [
+   {
+    "type": "polygon",
+    "id": "shield-right-face",
+    "attributes": {
+     "points": "80,16 135.43,48 135.43,112 80,144 86,124 72,102 87,80 73,58 88,38 80,16",
+     "fill": "#45D6EE",
+     "fill-opacity": "0.16"
+    }
+   },
+   {
+    "type": "polyline",
+    "id": "shield-right-rim",
+    "attributes": {
+     "points": "80,16 135.43,48 135.43,112 80,144",
+     "fill": "none",
+     "stroke": "#45D6EE",
+     "stroke-width": "4",
+     "stroke-linejoin": "miter"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-09",
+    "attributes": {
+     "points": "98,43 104.06,46.5 104.06,53.5 98,57 91.94,53.5 91.94,46.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-10",
+    "attributes": {
+     "points": "114,43 120.06,46.5 120.06,53.5 114,57 107.94,53.5 107.94,46.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-11",
+    "attributes": {
+     "points": "106,63 112.06,66.5 112.06,73.5 106,77 99.94,73.5 99.94,66.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-12",
+    "attributes": {
+     "points": "122,63 128.06,66.5 128.06,73.5 122,77 115.94,73.5 115.94,66.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-13",
+    "attributes": {
+     "points": "98,83 104.06,86.5 104.06,93.5 98,97 91.94,93.5 91.94,86.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-14",
+    "attributes": {
+     "points": "114,83 120.06,86.5 120.06,93.5 114,97 107.94,93.5 107.94,86.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-15",
+    "attributes": {
+     "points": "106,103 112.06,106.5 112.06,113.5 106,117 99.94,113.5 99.94,106.5",
+     "fill": "#45D6EE"
+    }
+   },
+   {
+    "type": "polygon",
+    "id": "shield-cell-16",
+    "attributes": {
+     "points": "122,103 128.06,106.5 128.06,113.5 122,117 115.94,113.5 115.94,106.5",
+     "fill": "#45D6EE"
+    }
+   }
+  ]
+ },
+ {
+  "type": "polyline",
+  "id": "shield-seam",
+  "attributes": {
+   "points": "80,16 88,38 73,58 87,80 72,102 86,124 80,144",
+   "fill": "none",
+   "stroke": "#45D6EE",
+   "stroke-width": "1.5",
+   "stroke-opacity": "0.5"
+  }
+ }
+]

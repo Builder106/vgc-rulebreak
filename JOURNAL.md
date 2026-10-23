@@ -1,5 +1,9 @@
 # Journal
 
+## 2026-10-23: Clarify the README with two diagrams #decision
+
+The README now shows the two relationships that need a picture: both Protect formats come from one Gen 9 base, and the public site joins result indexes with replays through the static export. The old linear workflow stays in prose. The diagrams and captions keep the historical Gen 9 versus full Champions games separate from the corrected Protect-only formats, which have not produced a new study yet.
+
 ## 2026-10-23: Deploy the showcase to Vercel #milestone
 
 The Astro showcase is live at [vgc-rulebreak.vercel.app](https://vgc-rulebreak.vercel.app). Vercel builds it from the repository's `web/` directory on `main`. The Production `SITE_URL` config supplies the canonical origin and sitemap. Public checks of the homepage, sitemap, Study P, and replay 0001 returned HTTP 200.

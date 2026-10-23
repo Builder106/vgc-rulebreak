@@ -8,11 +8,11 @@ Which Scarlet/Violet habits cost you games in Champions?
 
 VGC Rulebreak is a research project about competitive Pokemon agents adapting to changed battle rules. The experiments measure which decisions become costly, how training changes those decisions, and whether improvements hold against opponents the agent did not train against.
 
-The first study isolates Protect's 16-versus-8 PP allowance. Later studies cover Rage Fist, Speed, full Champions transfer, and reciprocal Tera/Mega transfer.
+The first study investigates Protect's 16-versus-8 PP allowance. Its recorded games compared standard Gen 9 with the full Champions mod, which changed other mechanics too. New runs use a repository-owned Protect-only format pair; the recorded games have not been rerun. Later studies cover Rage Fist, Speed, full Champions transfer, and reciprocal Tera/Mega transfer.
 
 ## Project status
 
-The first Protect study has 99 checkpoints and 1,188 held-out games. No agent ran out of Protect PP, so this setup cannot show whether a 16 PP habit hurts under an 8 PP cap. The local [showcase](web/DESIGN.md) presents that result, every recorded game, and the open team sheets. It has not been deployed.
+The first Protect study has 99 checkpoints and 1,188 held-out games. No agent ran out of Protect PP. Those games used formats that differed in mechanics beyond Protect, so they cannot show whether a 16 PP habit hurts under an 8 PP cap. The [study audit](docs/protect-pp-audit.md) records the control failure and the corrected format pair. The local [showcase](web/DESIGN.md) presents the recorded games and open team sheets. It has not been deployed.
 
 Read the [research plan](RESEARCH.md), [roadmap](ROADMAP.md), and [showcase brief](docs/showcase.md).
 
@@ -25,7 +25,7 @@ uv sync --frozen --group dev
 uv run vgc-rulebreak check experiments/protect-pp.json
 ```
 
-The command checks that the study changes only Protect PP, uses an immutable simulator revision, and declares independent training seeds. It reports remaining readiness declarations.
+The command checks the declared Protect PP variants, an immutable simulator revision, and independent training seeds. Live fixtures check the corrected format pair; the specification validator alone does not inspect effective simulator formats.
 
 Run deterministic mechanics verification against a local Pokémon Showdown process:
 

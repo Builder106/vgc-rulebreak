@@ -19,6 +19,8 @@ Exit when legal battles complete, targeted fixtures pass, and baseline results a
 
 ## 2. Produce the first Protect result
 
+- [x] Build and fixture-check two formats that differ only in Protect PP; the earlier standard Gen 9 versus Champions comparison changed other mechanics.
+- [ ] Pilot a setup in which Protect reaches the 8 PP limit before repeating training.
 - [x] Pilot evaluation size and set the compute budget.
 - [x] Freeze test teams, opponent policies, and seeds.
 - [x] Compare unchanged source, adapted, and target-native agents.

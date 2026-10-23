@@ -179,7 +179,7 @@ const slotName = (side: Side, i: number) => `${side}${'ab'[i]}`;
         <div><dt>Eval seed</dt><dd>{b.eval_seed}</dd></div>
         <div><dt>Battle seed</dt><dd>{b.battle_seed.join(', ')}</dd></div>
         <div><dt>Simulator</dt><dd>{b.simulator_revision.slice(0, 12)}</dd></div>
-        <div><dt>Protect</dt><dd>{b.protect.uses} uses in {b.protect.opportunities} legal turns{b.protect.depleted ? ', ran out' : ', never ran out'}</dd></div>
+        <div><dt>Protection moves</dt><dd>{b.protect.uses} uses in {b.protect.opportunities} eligible turns{b.protect.depleted ? ', ran out' : ', never ran out'}</dd></div>
         <div><dt>Ended by</dt><dd>{b.end_reason}</dd></div>
       </dl>
       <p><a href={`/teams/${b.teams[ally]}/`}>Team sheet: {teamName(b.teams[ally])}</a></p>

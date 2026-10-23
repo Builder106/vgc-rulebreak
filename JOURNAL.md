@@ -1,5 +1,15 @@
 # Journal
 
+## 2026-10-23: Add a Protect-only simulator format pair #decision
+
+The simulator process now preloads a repository-owned format overlay. It copies the pinned Gen 9 Doubles Custom Game format twice, changing only Protect's starting and maximum PP in the 8 PP battle. It also updates stored move slots so switching does not restore the old cap. The pinned Showdown checkout remains untouched. Future training, evaluation, and pilot runs use these format IDs and count the move Protect alone; the 1,188 already exported battles keep their historical standard Gen 9 and full Champions provenance and broad protection-move metric. Live fixtures verify the paired format settings and initial requests. The next gate is a scarcity pilot; the old outcomes must not be relabeled as Protect-only results.
+
+## 2026-10-23: Audit the Protect comparison's effective rules #incident
+
+A read of the 1,188 exported games found 425 candidate uses of protection-family moves in 10,721 legal opportunities (4.0%). The old metric had grouped Protect with Detect and Spiky Shield. For Protect alone, the replay decisions show 252 uses in 7,329 legal opportunities (3.4%). The median game lasted eight turns; the highest candidate use of Protect by one species in one game was three. In 8 PP games, the lowest observed Protect PP was five. The recorded data never put either cap under pressure.
+
+The earlier evaluation harness mapped `protect-16` to standard Gen 9 doubles and `protect-8` to the full Champions doubles mod. The pinned Champions implementation also changes stat and general PP calculations and other move behavior. The JSON specification says Protect is the only changed rule, but its validator does not inspect the effective simulator formats. Even a paired cross-format run would therefore measure a bundle of rule changes. The [audit](docs/protect-pp-audit.md) records the control failure and calls for a Protect-only pair followed by a scarcity pilot before more training or outcome estimates.
+
 ## 2026-10-23: Build the local Champions client showcase #milestone
 
 The Astro showcase now builds a title screen, Study P, Battle Log, two team sheets, an about page, a 404 page, and one battle page for each of the 1,188 evaluated games. `export-showcase` reads the 99 checkpoint runs and writes a 5.2 MB static export under `web/data/`. The Battle Log includes all seven games that stalled before turn 1 and labels their missing logs plainly. No recovery curve is shown: none of these games depleted Protect PP.

@@ -41,7 +41,7 @@ const hints = [
         </div>
       </fieldset>
       <fieldset>
-        <legend>Protect</legend>
+        <legend>Protection moves</legend>
         <div class="chips">
           <label><input type="radio" name="protect" value="" checked /><span>All</span></label>
           <label><input type="radio" name="protect" value="used" /><span>Used</span></label>
@@ -78,7 +78,7 @@ const hints = [
             <th scope="col">Teams</th>
             <th scope="col"><button type="button" data-sort="result">Result</button></th>
             <th scope="col"><button type="button" data-sort="turns">Turns</button></th>
-            <th scope="col"><button type="button" data-sort="protect">Protect</button></th>
+            <th scope="col"><button type="button" data-sort="protect">Protection moves</button></th>
           </tr>
         </thead>
         <tbody>
@@ -92,14 +92,14 @@ const hints = [
               <td class="teams" data-label="Teams">{teamName(r.candidate_team)} vs {teamName(r.opponent_team)}</td>
               <td class={`result-${outcome(r) === 'stalled' ? 'unfinished' : r.result}`} data-label="Result">{outcome(r) === 'stalled' ? 'Stalled' : resultWord[r.result]}</td>
               <td class="mono" data-label="Turns">{r.turns}</td>
-              <td class="mono" data-label="Protect">{r.protect_uses} / {r.protect_opportunities}</td>
+              <td class="mono" data-label="Protection moves">{r.protect_uses} / {r.protect_opportunities}</td>
             </tr>
           ))}
         </tbody>
       </table>
       <p class="log__empty" data-empty hidden>No games match these filters.</p>
     </div>
-    <p class="log__note">Protect shows presses out of the turns where Protect was legal for the agent. No game in the log ran out of Protect PP.</p>
+    <p class="log__note">The protection moves column shows uses out of eligible turns, including Protect, Detect, Spiky Shield, and similar moves. No game in the log ran out of Protect PP.</p>
   </div>
 </Base>
 

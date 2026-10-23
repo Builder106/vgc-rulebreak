@@ -216,7 +216,7 @@ export const resultWord: Record<Result, string> = {
   unfinished: 'Stalled',
 };
 
-/** Featured games: for each agent, the final-checkpoint game with the most Protect uses.
+/** Featured games: for each agent, the final-checkpoint game with the most protection move uses.
  *  Ties go to the lowest battle number. This rule is printed on the Study P screen. */
 export function featured(): BattleRow[] {
   const finalGen = Math.max(...battles().map((b) => b.generation));

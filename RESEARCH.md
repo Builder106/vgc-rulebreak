@@ -19,11 +19,11 @@ An agent's recovery speed depends on the architecture, training method, prior ex
 
 ## First experiment: Protect PP
 
-Use a controlled doubles format with identical species, teams, items, information, timings, opponent mixtures, and other mechanics. Change only Protect's maximum PP, from 16 to 8. These are experimental formats, not official regulations.
+Use a controlled doubles format with identical species, teams, items, information, timings, opponent mixtures, and other mechanics. Change only Protect's maximum PP, from 16 to 8. These are experimental formats, not official regulations. The first evaluation did not meet this control: it compared standard Gen 9 with the full Champions mod. Future runs use the repository-owned Protect-only format pair. See the [Protect PP audit](docs/protect-pp-audit.md) before using either dataset to make a causal claim.
 
 First verify each variant through simulator fixtures. Then reproduce a competent source agent. Measure its performance immediately after the rule change and after further training. Train a reference directly in the target format with the same budget. Record training matches, decisions, wall time, and hardware so equal match counts do not conceal unequal compute costs.
 
-The draft specification is `experiments/protect-pp.json`. It pins the upstream simulator revision but leaves the team manifest, mechanics verification, evaluation sample size, and compute budget unset until a pilot establishes them. Configuration validation does not establish simulator fidelity.
+The specification is `experiments/protect-pp.json`. Its team manifest, mechanics fixtures, evaluation sample size, and compute budget are set. Configuration validation does not establish simulator fidelity or verify that the effective formats differ in only one mechanic.
 
 Start with Protect alone. Add Rage Fist next, then use a 2-by-2 experiment to measure the interaction between PP and hit-counter persistence. Avoid changing every rule at once and attributing the total loss to one mechanic.
 

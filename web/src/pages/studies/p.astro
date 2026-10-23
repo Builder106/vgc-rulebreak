@@ -11,7 +11,7 @@ const byAgent = (a: Agent) => series.find((s) => s.agent === a)!;
 const gens = byAgent('source').points.map((p) => p.generation);
 const lastGen = gens[gens.length - 1];
 
-// Chart geometry: one axis, Protect use rate per legal turn.
+// Chart geometry: one axis, protection-move use rate per legal turn.
 const W = 720;
 const H = 340;
 const M = { top: 20, right: 92, bottom: 44, left: 52 };
@@ -69,14 +69,14 @@ const hints = [
     <div class="study__grid">
       <figure class="chart panel" data-enter>
         <figcaption class="chart__head">
-          <h2>Protect use per legal turn, by checkpoint</h2>
+          <h2>Protection move use per legal turn, by checkpoint</h2>
           <ul class="legend" aria-label="Legend">
             {AGENTS.map((a) => <li><span class={`legend__mark mark-${a}`} aria-hidden="true" />{AGENT_INFO[a].name}, {AGENT_INFO[a].pp} PP</li>)}
           </ul>
         </figcaption>
-        <div class="chart__plot" data-chart role="region" aria-label="Protect use chart, scroll horizontally for all generations" tabindex="0">
+        <div class="chart__plot" data-chart role="region" aria-label="Protection move use chart, scroll horizontally for all generations" tabindex="0">
           <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="chart-desc" focusable="false">
-            <desc id="chart-desc">Line chart. Protect use per legal turn stays between {pct1(Math.min(...series.flatMap((s) => s.points.map((p) => p.protect_use_rate.mean))))} and {pct1(Math.max(...series.flatMap((s) => s.points.map((p) => p.protect_use_rate.mean))))} for all three agents across training generations 0 to {lastGen}. The table below lists every value.</desc>
+            <desc id="chart-desc">Line chart. Protection move use per legal turn stays between {pct1(Math.min(...series.flatMap((s) => s.points.map((p) => p.protect_use_rate.mean))))} and {pct1(Math.max(...series.flatMap((s) => s.points.map((p) => p.protect_use_rate.mean))))} for all three agents across training generations 0 to {lastGen}. The table below lists every value.</desc>
             {yTicks.map((v) => (
               <g class="grid">
                 <line x1={M.left} x2={W - M.right} y1={y(v)} y2={y(v)} />
@@ -94,12 +94,12 @@ const hints = [
           </svg>
           <div class="tip" data-tip hidden></div>
         </div>
-        <p class="chart__note">Lines are the mean across training seeds 11, 29, and 47. Bands span the lowest and highest seed. Each point pools 36 held-out games against {meta.opponent.join(', ')} on eval seed {meta.eval_seed.join(', ')}, with {fmt(Math.min(...ns))} to {fmt(Math.max(...ns))} legal Protect turns.</p>
+        <p class="chart__note">The recorded metric groups Protect, Detect, Spiky Shield, and similar moves. Lines are the mean across training seeds 11, 29, and 47. Bands span the lowest and highest seed. Each point pools 36 held-out games against {meta.opponent.join(', ')} on eval seed {meta.eval_seed.join(', ')}, with {fmt(Math.min(...ns))} to {fmt(Math.max(...ns))} eligible turns.</p>
         <details class="chart__table">
           <summary>Table view</summary>
           <div class="table-wrap">
             <table>
-              <caption class="visually-hidden">Protect use per legal turn by agent and generation</caption>
+              <caption class="visually-hidden">Protection move use per legal turn by agent and generation</caption>
               <thead><tr><th scope="col">Generation</th>{AGENTS.map((a) => <th scope="col">{AGENT_INFO[a].name} mean (range)</th>)}</tr></thead>
               <tbody>
                 {chartData.map((row) => (
@@ -115,7 +115,7 @@ const hints = [
         <div class="fact panel">
           <h2>Ran out of Protect PP</h2>
           <p class="fact__big mono">{fmt(t.depleted)} <span>of {fmt(t.games)} games</span></p>
-          <p>Agents pressed Protect {fmt(t.protectUses)} times in {fmt(t.protectOpportunities)} turns where it was legal.</p>
+          <p>Agents chose a protection move {fmt(t.protectUses)} times in {fmt(t.protectOpportunities)} eligible turns. The move Protect alone was chosen 252 times in 7,329 eligible turns.</p>
         </div>
         <div class="fact panel">
           <h2>Held-out points per game</h2>
@@ -134,15 +134,15 @@ const hints = [
 
     <section class="study__next" data-enter>
       <h2>What would make this testable</h2>
-      <p>The study needs games where 8 PP actually runs out. That means longer games, an opponent that rewards Protect, and more evaluation games per checkpoint, enough to see a change of a few points. Until then, the right reading is that this setup cannot answer the question, not that the habit does not exist.</p>
+      <p>A Protect-only format pair is now ready for the next run. These recorded games compare standard Gen 9 with the full Champions mod, which also changes other mechanics. The next run needs games where 8 PP runs out, followed by enough held-out games to resolve a small effect. Until then, this setup cannot answer whether a 16 PP habit costs games.</p>
     </section>
 
     <section class="study__games" aria-labelledby="games-title" data-enter>
       <h2 id="games-title">Games to watch</h2>
-      <p class="study__rule">Selection rule: for each agent, the generation {lastGen} game with the most Protect presses. Ties go to the lowest battle number.</p>
+      <p class="study__rule">Selection rule: for each agent, the generation {lastGen} game with the most protection move uses. Ties go to the lowest battle number.</p>
       <ul class="menu">
         {picks.map((b) => (
-          <li><a href={`/battle/${b.id}/`} data-note={`${b.protect_uses} Protect, ${b.turns} turns`}><svg class="cursor-arrow" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#cursor-arrow" /></svg>Battle {b.id}: {AGENT_INFO[b.agent].name}, seed {b.seed}</a></li>
+          <li><a href={`/battle/${b.id}/`} data-note={`${b.protect_uses} protection moves, ${b.turns} turns`}><svg class="cursor-arrow" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#cursor-arrow" /></svg>Battle {b.id}: {AGENT_INFO[b.agent].name}, seed {b.seed}</a></li>
         ))}
       </ul>
       <p class="study__teams">Test teams: {testTeams().map((tm, i) => <>{i > 0 && ' and '}<a href={`/teams/${tm.id}/`}>{teamName(tm.id)}</a></>)}. Data: <a href="https://github.com/Builder106/vgc-rulebreak/blob/main/web/data/recovery.json">recovery.json</a>.</p>

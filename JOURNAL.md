@@ -1,5 +1,9 @@
 # Journal
 
+## 2026-10-23: Deploy the showcase to Vercel #milestone
+
+The Astro showcase is live at [vgc-rulebreak.vercel.app](https://vgc-rulebreak.vercel.app). Vercel builds it from the repository's `web/` directory on `main`. The Production `SITE_URL` config supplies the canonical origin and sitemap. Public checks of the homepage, sitemap, Study P, and replay 0001 returned HTTP 200.
+
 ## 2026-10-23: Add a Protect-only simulator format pair #decision
 
 The simulator process now preloads a repository-owned format overlay. It copies the pinned Gen 9 Doubles Custom Game format twice, changing only Protect's starting and maximum PP in the 8 PP battle. It also updates stored move slots so switching does not restore the old cap. The pinned Showdown checkout remains untouched. Future training, evaluation, and pilot runs use these format IDs and count the move Protect alone; the 1,188 already exported battles keep their historical standard Gen 9 and full Champions provenance and broad protection-move metric. Live fixtures verify the paired format settings and initial requests. The next gate is a scarcity pilot; the old outcomes must not be relabeled as Protect-only results.

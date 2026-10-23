@@ -12,7 +12,7 @@ The first study investigates Protect's 16-versus-8 PP allowance. Its recorded ga
 
 ## Project status
 
-The first Protect study has 99 checkpoints and 1,188 held-out games. No agent ran out of Protect PP. Those games used formats that differed in mechanics beyond Protect, so they cannot show whether a 16 PP habit hurts under an 8 PP cap. The [study audit](docs/protect-pp-audit.md) records the control failure and the corrected format pair. The local [showcase](web/DESIGN.md) presents the recorded games and open team sheets. It has not been deployed.
+The first Protect study has 99 checkpoints and 1,188 held-out games. No agent ran out of Protect PP. Those games used formats that differed in mechanics beyond Protect, so they cannot show whether a 16 PP habit hurts under an 8 PP cap. The [study audit](docs/protect-pp-audit.md) records the control failure and the corrected format pair. The [showcase](web/DESIGN.md) presents the recorded games and open team sheets. It is live at [vgc-rulebreak.vercel.app](https://vgc-rulebreak.vercel.app).
 
 Read the [research plan](RESEARCH.md), [roadmap](ROADMAP.md), and [showcase brief](docs/showcase.md).
 

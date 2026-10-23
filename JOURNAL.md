@@ -1,5 +1,15 @@
 # Journal
 
+## 2026-10-23: First Protect training shows no habit to recover #result
+
+`train` now fits the five Protect-score parameters of `TrainedProtectAgent` with the cross-entropy method against `HeuristicBaseline`, using the training split only. Each run had 10 generations, a population of 10, and 3 elites, with one mirrored pair per matchup. Source runs train under 16 Protect PP and native runs under 8, both starting from the heuristic's parameters. Adapted runs continue from the final source checkpoint under 8 PP. There were three seeds per agent (11, 29, 47). Each checkpoint was then evaluated on held-out eval seed 101 with two pairs per team matchup, 12 games per seed, and `summarize-recovery` turned those results into one series per agent.
+
+Both games of a training pair now share one battle seed with the seats swapped. With a separate seed per game, the seat decided many mirror matches, and the unchanged heuristic lost all six games of its first generation. With shared seeds it scores exactly 0.5 against itself.
+
+Mean held-out points per game across seeds, from generation 0 to 10: source 0.500 to 0.417, native 0.333 to 0.417, adapted 0.278 to 0.264. Native's gain comes from a single seed that jumped at generation 6. One game moves a seed's score by 0.083, so none of these changes is beyond noise. No agent ever ran out of Protect PP: depletion was 0 for every checkpoint, and the policies used Protect on about 5% of the turns where they could. At that rate, 8 PP binds as rarely as 16, so the rule change leaves no habit to break.
+
+This is a negative result. The showcase must not draw these curves as habit recovery. Training is worth repeating only in a setup where PP actually runs out, with longer games or an opponent that rewards Protect, and with enough evaluation games per checkpoint to see a change of a few points.
+
 ## 2026-10-22: Correct the description of the study agents #incident
 
 The 2026-10-21 entry described the source and native agents as policies calibrated under each ruleset, and the adapted agent as fine-tuned from a source checkpoint. None of that happened. All three are the heuristic agent with a different hand-written Protect score, and no training run or checkpoint exists. `adaptation_progress` is a weight someone sets, and at the 1.0 used by `compare-agents` the adapted agent scores exactly like the native one.

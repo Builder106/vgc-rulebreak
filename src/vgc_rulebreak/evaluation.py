@@ -24,8 +24,8 @@ from vgc_rulebreak.spec import ExperimentSpec
 FROZEN_OPPONENT_POLICIES: tuple[str, ...] = ("HeuristicBaseline", "RandomBaseline")
 
 FORMAT_BY_PP: dict[int, str] = {
-    16: "gen9doublescustomgame",
-    8: "gen9championsdoublescustomgame",
+    16: "gen9rulebreakprotect16",
+    8: "gen9rulebreakprotect8",
 }
 
 
@@ -385,7 +385,7 @@ def run_evaluation_suite(
     total_duration = 0.0
     total_decisions = 0
 
-    for var_idx, var_name in enumerate(target_variants):
+    for var_name in target_variants:
         pp = spec.variants[var_name]
         format_id = FORMAT_BY_PP[pp]
 
@@ -403,8 +403,9 @@ def run_evaluation_suite(
                     m_depleted_count = 0
 
                     for pair in range(pairs):
+                        # Share each battle seed across the two Protect-only formats.
                         # Game 1: Candidate plays t1 as P1, Opponent plays t2 as P2
-                        seed_g1 = make_eval_battle_seed(eval_seed, var_idx, opp_idx, m_idx, pair, 0)
+                        seed_g1 = make_eval_battle_seed(eval_seed, 0, opp_idx, m_idx, pair, 0)
                         res1 = run_evaluation_battle(
                             candidate_agent=cand_agent,
                             opponent_agent=opp_agent,
@@ -417,7 +418,7 @@ def run_evaluation_suite(
                         )
 
                         # Game 2: Opponent plays t1 as P1, Candidate plays t2 as P2
-                        seed_g2 = make_eval_battle_seed(eval_seed, var_idx, opp_idx, m_idx, pair, 1)
+                        seed_g2 = make_eval_battle_seed(eval_seed, 0, opp_idx, m_idx, pair, 1)
                         res2 = run_evaluation_battle(
                             candidate_agent=cand_agent,
                             opponent_agent=opp_agent,

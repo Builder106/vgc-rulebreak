@@ -197,7 +197,7 @@ def test_train_writes_checkpoints_and_adapts_from_source(tmp_path: Path) -> None
     ]
     first = json.loads(paths[0].read_text(encoding="utf-8"))
     assert first["ruleset"] == "protect-16"
-    assert first["format_id"] == "gen9doublescustomgame"
+    assert first["format_id"] == "gen9rulebreakprotect16"
     assert first["params"] == pytest.approx(asdict(HEURISTIC_PARAMS))
     assert first["training"]["games_per_candidate"] == 6  # 3 training pairings, mirrored
     assert first["training"]["mean_stats"]["protect_use_rate"] == 0.25
@@ -213,6 +213,13 @@ def test_train_writes_checkpoints_and_adapts_from_source(tmp_path: Path) -> None
         )
     start, meta = load_checkpoint(adapted_paths[0])
     assert asdict(start) == pytest.approx(asdict(load_checkpoint(paths[-1])[0]))
+
+    legacy = json.loads(paths[-1].read_text(encoding="utf-8"))
+    legacy["format_id"] = "gen9doublescustomgame"
+    legacy_path = tmp_path / "legacy-source.json"
+    legacy_path.write_text(json.dumps(legacy), encoding="utf-8")
+    with pytest.raises(ValueError, match="Protect-only 16 PP format"):
+        train_protect_policy(spec, manifest, adapted, tmp_path, init_checkpoint=legacy_path)
     assert meta["ruleset"] == "protect-8"
     assert meta["init_checkpoint"] == {"agent": "source", "training_seed": 11, "generation": 2}
     assert checkpoint_agent(adapted_paths[0]).name == "adapted-s11-g00"

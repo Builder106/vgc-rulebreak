@@ -74,7 +74,7 @@ def test_compare_study_agents_mocked() -> None:
         cand_won = call_count % 3 != 0
         depleted = (
             "Source" in kwargs["candidate_agent"].name
-            and kwargs["format_id"] == "gen9championsdoublescustomgame"
+            and kwargs["format_id"] == "gen9rulebreakprotect8"
         )
         return EvaluationBattleResult(
             winner=kwargs["candidate_agent"].name if cand_won else kwargs["opponent_agent"].name,

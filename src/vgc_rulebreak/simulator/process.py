@@ -61,7 +61,8 @@ class ShowdownProcess:
         if self._process is not None and self._process.poll() is None:
             return
 
-        cmd = ["node", "pokemon-showdown", "simulate-battle"]
+        overlay = Path(__file__).with_name("protect_formats.cjs")
+        cmd = ["node", "--require", str(overlay), "pokemon-showdown", "simulate-battle"]
         self._process = subprocess.Popen(
             cmd,
             cwd=str(self.showdown_dir),
@@ -92,14 +93,22 @@ class ShowdownProcess:
     def close(self) -> None:
         """Terminate the running subprocess."""
         if self._process is not None:
+            process = self._process
             try:
-                if self._process.stdin:
-                    self._process.stdin.close()
-                self._process.terminate()
-                self._process.wait(timeout=2.0)
-            except Exception:
-                self._process.kill()
+                if process.stdin:
+                    process.stdin.close()
+                if process.poll() is None:
+                    process.terminate()
+                    try:
+                        process.wait(timeout=2.0)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        process.wait(timeout=2.0)
             finally:
+                if process.stdout:
+                    process.stdout.close()
+                if process.stderr:
+                    process.stderr.close()
                 self._process = None
 
     def __enter__(self) -> "ShowdownProcess":

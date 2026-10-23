@@ -204,6 +204,8 @@ def train_protect_policy(
         init_params, init_meta = load_checkpoint(init_checkpoint)
         if init_meta.get("agent") != "source":
             raise ValueError("the adapted agent must start from a source checkpoint")
+        if init_meta.get("format_id") != FORMAT_BY_PP[16]:
+            raise ValueError("the source checkpoint must use the Protect-only 16 PP format")
         init_mean, init_std = init_params.to_unit(), ADAPT_STD
     else:
         init_mean, init_std = HEURISTIC_PARAMS.to_unit(), FRESH_STD

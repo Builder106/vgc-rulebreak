@@ -13,7 +13,7 @@ from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import Any
 
-from vgc_rulebreak.pilot import PROTECT_MOVE_IDS
+from vgc_rulebreak.pilot import PROTECTION_MOVE_IDS
 from vgc_rulebreak.recovery import CHECKPOINT_NAME, summarize_recovery
 
 SCHEMA_VERSION = 1
@@ -323,7 +323,7 @@ def slot_choices(decision: dict[str, Any], names: Names) -> list[dict[str, Any]]
                 "pp": m.get("pp"),
                 "maxpp": m.get("maxpp"),
                 "disabled": bool(m.get("disabled")),
-                "protect": m["id"] in PROTECT_MOVE_IDS,
+                "protect": m["id"] in PROTECTION_MOVE_IDS,
             }
             for m in options.get("moves", [])
         ]

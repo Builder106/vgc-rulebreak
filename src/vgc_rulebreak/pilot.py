@@ -13,7 +13,8 @@ from vgc_rulebreak.manifest import TeamManifest, load_manifest
 from vgc_rulebreak.simulator.battle import BattleSession
 from vgc_rulebreak.simulator.process import ShowdownProcess
 
-PROTECT_MOVE_IDS = frozenset(
+PROTECT_MOVE_IDS = frozenset({"protect"})
+PROTECTION_MOVE_IDS = frozenset(
     {"protect", "spikyshield", "detect", "banefulbunker", "kingsshield", "silktrap"}
 )
 
@@ -254,12 +255,12 @@ def run_pilot_evaluation(
         for pair in range(sample_pairs):
             seed_base = 10000 + m_idx * 100 + pair * 10
 
-            # 1. Variant Protect-16 (Standard Gen 9)
+            # 1. Gen 9 with standard Protect PP
             # Match A (t1 vs t2)
             res16_a = run_pilot_battle(
                 p1_agent=agent_a,
                 p2_agent=agent_b,
-                format_id="gen9doublescustomgame",
+                format_id="gen9rulebreakprotect16",
                 p1_team=t1_packed,
                 p2_team=t2_packed,
                 seed=(seed_base, seed_base + 1, seed_base + 2, seed_base + 3),
@@ -269,7 +270,7 @@ def run_pilot_evaluation(
             res16_b = run_pilot_battle(
                 p1_agent=agent_a,
                 p2_agent=agent_b,
-                format_id="gen9doublescustomgame",
+                format_id="gen9rulebreakprotect16",
                 p1_team=t2_packed,
                 p2_team=t1_packed,
                 seed=(seed_base + 4, seed_base + 5, seed_base + 6, seed_base + 7),
@@ -283,25 +284,25 @@ def run_pilot_evaluation(
             if res16_b.protect_depleted:
                 p16_depletions += 1
 
-            # 2. Variant Protect-8 (Champions Gen 9)
+            # 2. The same Gen 9 rules with only Protect PP reduced
             # Match A (t1 vs t2)
             res8_a = run_pilot_battle(
                 p1_agent=agent_a,
                 p2_agent=agent_b,
-                format_id="gen9championsdoublescustomgame",
+                format_id="gen9rulebreakprotect8",
                 p1_team=t1_packed,
                 p2_team=t2_packed,
-                seed=(seed_base + 8, seed_base + 9, seed_base + 10, seed_base + 11),
+                seed=(seed_base, seed_base + 1, seed_base + 2, seed_base + 3),
                 showdown_dir=showdown_dir,
             )
             # Match B (t2 vs t1 - mirrored)
             res8_b = run_pilot_battle(
                 p1_agent=agent_a,
                 p2_agent=agent_b,
-                format_id="gen9championsdoublescustomgame",
+                format_id="gen9rulebreakprotect8",
                 p1_team=t2_packed,
                 p2_team=t1_packed,
-                seed=(seed_base + 12, seed_base + 13, seed_base + 14, seed_base + 15),
+                seed=(seed_base + 4, seed_base + 5, seed_base + 6, seed_base + 7),
                 showdown_dir=showdown_dir,
             )
 

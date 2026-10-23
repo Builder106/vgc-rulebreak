@@ -64,6 +64,7 @@ def test_check_protect_depleted() -> None:
         ]
     }
     assert _check_protect_depleted(active_depleted)
+    assert not _check_protect_depleted({"active": [{"moves": [{"id": "spikyshield", "pp": 0}]}]})
 
 
 def test_count_protect_choices() -> None:
@@ -79,8 +80,8 @@ def test_count_protect_choices() -> None:
     # Slot 0 uses move 1 (protect), slot 1 uses move 1 (heatwave) -> 1 protect use
     assert _count_protect_choices(req, "move 1, move 1") == 1
 
-    # Slot 0 uses move 1 (protect), slot 1 uses move 2 (spikyshield) -> 2 protect uses
-    assert _count_protect_choices(req, "move 1, move 2") == 2
+    # Spiky Shield is not the move whose PP this experiment changes.
+    assert _count_protect_choices(req, "move 1, move 2") == 1
 
     # Both use attacking moves -> 0 protect uses
     assert _count_protect_choices(req, "move 2, move 1") == 0

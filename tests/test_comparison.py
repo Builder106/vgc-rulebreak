@@ -2,11 +2,11 @@
 
 import json
 from pathlib import Path
-from typing import Any
 from unittest.mock import patch
 
 import pytest
 
+from vgc_rulebreak.agents.base import BattleAgent
 from vgc_rulebreak.cli import main
 from vgc_rulebreak.evaluation import (
     AgentComparisonEntry,
@@ -68,16 +68,21 @@ def test_compare_study_agents_mocked() -> None:
 
     call_count = 0
 
-    def fake_battle(*args: Any, **kwargs: Any) -> EvaluationBattleResult:
+    def fake_battle(
+        candidate_agent: BattleAgent,
+        opponent_agent: BattleAgent,
+        format_id: str,
+        **_: object,
+    ) -> EvaluationBattleResult:
         nonlocal call_count
         call_count += 1
         cand_won = call_count % 3 != 0
         depleted = (
-            "Source" in kwargs["candidate_agent"].name
-            and kwargs["format_id"] == "gen9rulebreakprotect8"
+            "Source" in candidate_agent.name
+            and format_id == "gen9rulebreakprotect8"
         )
         return EvaluationBattleResult(
-            winner=kwargs["candidate_agent"].name if cand_won else kwargs["opponent_agent"].name,
+            winner=candidate_agent.name if cand_won else opponent_agent.name,
             turns=10,
             duration_seconds=2.0,
             candidate_decisions=10,

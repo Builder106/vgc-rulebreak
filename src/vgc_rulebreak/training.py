@@ -133,7 +133,7 @@ def run_cem(
     fitness_fn: FitnessFn,
     init_mean: list[float],
     init_std: float,
-    on_checkpoint: Callable[[int, list[float], list[float], dict[str, Any]], None],
+    on_checkpoint: Callable[[int, list[float], list[float], dict[str, object]], None],
 ) -> list[float]:
     """Run the cross-entropy method in unit-scaled parameter space and return the final mean.
 
@@ -224,7 +224,7 @@ def train_protect_policy(
     games_per_candidate = len(matchups) * config.pairs * 2
 
     def checkpoint(
-        generation: int, mean: list[float], std: list[float], stats: dict[str, Any]
+        generation: int, mean: list[float], std: list[float], stats: dict[str, object]
     ) -> None:
         path = checkpoint_dir / f"{config.agent}-s{config.training_seed}-g{generation:02d}.json"
         document = {

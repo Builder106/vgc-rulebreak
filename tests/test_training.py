@@ -20,6 +20,7 @@ from vgc_rulebreak.cli import main
 from vgc_rulebreak.manifest import load_manifest
 from vgc_rulebreak.spec import validate_spec
 from vgc_rulebreak.training import (
+    GameTask,
     TrainingConfig,
     run_cem,
     summarize_games,
@@ -85,9 +86,9 @@ def test_mirrored_pair_shares_one_seed(tmp_path: Path) -> None:
     config = TrainingConfig(
         agent="native", training_seed=11, generations=1, population=1, elites=1, workers=1
     )
-    tasks: list[Any] = []
+    tasks: list[GameTask] = []
 
-    def capture(task: Any) -> dict[str, float]:
+    def capture(task: GameTask) -> dict[str, float]:
         tasks.append(task)
         return fake_game(task)
 
@@ -166,7 +167,7 @@ def test_run_cem_rejects_bad_elite_count() -> None:
         run_cem(config, lambda c, g: [], [0.5] * 5, 0.25, lambda *a: None)
 
 
-def fake_game(task: Any) -> dict[str, float]:
+def fake_game(task: GameTask) -> dict[str, float]:
     won = task.params["base_score"] < 60
     return {
         "points": 1.0 if won else 0.0,

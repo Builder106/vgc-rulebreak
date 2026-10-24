@@ -148,3 +148,7 @@ Adaptation curves describe the selected agent and training method. They cannot s
 ## 2026-10-04: Separate this project from TCG #decision
 
 VGC Rulebreak contains competitive video-game battle research. The 60-card TCG project remains a separate planned repository because its engine, actions, observations, datasets, and evaluation differ.
+
+## 2026-10-23: Reject Any annotations in CI #decision
+
+Ruff checks function arguments and returns for Any. Line-level exceptions remain at dynamic simulator and JSON record boundaries that still need schema types. Pytest treats warnings as errors, and strict mypy stays enabled.

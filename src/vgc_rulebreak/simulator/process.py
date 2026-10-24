@@ -3,7 +3,8 @@
 import os
 import subprocess
 from pathlib import Path
-from typing import Any, Protocol
+from types import TracebackType
+from typing import Protocol
 
 
 class BattleStream(Protocol):
@@ -115,5 +116,10 @@ class ShowdownProcess:
         self.start()
         return self
 
-    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         self.close()

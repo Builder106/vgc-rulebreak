@@ -156,10 +156,10 @@ class FrameBuilder:
         if handler is not None:
             handler(args, source, tags)
 
-    def on_turn(self, args: list[str], *_: Any) -> None:
+    def on_turn(self, args: list[str], *_: object) -> None:
         self.start_turn(int(args[0]))
 
-    def on_switch(self, args: list[str], *_: Any) -> None:
+    def on_switch(self, args: list[str], *_: object) -> None:
         match = IDENT.match(args[0])
         if match is None or match["slot"] is None:
             return
@@ -191,33 +191,33 @@ class FrameBuilder:
         cause = f" from {source}" if source else ""
         self.say(f"{self.who(args[0])} recovered{cause}, up to {self.percent(args[0])}%.")
 
-    def on_faint(self, args: list[str], *_: Any) -> None:
+    def on_faint(self, args: list[str], *_: object) -> None:
         self.apply_condition(args[0], "0 fnt")
         self.say(f"{self.who(args[0])} fainted.")
 
-    def on_supereffective(self, args: list[str], *_: Any) -> None:
+    def on_supereffective(self, args: list[str], *_: object) -> None:
         self.say(f"It was super effective on {self.who(args[0])}.")
 
-    def on_resisted(self, args: list[str], *_: Any) -> None:
+    def on_resisted(self, args: list[str], *_: object) -> None:
         self.say(f"It was not very effective on {self.who(args[0])}.")
 
-    def on_immune(self, args: list[str], *_: Any) -> None:
+    def on_immune(self, args: list[str], *_: object) -> None:
         self.say(f"{self.who(args[0])} was not affected.")
 
-    def on_crit(self, args: list[str], *_: Any) -> None:
+    def on_crit(self, args: list[str], *_: object) -> None:
         self.say(f"A critical hit on {self.who(args[0])}.")
 
-    def on_miss(self, args: list[str], *_: Any) -> None:
+    def on_miss(self, args: list[str], *_: object) -> None:
         self.say(f"{self.who(args[0])} missed.")
 
-    def on_fail(self, args: list[str], *_: Any) -> None:
+    def on_fail(self, args: list[str], *_: object) -> None:
         self.say(f"{self.who(args[0])}'s move failed.")
 
-    def on_singleturn(self, args: list[str], *_: Any) -> None:
+    def on_singleturn(self, args: list[str], *_: object) -> None:
         if args[1].removeprefix("move: ") in ("Protect", "Detect", "Spiky Shield"):
             self.say(f"{self.who(args[0])} protected itself.")
 
-    def on_activate(self, args: list[str], *_: Any) -> None:
+    def on_activate(self, args: list[str], *_: object) -> None:
         effect = args[1] if len(args) > 1 else ""
         if effect.startswith("move: "):
             name = effect[6:]
@@ -226,7 +226,7 @@ class FrameBuilder:
         elif effect.startswith(("ability: ", "item: ")):
             self.say(f"{self.who(args[0])}'s {effect.split(': ', 1)[1]} activated.")
 
-    def on_zbroken(self, args: list[str], *_: Any) -> None:
+    def on_zbroken(self, args: list[str], *_: object) -> None:
         self.say(f"The attack broke through {self.who(args[0])}'s protection.")
 
     def boost(self, args: list[str], words: dict[int, str], extreme: str) -> None:
@@ -236,13 +236,13 @@ class FrameBuilder:
         stat = STATS.get(args[1], args[1])
         self.say(f"{self.who(args[0])}'s {stat} {words.get(amount, extreme)}.")
 
-    def on_boost(self, args: list[str], *_: Any) -> None:
+    def on_boost(self, args: list[str], *_: object) -> None:
         self.boost(args, RISE, "rose drastically")
 
-    def on_unboost(self, args: list[str], *_: Any) -> None:
+    def on_unboost(self, args: list[str], *_: object) -> None:
         self.boost(args, FALL, "fell severely")
 
-    def on_ability(self, args: list[str], *_: Any) -> None:
+    def on_ability(self, args: list[str], *_: object) -> None:
         self.say(f"{self.who(args[0])}'s {args[1]} activated.")
 
     def on_enditem(self, args: list[str], _source: str | None, tags: list[str]) -> None:
@@ -251,39 +251,39 @@ class FrameBuilder:
         else:
             self.say(f"{self.who(args[0])}'s {args[1]} was used up.")
 
-    def on_status(self, args: list[str], *_: Any) -> None:
+    def on_status(self, args: list[str], *_: object) -> None:
         mon = self.slot(args[0])
         if mon is not None:
             mon["status"] = args[1]
         self.say(f"{self.who(args[0])} {STATUS.get(args[1], 'got ' + args[1])}.")
 
-    def on_curestatus(self, args: list[str], *_: Any) -> None:
+    def on_curestatus(self, args: list[str], *_: object) -> None:
         mon = self.slot(args[0])
         if mon is not None:
             mon["status"] = None
 
-    def on_fieldstart(self, args: list[str], *_: Any) -> None:
+    def on_fieldstart(self, args: list[str], *_: object) -> None:
         self.say(f"{args[0].removeprefix('move: ')} covered the field.")
 
-    def on_fieldend(self, args: list[str], *_: Any) -> None:
+    def on_fieldend(self, args: list[str], *_: object) -> None:
         self.say(f"{args[0].removeprefix('move: ')} faded.")
 
-    def on_cant(self, args: list[str], *_: Any) -> None:
+    def on_cant(self, args: list[str], *_: object) -> None:
         reason = {"flinch": " because it flinched", "par": " because it is paralyzed"}
         self.say(f"{self.who(args[0])} could not move{reason.get(args[1], '')}.")
 
-    def on_hitcount(self, args: list[str], *_: Any) -> None:
+    def on_hitcount(self, args: list[str], *_: object) -> None:
         self.say(f"It hit {args[1]} times.")
 
-    def on_player(self, args: list[str], *_: Any) -> None:
+    def on_player(self, args: list[str], *_: object) -> None:
         if len(args) > 1 and args[1]:
             self.players[args[1]] = args[0]
 
-    def on_win(self, args: list[str], *_: Any) -> None:
+    def on_win(self, args: list[str], *_: object) -> None:
         side = self.players.get(args[0])
         self.say(f"{self.labels[side] if side else args[0]} won.")
 
-    def on_tie(self, *_: Any) -> None:
+    def on_tie(self, *_: object) -> None:
         self.say("The game ended in a tie.")
 
 

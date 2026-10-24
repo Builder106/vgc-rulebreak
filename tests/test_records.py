@@ -74,7 +74,7 @@ def battle_script(winner: str) -> list[str]:
     ]
 
 
-def make_context(**overrides: Any) -> GameContext:
+def make_context(**overrides: Any) -> GameContext:  # noqa: ANN401
     fields: dict[str, Any] = {
         "stage": "benchmark",
         "variant": "protect-8",
@@ -93,7 +93,7 @@ def make_context(**overrides: Any) -> GameContext:
     return GameContext(**fields)
 
 
-def make_result(**overrides: Any) -> EvaluationBattleResult:
+def make_result(**overrides: Any) -> EvaluationBattleResult:  # noqa: ANN401
     fields: dict[str, Any] = {
         "winner": "SourceAgent",
         "turns": 9,
@@ -129,13 +129,13 @@ def test_run_evaluation_battle_captures_replay() -> None:
     stream = ScriptedStream(battle_script("Candidate"))
 
     class FakeProcess:
-        def __init__(self, showdown_dir: Any) -> None:
+        def __init__(self, showdown_dir: Any) -> None:  # noqa: ANN401
             pass
 
         def __enter__(self) -> ScriptedStream:
             return stream
 
-        def __exit__(self, *exc: Any) -> None:
+        def __exit__(self, *exc: Any) -> None:  # noqa: ANN401
             pass
 
     with patch("vgc_rulebreak.evaluation.ShowdownProcess", FakeProcess):
@@ -215,9 +215,14 @@ def test_compare_study_agents_records_every_game(tmp_path: Path) -> None:
     manifest = load_manifest(MANIFEST_PATH)
     recorder = GameRecorder(tmp_path, {})
 
-    def fake_battle(*args: Any, **kwargs: Any) -> EvaluationBattleResult:
+    def fake_battle(
+        candidate_agent: BattleAgent,
+        opponent_agent: BattleAgent,
+        format_id: str,
+        **_: object,
+    ) -> EvaluationBattleResult:
         return make_result(
-            winner=kwargs["candidate_agent"].name, replay={"log": [], "decisions": []}
+            winner=candidate_agent.name, replay={"log": [], "decisions": []}
         )
 
     with patch("vgc_rulebreak.evaluation.run_evaluation_battle", side_effect=fake_battle):

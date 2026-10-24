@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
 
-![Three research robots study a split hexagonal counter in a violet battle analysis room.](assets/vgc-rulebreak-banner.png)
+![VGC Rulebreak asks how competitive agents handle new rules in Pokémon Showdown, with a split shield showing Protect at 16 and 8 PP.](assets/vgc-rulebreak-banner.svg)
 
 VGC Rulebreak uses Pokémon Showdown to study how competitive agents handle rule changes. The first question: does cutting Protect from 16 PP to 8 make an agent's old habits costly?
 

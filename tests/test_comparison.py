@@ -77,10 +77,7 @@ def test_compare_study_agents_mocked() -> None:
         nonlocal call_count
         call_count += 1
         cand_won = call_count % 3 != 0
-        depleted = (
-            "Source" in candidate_agent.name
-            and format_id == "gen9rulebreakprotect8"
-        )
+        depleted = "Source" in candidate_agent.name and format_id == "gen9rulebreakprotect8"
         return EvaluationBattleResult(
             winner=candidate_agent.name if cand_won else opponent_agent.name,
             turns=10,

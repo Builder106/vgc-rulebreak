@@ -221,9 +221,7 @@ def test_compare_study_agents_records_every_game(tmp_path: Path) -> None:
         format_id: str,
         **_: object,
     ) -> EvaluationBattleResult:
-        return make_result(
-            winner=candidate_agent.name, replay={"log": [], "decisions": []}
-        )
+        return make_result(winner=candidate_agent.name, replay={"log": [], "decisions": []})
 
     with patch("vgc_rulebreak.evaluation.run_evaluation_battle", side_effect=fake_battle):
         compare_study_agents(spec=spec, manifest=manifest, quick=True, recorder=recorder)

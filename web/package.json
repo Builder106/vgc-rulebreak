@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "lint": "eslint \"src/**/*.{astro,ts,js,mjs}\" \"tests/**/*.{js,mjs,ts}\" astro.config.mjs eslint.config.mjs",
+    "lint": "eslint \"src/**/*.{astro,ts,js,mjs}\" \"tests/**/*.{js,mjs,ts}\" astro.config.mjs eslint.config.mjs --max-warnings 0",
     "test:browser": "node --test tests/browser.test.mjs"
   },
   "dependencies": {

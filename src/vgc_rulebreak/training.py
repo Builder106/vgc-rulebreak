@@ -257,7 +257,8 @@ def train_protect_policy(
         }
         path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
         written.append(path)
-        fitness = stats.get("mean_stats", {}).get("fitness")
+        mean_stats = stats.get("mean_stats")
+        fitness = mean_stats.get("fitness") if isinstance(mean_stats, dict) else None
         note = f"mean fitness {fitness:.3f}" if fitness is not None else "final mean"
         print(f"{path.name}: {note}", file=sys.stderr, flush=True)
 

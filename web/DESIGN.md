@@ -175,7 +175,7 @@ The chart plots Protect use rate, not points, because use rate is what explains 
 
 ### Regulations
 
-A horizontal list of study slots in the regulation-select style: Study P open, Rage Fist, Speed, full Champions transfer, and Tera/Mega locked with "not run yet". Locked slots are real text, not greyed decoration.
+A horizontal list of study slots in the regulation-select style: Study P open, then Anti-meta teams, Rage Fist, Speed, full Champions transfer, and Tera/Mega locked with "not run yet". Locked slots are real text, not greyed decoration.
 
 ### Team select
 

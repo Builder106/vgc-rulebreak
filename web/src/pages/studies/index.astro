@@ -5,6 +5,7 @@ import { totals } from '../../lib/data';
 const t = totals();
 const slots = [
   { code: 'P', name: 'Protect PP', change: 'Protect drops from 16 PP to 8.', href: '/studies/p/', state: `Run: ${t.games.toLocaleString('en-US')} games` },
+  { code: 'A', name: 'Anti-meta teams', change: 'A team built around an off-meta anchor faces agents tuned on the meta.', state: 'Next up' },
   { code: 'R', name: 'Rage Fist', change: 'Rage Fist power under the Champions rules.', state: 'Not run yet' },
   { code: 'S', name: 'Speed', change: 'Speed tiers and turn order under the new ruleset.', state: 'Not run yet' },
   { code: 'F', name: 'Full transfer', change: 'Every Champions rule at once, on a dated regulation.', state: 'Not run yet' },
@@ -16,11 +17,11 @@ const hints = [
   { key: 'Esc', label: 'Title', href: '/' },
 ];
 ---
-<Base title="Regulations" description="The studies planned for VGC Rulebreak. Each changes one rule between Scarlet/Violet and Champions. Only Study P has been run." hints={hints}>
+<Base title="Regulations" description="The studies planned for VGC Rulebreak. Each changes one thing: a rule between Scarlet/Violet and Champions, or the teams an agent faces. Only Study P has been run." hints={hints}>
   <div class="regs">
     <p class="screen-tab slant" data-enter><a href="/">Title</a><span aria-hidden="true">/</span><span aria-current="page">Regulations</span></p>
-    <h1 data-enter>Each study changes one rule</h1>
-    <p class="regs__lede" data-enter>A study holds teams, opponents, and seeds fixed and changes a single rule between Scarlet/Violet and Champions. Only Study P has results. The rest are planned and shown here so the site never implies more than it has.</p>
+    <h1 data-enter>Each study changes one thing</h1>
+    <p class="regs__lede" data-enter>A study holds everything else fixed and changes one thing: a rule between Scarlet/Violet and Champions, or the teams an agent faces. Only Study P has results. The rest are planned and shown here so the site never implies more than it has.</p>
     <ol class="regs__slots">
       {slots.map((s) => (
         <li class:list={['reg', 'panel', { 'reg--locked': !s.href }]} data-enter>
@@ -59,7 +60,7 @@ const hints = [
 
   .regs__slots {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
     margin-top: 12px;
   }

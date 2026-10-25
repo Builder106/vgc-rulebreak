@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-10-25: Grow by studies; anti-meta teams come next #decision
+
+VGC Rulebreak will keep adding studies after the Champions rule changes. Study A, on anti-meta teams, is the next one. It comes from the Pokémon Champions chapter of AnAverageRyan's "The Anti-Meta Mindset", where a team built around Hippowdon climbed from Great Ball rank 1 to the top of Ultra Ball tier while avoiding the most-used Pokémon.
+
+The user picked anchored search over a pure exploiter or hand-built favorites. Every candidate team must include an off-meta anchor and leave out species above a usage threshold, and a search fills the support slots against a frozen meta pool. This keeps the video's process and makes its result measurable. The study runs in Champions doubles to match the video, so it waits on the same pinned regulation as roadmap phase 4, plus a dated usage source.
+
+Two agent gaps block a fair test. The agents can't Mega Evolve, and `HeuristicAgent` orders team preview by Speed and offense, so it would bench a slow sand or Trick Room core. The anti-meta team would then lose to its own pilot. Both get fixed before any team search.
+
 ## 2026-10-23: Clarify the README with two diagrams #decision
 
 The README now shows the two relationships that need a picture: both Protect formats come from one Gen 9 base, and the public site joins result indexes with replays through the static export. The old linear workflow stays in prose. The diagrams and captions keep the historical Gen 9 versus full Champions games separate from the corrected Protect-only formats, which have not produced a new study yet.

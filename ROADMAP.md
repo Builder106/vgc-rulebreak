@@ -58,3 +58,19 @@ See [the showcase brief](docs/showcase.md) when the measured result is ready.
 - [ ] Document common species and unavoidable item/form differences.
 - [ ] Separate mechanic changes from unrelated rule changes.
 - [ ] Publish the limits of conclusions about human skill and metagame optimality.
+
+## 7. Study A: Anti-meta teams
+
+Study A is the next study to add. It shares phase 4's first item. See [the plan](docs/anti-meta.md).
+
+- [ ] Pin a dated Champions usage snapshot, record its terms, and fix the staple-ban threshold.
+- [ ] Build the meta pool and split it into search and held-out sets by team family.
+- [ ] Add Mega Evolution to the agents' actions.
+- [ ] Give team preview and move choice a plan for slow sand and Trick Room teams.
+- [ ] Rebuild the video's Hippowdon team as a labeled reference.
+- [ ] Search support slots around the anchor and compare with a random-support baseline.
+- [ ] Measure the anchored team against held-out meta teams, with intervals.
+- [ ] Compare meta-tuned and broadly tuned agents against the anchored team.
+- [ ] Repeat against a later usage snapshot.
+
+Exit when the anchored team's held-out result has intervals that can resolve a useful effect, and the pilot plays the reference team without benching its anchor.

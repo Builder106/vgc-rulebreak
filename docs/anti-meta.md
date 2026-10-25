@@ -45,9 +45,9 @@ A ranked win streak is an anecdote. It can't separate the team's strength from t
 
 ## Prerequisites
 
-- Pin and validate a dated Champions regulation. Roadmap phase 4 needs this too.
+- Pin and validate a dated Champions regulation. Studies F and T need this too, so it sits in the roadmap's shared foundation.
 - Choose a Champions usage source and record its date and terms.
-- Add Mega Evolution to the agents' actions. The reference team runs Tyranitarite, and both top meta threats in the video are Megas.
+- Add Mega Evolution to the agents' actions. The reference team runs Tyranitarite, and both top meta threats in the video are Megas. Study T needs this too.
 - Fix team preview for slow teams. `HeuristicAgent` orders its team by Speed and offense, and only the first four play, so it would bench a slow sand or Trick Room core such as Hippowdon and Farigiraf. It also has no Trick Room logic. A pilot that can't play the team would measure the pilot.
 
 ## Limits of the claims

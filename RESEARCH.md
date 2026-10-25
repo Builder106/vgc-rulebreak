@@ -4,6 +4,15 @@
 
 Teach an agent to play Scarlet/Violet, move it to Champions rules, and measure which habits cost it games and how it recovers. The public story follows individual decisions and matchups. Every headline must point to an experiment, replay, or measured result.
 
+## Studies
+
+The repository grows one study at a time. Each study gets a letter, a plan, and a row here. The evaluation protocol below applies to every study.
+
+| Study | Plan | Status |
+| --- | --- | --- |
+| P: Protect PP | [First experiment](#first-experiment-protect-pp) and the [audit](docs/protect-pp-audit.md) | Run; Protect-only rerun pending |
+| A: Anti-meta teams | [docs/anti-meta.md](docs/anti-meta.md) | Planned |
+
 ## Questions and controls
 
 | Question | Controlled comparison | Evidence |

@@ -6,11 +6,16 @@
 
 ![VGC Rulebreak asks how competitive agents handle new rules in Pokémon Showdown, with a split shield showing Protect at 16 and 8 PP.](assets/vgc-rulebreak-banner.svg)
 
-VGC Rulebreak uses Pokémon Showdown to study how competitive agents handle rule changes. The first question: does cutting Protect from 16 PP to 8 make an agent's old habits costly?
+VGC Rulebreak uses Pokémon Showdown to study how competitive agents handle what they weren't trained for: a new rule, or an opponent from outside the metagame. Each project is one study, and new studies are added over time.
 
-The first batch of games couldn't answer that question. It compared standard Gen 9 with the full Champions mod, which changes more than Protect. The code now has a pair of experimental formats whose overlay changes only Protect PP, but those games have not been rerun. The [research plan](RESEARCH.md) also covers Rage Fist, Speed, full Champions transfer, and Tera/Mega transfer.
+| Study | Question | Status |
+| --- | --- | --- |
+| P: Protect PP | Does cutting Protect from 16 PP to 8 make an agent's old habits costly? | 1,188 games recorded; Protect-only rerun pending |
+| A: Anti-meta teams | How strong can a team built around an off-meta anchor get, and do meta-tuned agents pay for their assumptions? | [Planned](docs/anti-meta.md) |
 
-## Project status
+The first batch of Study P games couldn't answer its question. It compared standard Gen 9 with the full Champions mod, which changes more than Protect. The code now has a pair of experimental formats whose overlay changes only Protect PP, but those games have not been rerun. The [research plan](RESEARCH.md) also covers Rage Fist, Speed, full Champions transfer, and Tera/Mega transfer.
+
+## Study P status
 
 The recorded study has 99 checkpoints and 1,188 held-out games. No agent ran out of Protect PP. Since the formats also differed in other mechanics, these games cannot tell us what the PP change alone did. The [study audit](docs/protect-pp-audit.md) explains the problem and what needs to happen before another outcome claim.
 

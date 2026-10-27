@@ -1,5 +1,9 @@
 # Journal
 
+## 2026-10-27: Audit the Astro dependencies in CI #ci #decision
+
+The showcase job already checked Astro, built the site, and tested browser flows. It now audits the frontend lockfile before those checks.
+
 ## 2026-10-25: Grow by studies; anti-meta teams come next #decision
 
 VGC Rulebreak will keep adding studies after the Champions rule changes. Study A, on anti-meta teams, is the next one. It comes from the Pokémon Champions chapter of AnAverageRyan's "The Anti-Meta Mindset", where a team built around Hippowdon climbed from Great Ball rank 1 to the top of Ultra Ball tier while avoiding the most-used Pokémon.

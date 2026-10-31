@@ -1,7 +1,7 @@
 ---
-import Base from '../../layouts/Base.astro';
-import Sigil from '../../components/Sigil.astro';
-import { AGENT_INFO, AGENTS, battles, teamName, testTeams } from '../../lib/data';
+import Base from '@/layouts/Base.astro';
+import Sigil from '@/components/Sigil.astro';
+import { AGENT_INFO, AGENTS, battles, teamName, testTeams } from '@/lib/data';
 
 export function getStaticPaths() {
   return testTeams().map((team) => ({ params: { id: team.id }, props: { team } }));

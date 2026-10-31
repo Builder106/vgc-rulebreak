@@ -1,6 +1,6 @@
 ---
-import Base from '../layouts/Base.astro';
-import { AGENT_INFO, AGENTS, battles, ppCap, resultWord, teamName, totals } from '../lib/data';
+import Base from '@/layouts/Base.astro';
+import { AGENT_INFO, AGENTS, battles, ppCap, resultWord, teamName, totals } from '@/lib/data';
 
 const rows = battles();
 const t = totals();
@@ -104,7 +104,7 @@ const hints = [
 </Base>
 
 <script>
-  import { onPage } from '../engine';
+  import { onPage } from '@/engine';
 
   const FILTERS = ['agent', 'result', 'protect', 'seed', 'gen'] as const;
   const AGENT_ORDER = ['source', 'native', 'adapted'];

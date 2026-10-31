@@ -1,6 +1,6 @@
 // Global keys: a key press clicks the hint-row control with the matching data-key.
 // Menus ([data-menu]) also move the cursor with the arrow keys.
-import { onPage } from '../engine';
+import { onPage } from '@/engine';
 
 const typing = (el: EventTarget | null) =>
   el instanceof HTMLElement && (el.isContentEditable || /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName));

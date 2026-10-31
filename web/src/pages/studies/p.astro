@@ -1,6 +1,6 @@
 ---
-import Base from '../../layouts/Base.astro';
-import { AGENT_INFO, AGENTS, featured, recovery, study, teamName, testTeams, totals, type Agent } from '../../lib/data';
+import Base from '@/layouts/Base.astro';
+import { AGENT_INFO, AGENTS, featured, recovery, study, teamName, testTeams, totals, type Agent } from '@/lib/data';
 
 const series = recovery();
 const t = totals();
@@ -152,7 +152,7 @@ const hints = [
 </Base>
 
 <script>
-  import { onPage } from '../../engine';
+  import { onPage } from '@/engine';
 
   interface Row {
     g: number;

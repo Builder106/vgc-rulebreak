@@ -1,6 +1,6 @@
 // The battle screen: steps through recorded turn frames and plays the rule switch.
 import { gsap } from 'gsap';
-import { ease, onPage, prefersReducedMotion } from '../engine';
+import { ease, onPage, prefersReducedMotion } from '@/engine';
 
 type Side = 'p1' | 'p2';
 interface Mon {

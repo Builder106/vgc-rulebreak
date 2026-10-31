@@ -1,7 +1,7 @@
 ---
-import Base from '../../layouts/Base.astro';
-import Sigil from '../../components/Sigil.astro';
-import Shield from '../../components/Shield.astro';
+import Base from '@/layouts/Base.astro';
+import Sigil from '@/components/Sigil.astro';
+import Shield from '@/components/Shield.astro';
 import {
   AGENT_INFO,
   battle as loadBattle,
@@ -13,7 +13,7 @@ import {
   type Frame,
   type Mon,
   type Side,
-} from '../../lib/data';
+} from '@/lib/data';
 
 export function getStaticPaths() {
   return battles().map((b) => ({ params: { id: b.id } }));
@@ -206,7 +206,7 @@ const slotName = (side: Side, i: number) => `${side}${'ab'[i]}`;
 </Base>
 
 <script>
-  import '../../scripts/battle';
+  import '@/scripts/battle';
 </script>
 
 <style>

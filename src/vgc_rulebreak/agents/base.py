@@ -69,6 +69,9 @@ def get_legal_slot_choices(
         p_cond = pokemon_list[partner_idx].get("condition", "")
         partner_alive = "fnt" not in p_cond and not p_cond.startswith("0/")
 
+    can_mega = bool(slot_active.get("canMegaEvo", False))
+    move_choices: list[str] = []
+
     for m_idx, move in enumerate(moves, start=1):
         if move.get("disabled", False):
             continue
@@ -82,16 +85,21 @@ def get_legal_slot_choices(
         # Field, side, spread, and self moves do not specify a target index.
         if target in {"normal", "any", "adjacentFoe"}:
             for f in range(1, max(foe_count, 1) + 1):
-                choices.append(f"move {m_idx} {f}")
+                move_choices.append(f"move {m_idx} {f}")
         elif target == "adjacentAlly":
             if partner_alive:
-                choices.append(f"move {m_idx} -{partner_idx + 1}")
+                move_choices.append(f"move {m_idx} -{partner_idx + 1}")
         elif target == "adjacentAllyOrSelf":
             if partner_alive:
-                choices.append(f"move {m_idx} -{partner_idx + 1}")
-            choices.append(f"move {m_idx} -{slot_idx + 1}")
+                move_choices.append(f"move {m_idx} -{partner_idx + 1}")
+            move_choices.append(f"move {m_idx} -{slot_idx + 1}")
         else:
-            choices.append(f"move {m_idx}")
+            move_choices.append(f"move {m_idx}")
+
+    choices.extend(move_choices)
+    if can_mega:
+        for mc in move_choices:
+            choices.append(f"{mc} mega")
 
     # Also consider legal switches if slot is not trapped
     if not slot_active.get("trapped", False):

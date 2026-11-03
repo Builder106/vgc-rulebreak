@@ -131,3 +131,179 @@ def test_get_legal_slot_choices_trapped() -> None:
     assert "move 1 1" in choices
     # Trapped slot must not emit switch choices
     assert not any(c.startswith("switch ") for c in choices)
+
+
+def test_get_legal_slot_choices_mega_evolution() -> None:
+    slot_active = {
+        "canMegaEvo": True,
+        "moves": [
+            {
+                "move": "Rock Slide",
+                "id": "rockslide",
+                "pp": 10,
+                "disabled": False,
+                "target": "allAdjacentFoes",
+            }
+        ],
+    }
+    pokemon = [{"active": True, "condition": "100/100"}]
+    choices = get_legal_slot_choices(slot_active, pokemon)
+    assert "move 1" in choices
+    assert "move 1 mega" in choices
+
+
+def test_heuristic_agent_prioritizes_mega_evolution() -> None:
+    agent = HeuristicAgent("HeuristicMega")
+    req = {
+        "active": [
+            {
+                "canMegaEvo": True,
+                "moves": [
+                    {
+                        "move": "Rock Slide",
+                        "id": "rockslide",
+                        "pp": 10,
+                        "disabled": False,
+                        "target": "allAdjacentFoes",
+                    }
+                ],
+            }
+        ],
+        "side": {
+            "pokemon": [
+                {
+                    "ident": "p1: Tyranitar",
+                    "condition": "100/100",
+                    "active": True,
+                }
+            ]
+        },
+    }
+    choice = agent.choose_action(req)
+    assert choice == "move 1 mega"
+
+
+def test_heuristic_agent_trick_room_lifecycle() -> None:
+    agent = HeuristicAgent("HeuristicTR")
+    req = {
+        "active": [
+            {
+                "moves": [
+                    {
+                        "move": "Trick Room",
+                        "id": "trickroom",
+                        "pp": 8,
+                        "disabled": False,
+                        "target": "self",
+                    },
+                    {
+                        "move": "Psychic",
+                        "id": "psychic",
+                        "pp": 10,
+                        "disabled": False,
+                        "target": "normal",
+                    },
+                ]
+            }
+        ],
+        "side": {
+            "pokemon": [
+                {
+                    "ident": "p1: Farigiraf",
+                    "condition": "100/100",
+                    "active": True,
+                }
+            ]
+        },
+    }
+    # Turn 1: Trick Room is set because it is not active
+    choice1 = agent.choose_action(req)
+    assert choice1 == "move 1"
+
+    # Turn 2: Trick Room is already active, so Psychic is chosen instead of cancelling TR
+    choice2 = agent.choose_action(req)
+    assert choice2.startswith("move 2")
+
+
+def test_heuristic_agent_team_preview_brings_slow_anchor() -> None:
+    agent = HeuristicAgent("HeuristicPreview")
+    req = {
+        "teamPreview": True,
+        "side": {
+            "pokemon": [
+                {
+                    "ident": "p1: Hippowdon",
+                    "stats": {"hp": 215, "atk": 180, "def": 138, "spa": 88, "spd": 92, "spe": 47},
+                    "moves": ["bodypress", "heavyslam", "earthquake", "protect"],
+                    "baseAbility": "sandforce",
+                },
+                {
+                    "ident": "p1: Tyranitar",
+                    "stats": {
+                        "hp": 207,
+                        "atk": 204,
+                        "def": 130,
+                        "spa": 103,
+                        "spd": 120,
+                        "spe": 61,
+                    },
+                    "moves": ["rockslide", "knockoff", "lowkick", "protect"],
+                    "baseAbility": "sandstream",
+                },
+                {
+                    "ident": "p1: Farigiraf",
+                    "stats": {"hp": 227, "atk": 99, "def": 90, "spa": 178, "spd": 90, "spe": 58},
+                    "moves": ["trickroom", "hypervoice", "psychic", "protect"],
+                    "baseAbility": "armortail",
+                },
+                {
+                    "ident": "p1: Sinistcha",
+                    "stats": {
+                        "hp": 178,
+                        "atk": 72,
+                        "def": 173,
+                        "spa": 141,
+                        "spd": 100,
+                        "spe": 85,
+                    },
+                    "moves": ["matchagotcha", "lifedew", "ragepowder", "protect"],
+                    "baseAbility": "hospitality",
+                },
+                {
+                    "ident": "p1: Decidueye",
+                    "stats": {
+                        "hp": 185,
+                        "atk": 174,
+                        "def": 95,
+                        "spa": 108,
+                        "spd": 117,
+                        "spe": 70,
+                    },
+                    "moves": ["leafblade", "bravebird", "lowkick", "protect"],
+                    "baseAbility": "longreach",
+                },
+                {
+                    "ident": "p1: Rotom-Heat",
+                    "stats": {
+                        "hp": 157,
+                        "atk": 76,
+                        "def": 127,
+                        "spa": 172,
+                        "spd": 127,
+                        "spe": 106,
+                    },
+                    "moves": ["overheat", "thunderbolt", "willowisp", "protect"],
+                    "baseAbility": "levitate",
+                },
+            ]
+        },
+    }
+    preview_choice = agent.choose_action(req)
+    # Output format is "team <order>", e.g. "team 132456"
+    assert preview_choice.startswith("team ")
+    order_digits = preview_choice.split()[1]
+    # In VGC doubles, first 4 are brought into battle
+    brought_indices = [int(d) for d in order_digits[:4]]
+    # Hippowdon (index 1) and Farigiraf (index 3) MUST be in the top 4
+    assert 1 in brought_indices
+    assert 3 in brought_indices

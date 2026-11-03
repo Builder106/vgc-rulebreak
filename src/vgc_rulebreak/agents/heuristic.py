@@ -164,7 +164,17 @@ SPECIES_STAB_MOVES: dict[str, set[str]] = {
     "annihilape": {"ragefist", "drainpunch", "closecombat"},
     "torkoal": {"eruption", "heatwave", "solarbeam"},
     "chiyu": {"heatwave", "darkpulse", "overheat", "snarl"},
-    "farigiraf": {"hypervoice", "psychic"},
+    "farigiraf": {"hypervoice", "psychic", "twinbeam"},
+    "hippowdon": {"earthquake", "highhorsepower", "stompingtantrum", "bodypress", "heavyslam"},
+    "tyranitar": {"rockslide", "stoneedge", "knockoff", "crunch", "lowkick"},
+    "sinistcha": {"matchagotcha", "shadowball", "lifedew"},
+    "decidueye": {"leafblade", "bravebird", "spiritshackle", "lowkick"},
+    "rotomheat": {"overheat", "thunderbolt", "voltswitch", "discharge"},
+    "archaludon": {"electroshot", "flashcannon", "dracometeor", "bodypress"},
+    "sneasler": {"direclaw", "closecombat"},
+    "basculegion": {"wavecrash", "lastrespects", "aquajet"},
+    "charizard": {"heatwave", "overheat", "flamethrower", "airslash", "solarbeam"},
+    "floette": {"moonblast", "dazzlinggleam", "lightofruin"},
 }
 MOVE_POWER: dict[str, int] = {
     "tackle": 40,
@@ -210,6 +220,23 @@ MOVE_POWER: dict[str, int] = {
     "thunderbolt": 90,
     "stompingtantrum": 75,
     "rockslide": 75,
+    "earthquake": 100,
+    "heavyslam": 100,
+    "matchagotcha": 80,
+    "leafblade": 90,
+    "bravebird": 120,
+    "lowkick": 80,
+    "trickroom": 0,
+    "stoneedge": 100,
+    "direclaw": 80,
+    "wavecrash": 120,
+    "lastrespects": 100,
+    "twinbeam": 80,
+    "spiritshackle": 80,
+    "willowisp": 0,
+    "ragepowder": 0,
+    "followme": 0,
+    "lifedew": 0,
 }
 
 
@@ -222,11 +249,13 @@ class HeuristicAgent(BattleAgent):
         self._used_protect_last_turn: dict[int, bool] = {0: False, 1: False}
         self._turns_active: dict[int, int] = {0: 0, 1: 0}
         self._tailwind_turns_left: int = 0
+        self._trick_room_turns_left: int = 0
 
     def reset(self) -> None:
         self._used_protect_last_turn = {0: False, 1: False}
         self._turns_active = {0: 0, 1: 0}
         self._tailwind_turns_left = 0
+        self._trick_room_turns_left = 0
 
     def score_protect(
         self,
@@ -242,17 +271,74 @@ class HeuristicAgent(BattleAgent):
         return 50.0
 
     def choose_action(self, request: dict[str, Any]) -> str:
-        # 1. Handle team preview: order by speed and offensive presence
+        # 1. Handle team preview: order intelligently by synergy, speed control, and core anchors
         if request.get("teamPreview"):
             pokemon_list = request.get("side", {}).get("pokemon", [])
             if pokemon_list:
+                # Detect team archetypes
+                has_trick_room = any(
+                    any(
+                        m.lower().replace(" ", "").replace("-", "") == "trickroom"
+                        for m in p.get("moves", [])
+                    )
+                    for p in pokemon_list
+                )
 
                 def lead_score(p: dict[str, Any]) -> float:
                     stats = p.get("stats", {})
                     spe = float(stats.get("spe", 100))
                     spa = float(stats.get("spa", 100))
                     atk = float(stats.get("atk", 100))
-                    return spe * 1.5 + max(spa, atk)
+                    moves = [
+                        m.lower().replace(" ", "").replace("-", "") for m in p.get("moves", [])
+                    ]
+                    raw_ident = p.get("ident", "").lower().replace(" ", "").replace("-", "")
+                    ability = (
+                        str(p.get("baseAbility", "")).lower().replace(" ", "").replace("-", "")
+                    )
+
+                    offense = max(spa, atk)
+                    bulk = (
+                        float(stats.get("hp", 100))
+                        + float(stats.get("def", 100))
+                        + float(stats.get("spd", 100))
+                    ) / 3.0
+
+                    # Speed control & key support moves
+                    support_bonus = 0.0
+                    if "trickroom" in moves:
+                        support_bonus += 120.0
+                    if "tailwind" in moves:
+                        support_bonus += 100.0
+                    if "fakeout" in moves:
+                        support_bonus += 60.0
+                    if "ragepowder" in moves or "followme" in moves:
+                        support_bonus += 50.0
+                    if "spore" in moves:
+                        support_bonus += 60.0
+
+                    # Weather & terrain & abilities
+                    if ability in {
+                        "sandstream",
+                        "drought",
+                        "drizzle",
+                        "snowwarning",
+                        "psychicsurge",
+                        "armortail",
+                    }:
+                        support_bonus += 40.0
+
+                    # Key anchor preservation (e.g. Hippowdon)
+                    if "hippowdon" in raw_ident:
+                        support_bonus += 150.0
+
+                    if has_trick_room:
+                        # Under Trick Room teams, slow attackers thrive and setters lead
+                        speed_factor = (150.0 - min(spe, 150.0)) * 1.2
+                        return support_bonus + speed_factor + offense + bulk * 0.5
+                    else:
+                        # Standard fast offensive lead
+                        return support_bonus + (spe * 1.5) + offense + bulk * 0.3
 
                 indexed = list(enumerate(pokemon_list, start=1))
                 indexed.sort(key=lambda item: lead_score(item[1]), reverse=True)
@@ -320,11 +406,17 @@ class HeuristicAgent(BattleAgent):
 
                     if move_id in {"protect", "spikyshield", "detect"}:
                         score = self.score_protect(move_info, slot_idx, hp_ratio)
+                    elif move_id == "trickroom":
+                        score = 0.0 if self._trick_room_turns_left > 0 else 145.0
                     elif move_id == "tailwind":
                         # Tailwind setup is high priority on turn 1
                         score = 0.0 if self._tailwind_turns_left > 0 else 140.0
                     elif move_id == "fakeout":
                         score = 90.0 if self._turns_active.get(slot_idx, 0) == 0 else 0.0
+                    elif move_id in {"ragepowder", "followme"}:
+                        score = 85.0
+                    elif move_id == "willowisp":
+                        score = 80.0
                     elif move_id == "spore":
                         score = 110.0
                     elif move_id == "helpinghand":
@@ -345,12 +437,15 @@ class HeuristicAgent(BattleAgent):
                         if target in {"allAdjacentFoes", "allAdjacent", "all"}:
                             score *= 1.35
                         # Target slot preference to split focus across foes
-                        if len(parts) > 2:
+                        if len(parts) > 2 and parts[2].isdigit():
                             target_slot = int(parts[2])
                             if target_slot > 0:
                                 preferred_target = 2 if slot_idx == 0 else 1
                                 if target_slot == preferred_target:
                                     score += 5.0
+
+                    if choice.endswith(" mega"):
+                        score += 60.0
 
                 if score > best_score:
                     best_score = score
@@ -367,6 +462,8 @@ class HeuristicAgent(BattleAgent):
                 move_id = move_info.get("id", "")
                 if move_id == "tailwind":
                     self._tailwind_turns_left = 4
+                elif move_id == "trickroom":
+                    self._trick_room_turns_left = 5
                 self._used_protect_last_turn[slot_idx] = move_id in {
                     "protect",
                     "spikyshield",
@@ -378,5 +475,7 @@ class HeuristicAgent(BattleAgent):
 
         if self._tailwind_turns_left > 0:
             self._tailwind_turns_left -= 1
+        if self._trick_room_turns_left > 0:
+            self._trick_room_turns_left -= 1
 
         return ", ".join(chosen_actions)

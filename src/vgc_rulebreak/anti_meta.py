@@ -27,7 +27,7 @@ class UsageSnapshot:
         clean = species.strip().lower().replace(" ", "").replace("-", "")
         for banned in self.banned_species:
             b_clean = banned.strip().lower().replace(" ", "").replace("-", "")
-            if clean == b_clean or clean in b_clean:
+            if clean == b_clean or clean in b_clean or b_clean in clean:
                 return True
         return False
 
@@ -45,7 +45,12 @@ def load_usage_snapshot(path: Path | str) -> UsageSnapshot:
         raise ValueError("species_usage must be a dictionary")
 
     usage: dict[str, float] = {str(k): float(v) for k, v in raw_usage.items()}
-    banned = frozenset(k for k, v in usage.items() if v >= threshold)
+    if "banned_species" in data and isinstance(data["banned_species"], list):
+        banned = frozenset(str(k) for k in data["banned_species"])
+    elif data.get("ranking_mode") == "position" or data.get("metric") == "rank":
+        banned = frozenset(k for k, v in usage.items() if v <= threshold)
+    else:
+        banned = frozenset(k for k, v in usage.items() if v >= threshold)
 
     return UsageSnapshot(
         schema_version=int(data.get("schema_version", 1)),

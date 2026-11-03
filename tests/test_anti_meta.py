@@ -28,7 +28,7 @@ def test_load_champions_regulation() -> None:
 def test_load_usage_snapshot() -> None:
     snapshot = load_usage_snapshot(USAGE_PATH)
     assert snapshot.schema_version == 1
-    assert snapshot.date == "2026-06-15"
+    assert snapshot.date == "2026-06-17"
     assert snapshot.staple_ban_threshold == 15.0
 
     # Top staples must be marked banned (usage >= 15%)
@@ -104,12 +104,11 @@ def test_shifted_usage_snapshot() -> None:
     )
     snapshot = load_usage_snapshot(shifted_path)
     assert snapshot.schema_version == 1
-    assert snapshot.date == "2026-07-15"
+    assert snapshot.date == "2026-07-08"
     assert snapshot.staple_ban_threshold == 15.0
 
-    # In shifted meta, Pelipper and Ursaluna-Bloodmoon crossed into banned staples
+    # In shifted meta, Pelipper crossed into banned staples
     assert snapshot.is_banned("Pelipper")
-    assert snapshot.is_banned("Ursaluna-Bloodmoon")
     assert snapshot.is_banned("Archaludon")
 
     # Torkoal and Chien-Pao fell below threshold

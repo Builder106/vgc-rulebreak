@@ -1,6 +1,14 @@
 # Journal
 
-## 2026-11-02: Shared foundation upgrades and Study A launch #milestone
+## 2026-11-03: Meta-tuned agent comparison and meta shift evaluation for Study A #milestone
+
+Implemented `BroadlyTunedAgent`, `MetaTunedAgent`, and `AdaptedAntiMetaAgent` to isolate whether metagame assumptions cost wins against off-meta anchored teams. In `BattleAgent`, agents now receive Showdown battle messages through `observe_message`, tracking opposing active slots, fainting events, and field state without leaking private information.
+
+When facing the reference Hippowdon sand team, `MetaTunedAgent` discounts the off-meta anchor (-25.0 target priority) while focus-firing standard meta staples, letting Hippowdon sweep under Sand Force. Mirrored evaluation confirms that this assumption costs 1.0 points per game (`meta_assumption_cost = 1.0` vs `BroadlyTunedAgent`). When adapted to prioritize the anchor (+35.0 target priority), `AdaptedAntiMetaAgent` recovers full performance against the anti-meta team (`adaptation_recovery = 1.0`).
+
+Pinned a shifted ladder usage snapshot (`experiments/champions-usage-2026-07.json`) capturing the post-sun rain and Trick Room surge, where Pelipper (17.2%) and Ursaluna-Bloodmoon (16.5%) crossed into banned staples while Torkoal and Chien-Pao fell below 15.0%. Hippowdon (6.5%) and all five reference support species remain strictly legal under the staple ban. Evaluating Hippowdon sand across both snapshots shows an initial 0.50 PPG against the June 2026 meta that drops to 0.25 PPG against the shifted Bloodmoon Trick Room meta (-0.25 delta PPG), documenting that the team's competitive edge is vulnerable to shifts in opposing Trick Room presence.
+
+Added `anti-meta-compare` and `anti-meta-shift` CLI subcommands. Completed the remaining Study A modeling checklist items on the roadmap.
 
 Added Mega Evolution actions to the agent choice space and heuristic scoring. `HeuristicAgent` now recognizes Trick Room and slow sand archetypes at team preview: it evaluates support setup, weather, and bulk rather than ranking solely by raw Speed and offensive stats. Slow anchors such as Hippowdon and setters such as Farigiraf are protected from being benched. In battle, `HeuristicAgent` tracks active Trick Room turns to set it promptly and avoid cancelling it on consecutive turns.
 

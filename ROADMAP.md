@@ -59,10 +59,8 @@ In progress. See [the plan](docs/anti-meta.md). Uses the pinned Champions regula
 - [x] Rebuild the video's Hippowdon team as a labeled reference.
 - [x] Search support slots around the anchor and compare with a random-support baseline.
 - [x] Measure the anchored team against held-out meta teams, with intervals.
-- [ ] Compare meta-tuned and broadly tuned agents against the anchored team.
-- [ ] Repeat against a later usage snapshot.
-- [ ] Compare meta-tuned and broadly tuned agents against the anchored team.
-- [ ] Repeat against a later usage snapshot.
+- [x] Compare meta-tuned and broadly tuned agents against the anchored team.
+- [x] Repeat against a later usage snapshot.
 
 Exit when the anchored team's held-out result has intervals that can resolve a useful effect, and the pilot plays the reference team without benching its anchor.
 

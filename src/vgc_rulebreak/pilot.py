@@ -380,3 +380,183 @@ def update_spec_with_pilot(spec_path: Path | str, report: PilotReport) -> None:
     readiness["compute_budget_seconds"] = report.recommended_compute_budget_seconds
 
     path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+
+
+@dataclass(frozen=True)
+class ScarcityReport:
+    total_battles: int
+    avg_turns: float
+    stalls: int
+    p16_opportunities: int
+    p16_choices: int
+    p16_rate: float
+    p8_opportunities: int
+    p8_choices: int
+    p8_rate: float
+    min_pp_p16: int
+    min_pp_p8: int
+    depletions_p16: int
+    depletions_p8: int
+    scarcity_binds: bool
+
+
+def _min_protect_pp(request: dict[str, Any] | None) -> int:
+    """Return the lowest observed Protect PP on active Pokemon, or 99 if none active."""
+    if not request:
+        return 99
+    lowest = 99
+    active = request.get("active", [])
+    for slot in active:
+        if not slot:
+            continue
+        for move in slot.get("moves", []):
+            if move.get("id") in PROTECT_MOVE_IDS:
+                pp = int(move.get("pp", 99))
+                if pp < lowest:
+                    lowest = pp
+    return lowest
+
+
+def run_scarcity_pilot(
+    manifest_path: Path | str,
+    pairs: int = 2,
+    showdown_dir: Path | str | None = None,
+    p1_agent: BattleAgent | None = None,
+    p2_agent: BattleAgent | None = None,
+    max_turns: int = 50,
+) -> ScarcityReport:
+    """Run behavioral scarcity pilot on held-out teams to test if Protect 8 PP binds."""
+    manifest = load_manifest(manifest_path)
+    test_ids = list(manifest.splits.get("test", ()))
+    if len(test_ids) < 2:
+        test_ids = list(manifest.teams.keys())[:2]
+
+    t1 = manifest.teams[test_ids[0]]
+    t2 = manifest.teams[test_ids[1]]
+
+    agent_a = p1_agent or HeuristicAgent("ScarcityHeuristicA")
+    agent_b = p2_agent or HeuristicAgent("ScarcityHeuristicB")
+
+    tot_battles = 0
+    tot_turns = 0
+    stalls = 0
+
+    p16_opps = 0
+    p16_choices = 0
+    p16_min_pp = 16
+    p16_depletions = 0
+
+    p8_opps = 0
+    p8_choices = 0
+    p8_min_pp = 8
+    p8_depletions = 0
+
+    for pair in range(pairs):
+        seed_base = 20000 + pair * 20
+
+        # Run under Protect-16 and Protect-8 in mirrored seats
+        for fmt, is_p8 in [
+            ("gen9rulebreakprotect16", False),
+            ("gen9rulebreakprotect8", True),
+        ]:
+            for swap in (False, True):
+                pa = agent_a
+                pb = agent_b
+                p1_team = t1.packed if not swap else t2.packed
+                p2_team = t2.packed if not swap else t1.packed
+                b_seed = (seed_base, seed_base + 1, seed_base + 2, seed_base + 3)
+
+                pa.reset()
+                pb.reset()
+
+                with ShowdownProcess(showdown_dir) as process:
+                    session = BattleSession(process)
+                    session.start(fmt, pa.name, p1_team, pb.name, p2_team, seed=b_seed)
+
+                    while not session.is_ended and session.turn < max_turns:
+                        p1_can_act = session.p1_request is not None and not session.p1_request.get(
+                            "wait", False
+                        )
+                        p2_can_act = session.p2_request is not None and not session.p2_request.get(
+                            "wait", False
+                        )
+
+                        if not p1_can_act and not p2_can_act:
+                            break
+
+                        # Check remaining PP
+                        min1 = _min_protect_pp(session.p1_request)
+                        min2 = _min_protect_pp(session.p2_request)
+                        cur_min = min(min1, min2)
+
+                        depleted = _check_protect_depleted(
+                            session.p1_request
+                        ) or _check_protect_depleted(session.p2_request)
+
+                        if is_p8:
+                            if cur_min < p8_min_pp:
+                                p8_min_pp = cur_min
+                            if depleted:
+                                p8_depletions += 1
+                        else:
+                            if cur_min < p16_min_pp:
+                                p16_min_pp = cur_min
+                            if depleted:
+                                p16_depletions += 1
+
+                        # Opportunities
+                        opps = _count_protect_opportunities(
+                            session.p1_request
+                        ) + _count_protect_opportunities(session.p2_request)
+
+                        p1_choice = (
+                            pa.choose_action(session.p1_request)
+                            if (p1_can_act and session.p1_request)
+                            else None
+                        )
+                        p2_choice = (
+                            pb.choose_action(session.p2_request)
+                            if (p2_can_act and session.p2_request)
+                            else None
+                        )
+
+                        chosen = _count_protect_choices(
+                            session.p1_request, p1_choice
+                        ) + _count_protect_choices(session.p2_request, p2_choice)
+
+                        if is_p8:
+                            p8_opps += opps
+                            p8_choices += chosen
+                        else:
+                            p16_opps += opps
+                            p16_choices += chosen
+
+                        turn_res = session.step(p1_choice, p2_choice)
+                        if turn_res.is_ended:
+                            break
+
+                    tot_battles += 1
+                    tot_turns += session.turn
+                    if session.turn >= max_turns and not session.is_ended:
+                        stalls += 1
+
+    p16_rate = p16_choices / max(p16_opps, 1)
+    p8_rate = p8_choices / max(p8_opps, 1)
+    scarcity_binds = (p8_depletions > 0) or (p8_min_pp <= 0)
+
+    return ScarcityReport(
+        total_battles=tot_battles,
+        avg_turns=tot_turns / max(tot_battles, 1),
+        stalls=stalls,
+        p16_opportunities=p16_opps,
+        p16_choices=p16_choices,
+        p16_rate=p16_rate,
+        p8_opportunities=p8_opps,
+        p8_choices=p8_choices,
+        p8_rate=p8_rate,
+        min_pp_p16=p16_min_pp,
+        min_pp_p8=p8_min_pp,
+        depletions_p16=p16_depletions,
+        depletions_p8=p8_depletions,
+        scarcity_binds=scarcity_binds,
+    )

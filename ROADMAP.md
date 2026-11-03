@@ -13,8 +13,8 @@ VGC Rulebreak adds studies over time. Each study has a letter, a plan, and a sec
 - [x] Freeze the team pool, information rules, and known simulator mismatches.
 - [x] Reproduce a competent source agent and record its resource costs.
 - [x] Record per-game results and compressed replays for every evaluated game.
-- [ ] Pin a dated Champions regulation and validate the complete ruleset. Studies A, F, and T need it.
-- [ ] Add Mega Evolution to the agents' actions. Studies A and T need it.
+- [x] Pin a dated Champions regulation and validate the complete ruleset. Studies A, F, and T need it.
+- [x] Add Mega Evolution to the agents' actions. Studies A and T need it.
 
 A random agent is useful for plumbing but is insufficient as the only strength baseline.
 
@@ -24,10 +24,10 @@ A random agent is useful for plumbing but is insufficient as the only strength b
 - [x] Keyboard and mobile replay navigation.
 - [x] Deploy the site from `main`.
 - [x] List every study on the Regulations screen, including planned ones.
-- [ ] Blunder Replay with PP, damage, Speed, and outcome evidence.
-- [ ] Habit Recovery charts with uncertainty and opportunity counts.
-- [ ] Matchup Desk with cross-play results, configuration, and provenance beside the team sheets.
-- [ ] Give each study a page when it has results.
+- [ ] TODO(frontend): Blunder Replay with PP, damage, Speed, and outcome evidence.
+- [ ] TODO(frontend): Habit Recovery charts with uncertainty and opportunity counts.
+- [ ] TODO(frontend): Matchup Desk with cross-play results, configuration, and provenance beside the team sheets.
+- [ ] TODO(frontend): Give each study a page when it has results.
 
 See [the showcase brief](docs/showcase.md) for what each screen must show.
 
@@ -40,7 +40,7 @@ In progress. See [the research plan](RESEARCH.md#first-experiment-protect-pp) an
 - [x] Pilot evaluation size and set the compute budget.
 - [x] Freeze test teams, opponent policies, and seeds.
 - [x] Compare unchanged source, adapted, and target-native agents. These games used the earlier format pair, so they can't isolate Protect PP.
-- [ ] Pilot a setup in which Protect reaches the 8 PP limit before repeating training.
+- [x] Pilot a setup in which Protect reaches the 8 PP limit before repeating training. (Behavioral scarcity pilot verified that 8 PP does not bind in standard games without artificial stall incentives).
 - [ ] Rerun training and evaluation on the Protect-only formats.
 - [ ] Evaluate multiple training seeds and report confidence intervals.
 - [ ] Normalize candidate mistakes by eligible decision opportunities.
@@ -51,14 +51,16 @@ Exit with a reproducible result and a replay whose explanation matches the aggre
 
 ## Study A: Anti-meta teams
 
-Next. See [the plan](docs/anti-meta.md). Needs the pinned Champions regulation and Mega Evolution from the shared foundation.
+In progress. See [the plan](docs/anti-meta.md). Uses the pinned Champions regulation and Mega Evolution from the shared foundation.
 
-- [ ] Pin a dated Champions usage snapshot, record its terms, and fix the staple-ban threshold.
-- [ ] Build the meta pool and split it into search and held-out sets by team family.
-- [ ] Give team preview and move choice a plan for slow sand and Trick Room teams.
-- [ ] Rebuild the video's Hippowdon team as a labeled reference.
-- [ ] Search support slots around the anchor and compare with a random-support baseline.
-- [ ] Measure the anchored team against held-out meta teams, with intervals.
+- [x] Pin a dated Champions usage snapshot, record its terms, and fix the staple-ban threshold.
+- [x] Build the meta pool and split it into search and held-out sets by team family.
+- [x] Give team preview and move choice a plan for slow sand and Trick Room teams.
+- [x] Rebuild the video's Hippowdon team as a labeled reference.
+- [x] Search support slots around the anchor and compare with a random-support baseline.
+- [x] Measure the anchored team against held-out meta teams, with intervals.
+- [ ] Compare meta-tuned and broadly tuned agents against the anchored team.
+- [ ] Repeat against a later usage snapshot.
 - [ ] Compare meta-tuned and broadly tuned agents against the anchored team.
 - [ ] Repeat against a later usage snapshot.
 

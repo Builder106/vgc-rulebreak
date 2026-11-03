@@ -1,5 +1,20 @@
 # Journal
 
+## 2026-11-02: Shared foundation upgrades and Study A launch #milestone
+
+Added Mega Evolution actions to the agent choice space and heuristic scoring. `HeuristicAgent` now recognizes Trick Room and slow sand archetypes at team preview: it evaluates support setup, weather, and bulk rather than ranking solely by raw Speed and offensive stats. Slow anchors such as Hippowdon and setters such as Farigiraf are protected from being benched. In battle, `HeuristicAgent` tracks active Trick Room turns to set it promptly and avoid cancelling it on consecutive turns.
+
+Ran the Protect PP behavioral scarcity pilot on held-out test teams (`test-annihilape-bulky` and `test-balance-pivot`) across mirrored pairs in both `gen9rulebreakprotect16` and `gen9rulebreakprotect8`. Across 8 games (average 8.5 turns), minimum observed Protect PP under the 8 PP format was 8, with 0 depletions and 0 stalls. Protect 8 PP does not bind in standard games without artificial stall pressure, confirming the negative result from the audit.
+
+Launched Study A (Anti-meta teams):
+- Pinned Champions regulation `champions-reg-2026-06` and verified mechanics in the simulator.
+- Pinned usage snapshot `experiments/champions-usage-2026-06.json` from the 2026-06 ladder with an explicit 15.0% staple-ban threshold (11 banned staples, including Incineroar, Mega Charizard Y, Mega Floette, Archaludon, and Sneasler).
+- Rebuilt the reference 6-species Hippowdon sand team in `experiments/teams/anti-meta.json` with open sheets and verified format packing.
+- Constructed the meta pool partitioned by team family into search (`meta-sun-charizard`, `meta-rain-archaludon`), validation (`meta-balance-sneasler`), and held-out (`meta-tailwind-floette`) splits.
+- Evaluated the reference Hippowdon team against held-out meta teams under mirrored seats and shared seeds, scoring 0.75 points per game (3 wins, 1 loss) with bootstrap confidence intervals [0.25, 1.0].
+- Added `anti-meta-check`, `anti-meta-eval`, and `anti-meta-search` CLI subcommands.
+- Per user instruction, frontend updates for Study A and Blunder Replays are recorded as TODOs for a designated frontend model.
+
 ## 2026-10-27: Audit the Astro dependencies in CI #ci #decision
 
 The showcase job already checked Astro, built the site, and tested browser flows. It now audits the frontend lockfile before those checks.

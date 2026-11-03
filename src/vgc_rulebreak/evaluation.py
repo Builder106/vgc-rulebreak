@@ -271,7 +271,12 @@ def run_evaluation_battle(
 
     with ShowdownProcess(showdown_dir) as process:
         session = BattleSession(process)
-        session.start(format_id, p1_agent.name, p1_team, p2_agent.name, p2_team, seed=seed)
+        initial_msgs = session.start(
+            format_id, p1_agent.name, p1_team, p2_agent.name, p2_team, seed=seed
+        )
+        for msg in initial_msgs:
+            p1_agent.observe_message(msg)
+            p2_agent.observe_message(msg)
 
         while not session.is_ended and session.turn < max_turns:
             p1_can_act = session.p1_request is not None and not session.p1_request.get(
@@ -326,6 +331,9 @@ def run_evaluation_battle(
                     cand_protect_chances += _count_protect_opportunities(session.p2_request)
 
             turn_res = session.step(p1_choice, p2_choice)
+            for msg in turn_res.messages:
+                p1_agent.observe_message(msg)
+                p2_agent.observe_message(msg)
             if turn_res.is_ended:
                 break
 

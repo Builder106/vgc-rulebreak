@@ -20,6 +20,10 @@ class BattleAgent(ABC):
         """Given a Showdown request payload, return a valid action string."""
         ...
 
+    def observe_message(self, message: object) -> None:
+        """Optional hook to observe Showdown battle messages during a match."""
+        return None
+
 
 def get_active_unfainted_slots(
     request: dict[str, Any],

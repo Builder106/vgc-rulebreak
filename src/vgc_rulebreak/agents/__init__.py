@@ -8,15 +8,19 @@ from vgc_rulebreak.agents.benchmark import (
     run_battle,
 )
 from vgc_rulebreak.agents.heuristic import HeuristicAgent
+from vgc_rulebreak.agents.meta import AdaptedAntiMetaAgent, BroadlyTunedAgent, MetaTunedAgent
 from vgc_rulebreak.agents.random import RandomAgent
 from vgc_rulebreak.agents.variants import AdaptedAgent, NativeAgent, SourceAgent
 
 __all__ = [
     "AdaptedAgent",
+    "AdaptedAntiMetaAgent",
     "AgentBenchmarkReport",
     "BattleAgent",
+    "BroadlyTunedAgent",
     "HeuristicAgent",
     "MatchResult",
+    "MetaTunedAgent",
     "NativeAgent",
     "RandomAgent",
     "SourceAgent",

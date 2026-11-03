@@ -250,12 +250,39 @@ class HeuristicAgent(BattleAgent):
         self._turns_active: dict[int, int] = {0: 0, 1: 0}
         self._tailwind_turns_left: int = 0
         self._trick_room_turns_left: int = 0
+        self._slot_species: dict[str, str] = {}
 
     def reset(self) -> None:
         self._used_protect_last_turn = {0: False, 1: False}
         self._turns_active = {0: 0, 1: 0}
         self._tailwind_turns_left = 0
         self._trick_room_turns_left = 0
+        self._slot_species = {}
+
+    def observe_message(self, message: object) -> None:
+        """Parse incoming battle message for on-field species and field conditions."""
+        msg_type: str = str(getattr(message, "msg_type", ""))
+        raw_args = getattr(message, "args", None)
+        if not isinstance(raw_args, (list, tuple)):
+            return
+        args: list[str] = [str(a) for a in raw_args]
+        if msg_type in ("switch", "drag", "replace") and len(args) >= 2:
+            slot_id = args[0].split(":")[0].strip()
+            species = args[1].split(",")[0].strip()
+            self._slot_species[slot_id] = species
+        elif msg_type == "faint" and len(args) >= 1:
+            slot_id = args[0].split(":")[0].strip()
+            self._slot_species[slot_id] = ""
+        elif msg_type == "-fieldstart" and len(args) >= 1:
+            if "Trick Room" in args[0]:
+                self._trick_room_turns_left = 5
+        elif msg_type == "-fieldend" and len(args) >= 1:
+            if "Trick Room" in args[0]:
+                self._trick_room_turns_left = 0
+
+    def score_target_bonus(self, target_species: str, target_slot: int, slot_idx: int) -> float:
+        """Score modifier for targeting a specific foe species (neutral by default)."""
+        return 0.0
 
     def score_protect(
         self,
@@ -443,6 +470,14 @@ class HeuristicAgent(BattleAgent):
                                 preferred_target = 2 if slot_idx == 0 else 1
                                 if target_slot == preferred_target:
                                     score += 5.0
+                                side_id = request.get("side", {}).get("id")
+                                foe_role = "p2" if side_id == "p1" else "p1"
+                                slot_letter = "a" if target_slot == 1 else "b"
+                                target_key = f"{foe_role}{slot_letter}"
+                                target_species = self._slot_species.get(target_key, "")
+                                score += self.score_target_bonus(
+                                    target_species, target_slot, slot_idx
+                                )
 
                     if choice.endswith(" mega"):
                         score += 60.0

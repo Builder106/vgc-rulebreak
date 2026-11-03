@@ -187,3 +187,7 @@ VGC Rulebreak contains competitive video-game battle research. The 60-card TCG p
 ## 2026-10-23: Reject Any annotations in CI #decision
 
 Ruff checks function arguments and returns for Any. Line-level exceptions remain at dynamic simulator and JSON record boundaries that still need schema types. Pytest treats warnings as errors, and strict mypy stays enabled.
+
+## 2026-11-03: Adopt authentic Champions ladder usage dumps #milestone
+
+Replaced the synthetic usage fixtures for Study A with authentic Season M2 (June 2026) and Season M3 (July 2026) Doubles ladder snapshots sourced from the community Champions battle data API. Each snapshot records all ranked species and their ladder positions alongside provenance metadata. Updated the staple ban loader to support explicit banned lists and rank cutoffs while preserving the legality of the reference sand core.

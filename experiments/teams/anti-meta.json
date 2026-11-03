@@ -13,7 +13,8 @@
     ],
     "test": [
       "meta-tailwind-floette",
-      "reference-hippowdon-sand"
+      "reference-hippowdon-sand",
+      "meta-trickroom-bloodmoon"
     ]
   },
   "teams": {
@@ -321,6 +322,67 @@
         }
       ],
       "packed": "Floette||Floettite|FlowerVeil|Moonblast,DazzlingGleam,LightofRuin,Protect|Modest|4,,,252,,252|||||,,,,,Fairy]Tornadus||CovertCloak|Prankster|Tailwind,BleakwindStorm,Taunt,Protect|Timid|252,,116,4,76,60|||||,,,,,Ghost]Chien-Pao||FocusSash|SwordofRuin|IcicleCrash,SuckerPunch,SacredSword,Protect|Jolly|4,252,,,,252|||||,,,,,Ghost]Urshifu-Rapid-Strike||MysticWater|UnseenFist|SurgingStrikes,CloseCombat,AquaJet,Detect|Adamant|4,252,,,,252|||||,,,,,Water]Incineroar||SitrusBerry|Intimidate|FakeOut,KnockOff,FlareBlitz,PartingShot|Careful|252,4,156,,96,|||||,,,,,Ghost]Rillaboom||AssaultVest|GrassySurge|GrassyGlide,WoodHammer,HighHorsepower,Uturn|Adamant|252,196,20,,36,4|||||,,,,,Fire"
+    },
+    "meta-trickroom-bloodmoon": {
+      "family": "trickroom-surge",
+      "split": "test",
+      "pokemon": [
+        {
+          "species": "Ursaluna-Bloodmoon",
+          "item": "Life Orb",
+          "ability": "Mind's Eye",
+          "moves": ["Blood Moon", "Earth Power", "Hyper Voice", "Protect"],
+          "nature": "Modest",
+          "evs": {"hp": 252, "atk": 0, "def": 0, "spa": 252, "spd": 4, "spe": 0},
+          "teraType": "Normal"
+        },
+        {
+          "species": "Incineroar",
+          "item": "Sitrus Berry",
+          "ability": "Intimidate",
+          "moves": ["Fake Out", "Knock Off", "Flare Blitz", "Parting Shot"],
+          "nature": "Careful",
+          "evs": {"hp": 252, "atk": 4, "def": 156, "spa": 0, "spd": 96, "spe": 0},
+          "teraType": "Ghost"
+        },
+        {
+          "species": "Archaludon",
+          "item": "Assault Vest",
+          "ability": "Stamina",
+          "moves": ["Electro Shot", "Flash Cannon", "Draco Meteor", "Body Press"],
+          "nature": "Modest",
+          "evs": {"hp": 252, "atk": 0, "def": 4, "spa": 252, "spd": 0, "spe": 0},
+          "teraType": "Grass"
+        },
+        {
+          "species": "Flutter Mane",
+          "item": "Booster Energy",
+          "ability": "Protosynthesis",
+          "moves": ["Moonblast", "Shadow Ball", "Dazzling Gleam", "Protect"],
+          "nature": "Timid",
+          "evs": {"hp": 116, "atk": 0, "def": 188, "spa": 116, "spd": 4, "spe": 84},
+          "teraType": "Fairy"
+        },
+        {
+          "species": "Rillaboom",
+          "item": "Miracle Seed",
+          "ability": "Grassy Surge",
+          "moves": ["Grassy Glide", "Wood Hammer", "High Horsepower", "Protect"],
+          "nature": "Adamant",
+          "evs": {"hp": 252, "atk": 252, "def": 0, "spa": 0, "spd": 4, "spe": 0},
+          "teraType": "Grass"
+        },
+        {
+          "species": "Farigiraf",
+          "item": "Rocky Helmet",
+          "ability": "Armor Tail",
+          "moves": ["Trick Room", "Hyper Voice", "Psychic", "Helping Hand"],
+          "nature": "Quiet",
+          "evs": {"hp": 252, "atk": 0, "def": 4, "spa": 252, "spd": 0, "spe": 0},
+          "teraType": "Normal"
+        }
+      ],
+      "packed": "Ursaluna-Bloodmoon||LifeOrb|MindsEye|BloodMoon,EarthPower,HyperVoice,Protect|Modest|252,,,252,4,|||||,,,,,Normal]Incineroar||SitrusBerry|Intimidate|FakeOut,KnockOff,FlareBlitz,PartingShot|Careful|252,4,156,,96,|||||,,,,,Ghost]Archaludon||AssaultVest|Stamina|ElectroShot,FlashCannon,DracoMeteor,BodyPress|Modest|252,,4,252,,|||||,,,,,Grass]Flutter Mane||BoosterEnergy|Protosynthesis|Moonblast,ShadowBall,DazzlingGleam,Protect|Timid|116,,188,116,4,84|||||,,,,,Fairy]Rillaboom||MiracleSeed|GrassySurge|GrassyGlide,WoodHammer,HighHorsepower,Protect|Adamant|252,252,,,,4|||||,,,,,Grass]Farigiraf||RockyHelmet|ArmorTail|TrickRoom,HyperVoice,Psychic,HelpingHand|Quiet|252,,4,252,,|||||,,,,,Normal"
     }
   }
 }

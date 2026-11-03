@@ -120,7 +120,8 @@ def bootstrap_ci(
 def evaluate_anti_meta_team(
     team: BattleTeam,
     manifest: TeamManifest,
-    split_name: str,
+    split_name: str = "test",
+    target_team_ids: tuple[str, ...] | list[str] | None = None,
     format_id: str = "gen9championsdoublescustomgame",
     pilot_agent: BattleAgent | None = None,
     opponent_agent: BattleAgent | None = None,
@@ -129,9 +130,13 @@ def evaluate_anti_meta_team(
     showdown_dir: Path | str | None = None,
 ) -> EvaluationSummary:
     """Evaluate an anti-meta team against meta teams in a designated manifest split."""
-    target_team_ids = manifest.splits.get(split_name, ())
-    if not target_team_ids:
-        raise ValueError(f"No teams declared in manifest split: {split_name}")
+    if target_team_ids is None:
+        target_ids = [t_id for t_id in manifest.splits.get(split_name, ()) if t_id != team.id]
+    else:
+        target_ids = [t_id for t_id in target_team_ids if t_id != team.id]
+
+    if not target_ids:
+        raise ValueError(f"No opposing teams found for split: {split_name}")
 
     p1_agent = pilot_agent or HeuristicAgent("AntiMetaPilot")
     p2_agent = opponent_agent or HeuristicAgent("MetaOpponent")
@@ -141,7 +146,7 @@ def evaluate_anti_meta_team(
     losses = 0
     ties = 0
 
-    for match_idx, t_id in enumerate(target_team_ids):
+    for match_idx, t_id in enumerate(target_ids):
         opp_team = manifest.teams[t_id]
         for pair in range(pairs_per_matchup):
             # Shared battle seed for seat swapping to eliminate seat bias
@@ -278,4 +283,267 @@ def search_support_rosters(
         baseline_ppg=baseline_eval.points_per_game,
         search_duration_seconds=duration,
         evaluated_candidates=evaluated,
+    )
+
+
+@dataclass(frozen=True)
+class AgentComparisonResult:
+    team_id: str
+    broadly_tuned_ppg: float
+    broadly_tuned_ci: tuple[float, float]
+    meta_tuned_ppg: float
+    meta_tuned_ci: tuple[float, float]
+    adapted_ppg: float
+    adapted_ci: tuple[float, float]
+    meta_assumption_cost: float
+    adaptation_recovery: float
+    meta_tuned_vs_meta_ppg: float
+    adapted_vs_meta_ppg: float
+    meta_pool_retention: float
+
+
+def _run_agent_matchups(
+    agent: BattleAgent,
+    agent_team: BattleTeam,
+    opp_agent: BattleAgent,
+    opp_team: BattleTeam,
+    pairs: int,
+    format_id: str,
+    seed_base: int,
+    showdown_dir: Path | str | None,
+) -> list[float]:
+    """Play mirrored pairs between agent and opponent, returning agent scores."""
+    scores: list[float] = []
+    for pair in range(pairs):
+        seed_val = seed_base + pair
+        b_seed = (seed_val, seed_val + 1, seed_val + 2, seed_val + 3)
+
+        # Match 1: agent as p1, opp as p2
+        res1 = run_pilot_battle(
+            p1_agent=agent,
+            p2_agent=opp_agent,
+            format_id=format_id,
+            p1_team=agent_team.packed,
+            p2_team=opp_team.packed,
+            seed=b_seed,
+            showdown_dir=showdown_dir,
+        )
+        if res1.winner == agent.name:
+            scores.append(1.0)
+        elif res1.winner == opp_agent.name:
+            scores.append(0.0)
+        else:
+            scores.append(0.5)
+
+        # Match 2: opp as p1, agent as p2 (mirrored seats with same battle seed)
+        res2 = run_pilot_battle(
+            p1_agent=opp_agent,
+            p2_agent=agent,
+            format_id=format_id,
+            p1_team=opp_team.packed,
+            p2_team=agent_team.packed,
+            seed=b_seed,
+            showdown_dir=showdown_dir,
+        )
+        if res2.winner == agent.name:
+            scores.append(1.0)
+        elif res2.winner == opp_agent.name:
+            scores.append(0.0)
+        else:
+            scores.append(0.5)
+    return scores
+
+
+def compare_anti_meta_agents(
+    team: BattleTeam,
+    manifest: TeamManifest,
+    snapshot: UsageSnapshot,
+    pairs_per_matchup: int = 1,
+    format_id: str = "gen9championsdoublescustomgame",
+    seed_base: int = 202,
+    showdown_dir: Path | str | None = None,
+) -> AgentComparisonResult:
+    """Compare meta-tuned, broadly tuned, and adapted agents facing an anchored team."""
+    from vgc_rulebreak.agents.meta import (
+        AdaptedAntiMetaAgent,
+        BroadlyTunedAgent,
+        MetaTunedAgent,
+    )
+
+    broadly_agent = BroadlyTunedAgent("BroadlyTunedOpponent")
+    meta_agent = MetaTunedAgent("MetaTunedOpponent", snapshot=snapshot)
+    adapted_agent = AdaptedAntiMetaAgent(
+        "AdaptedOpponent", snapshot=snapshot, adaptation_weight=1.0
+    )
+    pilot = HeuristicAgent("AntiMetaPilot")
+
+    # Pick representative meta team for opponent agents to pilot
+    rep_meta_id = manifest.splits.get("training", ("meta-sun-charizard",))[0]
+    meta_team = manifest.teams[rep_meta_id]
+
+    # 1. Broadly tuned agent facing anchored team
+    b_scores = _run_agent_matchups(
+        agent=broadly_agent,
+        agent_team=meta_team,
+        opp_agent=pilot,
+        opp_team=team,
+        pairs=pairs_per_matchup,
+        format_id=format_id,
+        seed_base=seed_base,
+        showdown_dir=showdown_dir,
+    )
+    b_ppg = sum(b_scores) / max(len(b_scores), 1)
+    b_ci = bootstrap_ci(b_scores, seed=seed_base)
+
+    # 2. Meta-tuned agent facing anchored team
+    m_scores = _run_agent_matchups(
+        agent=meta_agent,
+        agent_team=meta_team,
+        opp_agent=pilot,
+        opp_team=team,
+        pairs=pairs_per_matchup,
+        format_id=format_id,
+        seed_base=seed_base + 10,
+        showdown_dir=showdown_dir,
+    )
+    m_ppg = sum(m_scores) / max(len(m_scores), 1)
+    m_ci = bootstrap_ci(m_scores, seed=seed_base + 10)
+
+    # 3. Adapted agent facing anchored team
+    a_scores = _run_agent_matchups(
+        agent=adapted_agent,
+        agent_team=meta_team,
+        opp_agent=pilot,
+        opp_team=team,
+        pairs=pairs_per_matchup,
+        format_id=format_id,
+        seed_base=seed_base + 20,
+        showdown_dir=showdown_dir,
+    )
+    a_ppg = sum(a_scores) / max(len(a_scores), 1)
+    a_ci = bootstrap_ci(a_scores, seed=seed_base + 20)
+
+    # 4. Meta pool evaluation for meta_agent and adapted_agent
+    val_meta_ids = manifest.splits.get("validation", ("meta-balance-sneasler",))
+    val_team = manifest.teams[val_meta_ids[0]]
+    meta_vs_meta = _run_agent_matchups(
+        agent=meta_agent,
+        agent_team=meta_team,
+        opp_agent=HeuristicAgent("MetaValidator"),
+        opp_team=val_team,
+        pairs=pairs_per_matchup,
+        format_id=format_id,
+        seed_base=seed_base + 30,
+        showdown_dir=showdown_dir,
+    )
+    m_vs_m_ppg = sum(meta_vs_meta) / max(len(meta_vs_meta), 1)
+
+    adapted_vs_meta = _run_agent_matchups(
+        agent=adapted_agent,
+        agent_team=meta_team,
+        opp_agent=HeuristicAgent("MetaValidator"),
+        opp_team=val_team,
+        pairs=pairs_per_matchup,
+        format_id=format_id,
+        seed_base=seed_base + 40,
+        showdown_dir=showdown_dir,
+    )
+    a_vs_m_ppg = sum(adapted_vs_meta) / max(len(adapted_vs_meta), 1)
+
+    assumption_cost = round(b_ppg - m_ppg, 4)
+    recovery = round(a_ppg - m_ppg, 4)
+    retention = round(a_vs_m_ppg / max(m_vs_m_ppg, 0.001), 4)
+
+    return AgentComparisonResult(
+        team_id=team.id,
+        broadly_tuned_ppg=b_ppg,
+        broadly_tuned_ci=b_ci,
+        meta_tuned_ppg=m_ppg,
+        meta_tuned_ci=m_ci,
+        adapted_ppg=a_ppg,
+        adapted_ci=a_ci,
+        meta_assumption_cost=assumption_cost,
+        adaptation_recovery=recovery,
+        meta_tuned_vs_meta_ppg=m_vs_m_ppg,
+        adapted_vs_meta_ppg=a_vs_m_ppg,
+        meta_pool_retention=retention,
+    )
+
+
+@dataclass(frozen=True)
+class MetaShiftResult:
+    team_id: str
+    snapshot_initial_date: str
+    snapshot_shifted_date: str
+    initial_ppg: float
+    initial_ci: tuple[float, float]
+    shifted_ppg: float
+    shifted_ci: tuple[float, float]
+    delta_ppg: float
+    edge_survives: bool
+
+
+def evaluate_meta_shift(
+    team: BattleTeam,
+    manifest: TeamManifest,
+    initial_snapshot: UsageSnapshot,
+    shifted_snapshot: UsageSnapshot,
+    initial_split: str = "test",
+    shifted_split: str = "test_shifted",
+    pairs_per_matchup: int = 1,
+    format_id: str = "gen9championsdoublescustomgame",
+    seed_base: int = 303,
+    showdown_dir: Path | str | None = None,
+) -> MetaShiftResult:
+    """Evaluate anchored team across initial and shifted ladder usage snapshots."""
+    v1, r1 = validate_anti_meta_team(team, initial_snapshot)
+    if not v1:
+        raise ValueError(f"Team fails initial snapshot ban: {r1}")
+    v2, r2 = validate_anti_meta_team(team, shifted_snapshot)
+    if not v2:
+        raise ValueError(f"Team fails shifted snapshot ban: {r2}")
+
+    init_ids = [
+        t_id
+        for t_id in manifest.splits.get(initial_split, ())
+        if t_id != team.id and t_id != "meta-trickroom-bloodmoon"
+    ]
+    eval_init = evaluate_anti_meta_team(
+        team=team,
+        manifest=manifest,
+        split_name=initial_split,
+        target_team_ids=init_ids,
+        format_id=format_id,
+        pairs_per_matchup=pairs_per_matchup,
+        seed_base=seed_base,
+        showdown_dir=showdown_dir,
+    )
+
+    shifted_ids = (
+        ["meta-trickroom-bloodmoon"] if "meta-trickroom-bloodmoon" in manifest.teams else init_ids
+    )
+    eval_shifted = evaluate_anti_meta_team(
+        team=team,
+        manifest=manifest,
+        split_name=initial_split,
+        target_team_ids=shifted_ids,
+        format_id=format_id,
+        pairs_per_matchup=pairs_per_matchup,
+        seed_base=seed_base + 100,
+        showdown_dir=showdown_dir,
+    )
+
+    delta = round(eval_shifted.points_per_game - eval_init.points_per_game, 4)
+    edge_survives = eval_shifted.points_per_game >= 0.50
+
+    return MetaShiftResult(
+        team_id=team.id,
+        snapshot_initial_date=initial_snapshot.date,
+        snapshot_shifted_date=shifted_snapshot.date,
+        initial_ppg=eval_init.points_per_game,
+        initial_ci=(eval_init.ci_lower, eval_init.ci_upper),
+        shifted_ppg=eval_shifted.points_per_game,
+        shifted_ci=(eval_shifted.ci_lower, eval_shifted.ci_upper),
+        delta_ppg=delta,
+        edge_survives=edge_survives,
     )

@@ -244,6 +244,96 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="path to local pokemon-showdown checkout",
     )
 
+    # Subcommand: anti-meta-compare
+    am_comp = subcommands.add_parser(
+        "anti-meta-compare",
+        help="compare meta-tuned and broadly tuned agents against the anchored team",
+    )
+    am_comp.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("experiments/teams/anti-meta.json"),
+        help="path to anti-meta teams manifest",
+    )
+    am_comp.add_argument(
+        "--regulation",
+        type=Path,
+        default=Path("experiments/champions-regulation.json"),
+        help="path to Champions regulation JSON",
+    )
+    am_comp.add_argument(
+        "--team",
+        type=str,
+        default="reference-hippowdon-sand",
+        help="team identifier to test",
+    )
+    am_comp.add_argument(
+        "--pairs",
+        type=int,
+        default=1,
+        help="number of mirrored battle pairs per agent comparison",
+    )
+    am_comp.add_argument(
+        "--seed",
+        type=int,
+        default=202,
+        help="base random seed for battle evaluation",
+    )
+    am_comp.add_argument(
+        "--showdown-dir",
+        type=Path,
+        default=None,
+        help="path to local pokemon-showdown checkout",
+    )
+
+    # Subcommand: anti-meta-shift
+    am_shift = subcommands.add_parser(
+        "anti-meta-shift",
+        help="evaluate anchored team across initial and shifted ladder usage snapshots",
+    )
+    am_shift.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("experiments/teams/anti-meta.json"),
+        help="path to anti-meta teams manifest",
+    )
+    am_shift.add_argument(
+        "--initial-snapshot",
+        type=Path,
+        default=Path("experiments/champions-usage-2026-06.json"),
+        help="path to initial usage snapshot JSON",
+    )
+    am_shift.add_argument(
+        "--shifted-snapshot",
+        type=Path,
+        default=Path("experiments/champions-usage-2026-07.json"),
+        help="path to shifted usage snapshot JSON",
+    )
+    am_shift.add_argument(
+        "--team",
+        type=str,
+        default="reference-hippowdon-sand",
+        help="team identifier to test",
+    )
+    am_shift.add_argument(
+        "--pairs",
+        type=int,
+        default=1,
+        help="number of mirrored battle pairs per split",
+    )
+    am_shift.add_argument(
+        "--seed",
+        type=int,
+        default=303,
+        help="base random seed for battle evaluation",
+    )
+    am_shift.add_argument(
+        "--showdown-dir",
+        type=Path,
+        default=None,
+        help="path to local pokemon-showdown checkout",
+    )
+
     # Subcommand: evaluate
     eval_cmd = subcommands.add_parser(
         "evaluate",
@@ -833,6 +923,80 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 2
 
         print(json.dumps(dataclasses.asdict(res), indent=2))
+        return 0
+
+    if args.command == "anti-meta-compare":
+        from vgc_rulebreak.anti_meta import (
+            compare_anti_meta_agents,
+            load_usage_snapshot,
+        )
+        from vgc_rulebreak.champions import load_champions_regulation
+        from vgc_rulebreak.manifest import load_manifest
+
+        try:
+            reg = load_champions_regulation(args.regulation)
+            manifest = load_manifest(args.manifest)
+            snapshot = load_usage_snapshot(reg.usage_snapshot_path)
+        except Exception as e:
+            print(f"Anti-meta compare load error: {e}", file=sys.stderr)
+            return 2
+
+        team = manifest.teams.get(args.team)
+        if team is None:
+            print(f"Team {args.team} not found in manifest", file=sys.stderr)
+            return 1
+
+        try:
+            comp_res = compare_anti_meta_agents(
+                team=team,
+                manifest=manifest,
+                snapshot=snapshot,
+                pairs_per_matchup=args.pairs,
+                seed_base=args.seed,
+                showdown_dir=args.showdown_dir,
+            )
+        except Exception as e:
+            print(f"Anti-meta compare execution error: {e}", file=sys.stderr)
+            return 2
+
+        print(json.dumps(dataclasses.asdict(comp_res), indent=2))
+        return 0
+
+    if args.command == "anti-meta-shift":
+        from vgc_rulebreak.anti_meta import (
+            evaluate_meta_shift,
+            load_usage_snapshot,
+        )
+        from vgc_rulebreak.manifest import load_manifest
+
+        try:
+            manifest = load_manifest(args.manifest)
+            init_snap = load_usage_snapshot(args.initial_snapshot)
+            shift_snap = load_usage_snapshot(args.shifted_snapshot)
+        except Exception as e:
+            print(f"Anti-meta shift load error: {e}", file=sys.stderr)
+            return 2
+
+        team = manifest.teams.get(args.team)
+        if team is None:
+            print(f"Team {args.team} not found in manifest", file=sys.stderr)
+            return 1
+
+        try:
+            shift_res = evaluate_meta_shift(
+                team=team,
+                manifest=manifest,
+                initial_snapshot=init_snap,
+                shifted_snapshot=shift_snap,
+                pairs_per_matchup=args.pairs,
+                seed_base=args.seed,
+                showdown_dir=args.showdown_dir,
+            )
+        except Exception as e:
+            print(f"Anti-meta shift execution error: {e}", file=sys.stderr)
+            return 2
+
+        print(json.dumps(dataclasses.asdict(shift_res), indent=2))
         return 0
 
     return 0

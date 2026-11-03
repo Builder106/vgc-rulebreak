@@ -130,6 +130,119 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="update spec readiness with calibrated pairs_per_matchup and compute_budget_seconds",
     )
+    pilot.add_argument(
+        "--scarcity",
+        action="store_true",
+        help="run behavioral scarcity pilot on held-out teams to check if Protect 8 PP binds",
+    )
+
+    # Subcommand: anti-meta-check
+    am_check = subcommands.add_parser(
+        "anti-meta-check",
+        help="validate Champions regulation, staple ban, and anti-meta team manifest",
+    )
+    am_check.add_argument(
+        "--regulation",
+        type=Path,
+        default=Path("experiments/champions-regulation.json"),
+        help="path to Champions regulation JSON",
+    )
+    am_check.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("experiments/teams/anti-meta.json"),
+        help="path to anti-meta teams manifest",
+    )
+    am_check.add_argument(
+        "--verify-simulator",
+        action="store_true",
+        help="verify simulator support for Champions mechanics",
+    )
+    am_check.add_argument(
+        "--showdown-dir",
+        type=Path,
+        default=None,
+        help="path to local pokemon-showdown checkout",
+    )
+
+    # Subcommand: anti-meta-eval
+    am_eval = subcommands.add_parser(
+        "anti-meta-eval",
+        help="evaluate anti-meta anchored team against meta pool splits with confidence intervals",
+    )
+    am_eval.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("experiments/teams/anti-meta.json"),
+        help="path to anti-meta teams manifest",
+    )
+    am_eval.add_argument(
+        "--team",
+        type=str,
+        default="reference-hippowdon-sand",
+        help="team ID to evaluate",
+    )
+    am_eval.add_argument(
+        "--split",
+        type=str,
+        default="test",
+        choices=["training", "validation", "test"],
+        help="meta pool split to evaluate against",
+    )
+    am_eval.add_argument(
+        "--pairs",
+        type=int,
+        default=2,
+        help="mirrored pairs per matchup",
+    )
+    am_eval.add_argument(
+        "--seed",
+        type=int,
+        default=101,
+        help="evaluation seed",
+    )
+    am_eval.add_argument(
+        "--showdown-dir",
+        type=Path,
+        default=None,
+        help="path to local pokemon-showdown checkout",
+    )
+
+    # Subcommand: anti-meta-search
+    am_search = subcommands.add_parser(
+        "anti-meta-search",
+        help="search legal support rosters around anchor against the meta search split",
+    )
+    am_search.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("experiments/teams/anti-meta.json"),
+        help="path to anti-meta teams manifest",
+    )
+    am_search.add_argument(
+        "--regulation",
+        type=Path,
+        default=Path("experiments/champions-regulation.json"),
+        help="path to Champions regulation JSON",
+    )
+    am_search.add_argument(
+        "--budget",
+        type=int,
+        default=3,
+        help="number of candidate support rosters to evaluate",
+    )
+    am_search.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="random seed for candidate roster sampling",
+    )
+    am_search.add_argument(
+        "--showdown-dir",
+        type=Path,
+        default=None,
+        help="path to local pokemon-showdown checkout",
+    )
 
     # Subcommand: evaluate
     eval_cmd = subcommands.add_parser(
@@ -398,6 +511,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
 
     if args.command == "pilot-eval":
+        if getattr(args, "scarcity", False):
+            from vgc_rulebreak.pilot import run_scarcity_pilot
+
+            try:
+                scarcity_report = run_scarcity_pilot(
+                    manifest_path=args.manifest,
+                    pairs=args.sample_pairs,
+                    showdown_dir=args.showdown_dir,
+                )
+            except Exception as e:
+                print(f"Scarcity pilot error: {e}", file=sys.stderr)
+                return 2
+
+            print(json.dumps(dataclasses.asdict(scarcity_report), indent=2))
+            return 0
+
         from vgc_rulebreak.pilot import run_pilot_evaluation, update_spec_with_pilot
 
         try:
@@ -601,6 +730,109 @@ def main(argv: Sequence[str] | None = None) -> int:
         if recorder is not None:
             finish_recorder(recorder, "compare-agents", spec, args, report_dict)
         print(json.dumps(report_dict, indent=2))
+        return 0
+
+    if args.command == "anti-meta-check":
+        from vgc_rulebreak.anti_meta import load_usage_snapshot, validate_anti_meta_team
+        from vgc_rulebreak.champions import load_champions_regulation, validate_champions_ruleset
+        from vgc_rulebreak.manifest import load_manifest
+
+        try:
+            reg = load_champions_regulation(args.regulation)
+            manifest = load_manifest(args.manifest)
+            snapshot = load_usage_snapshot(reg.usage_snapshot_path)
+        except Exception as e:
+            print(f"Check error: {e}", file=sys.stderr)
+            return 2
+
+        ref_team = manifest.teams.get("reference-hippowdon-sand")
+        if ref_team is None:
+            print("Missing reference-hippowdon-sand in manifest", file=sys.stderr)
+            return 1
+
+        valid, reason = validate_anti_meta_team(ref_team, snapshot)
+        if not valid:
+            print(f"Reference team validation failed: {reason}", file=sys.stderr)
+            return 1
+
+        sim_passed = True
+        if args.verify_simulator:
+            sim_passed = validate_champions_ruleset(reg, showdown_dir=args.showdown_dir)
+            if not sim_passed:
+                print("Champions simulator mechanics verification failed", file=sys.stderr)
+                return 1
+
+        print(
+            json.dumps(
+                {
+                    "regulation_id": reg.regulation_id,
+                    "staple_ban_threshold": reg.staple_ban_threshold,
+                    "banned_species_count": len(snapshot.banned_species),
+                    "reference_team_valid": valid,
+                    "simulator_verified": sim_passed,
+                },
+                indent=2,
+            )
+        )
+        return 0
+
+    if args.command == "anti-meta-eval":
+        from vgc_rulebreak.anti_meta import evaluate_anti_meta_team
+        from vgc_rulebreak.manifest import load_manifest
+
+        try:
+            manifest = load_manifest(args.manifest)
+        except Exception as e:
+            print(f"Failed to load manifest: {e}", file=sys.stderr)
+            return 2
+
+        team = manifest.teams.get(args.team)
+        if team is None:
+            print(f"Team {args.team} not found in manifest", file=sys.stderr)
+            return 1
+
+        try:
+            am_summary = evaluate_anti_meta_team(
+                team=team,
+                manifest=manifest,
+                split_name=args.split,
+                pairs_per_matchup=args.pairs,
+                seed_base=args.seed,
+                showdown_dir=args.showdown_dir,
+            )
+        except Exception as e:
+            print(f"Anti-meta evaluation error: {e}", file=sys.stderr)
+            return 2
+
+        print(json.dumps(dataclasses.asdict(am_summary), indent=2))
+        return 0
+
+    if args.command == "anti-meta-search":
+        from vgc_rulebreak.anti_meta import load_usage_snapshot, search_support_rosters
+        from vgc_rulebreak.champions import load_champions_regulation
+        from vgc_rulebreak.manifest import load_manifest
+
+        try:
+            reg = load_champions_regulation(args.regulation)
+            manifest = load_manifest(args.manifest)
+            snapshot = load_usage_snapshot(reg.usage_snapshot_path)
+        except Exception as e:
+            print(f"Anti-meta search load error: {e}", file=sys.stderr)
+            return 2
+
+        try:
+            res = search_support_rosters(
+                manifest=manifest,
+                snapshot=snapshot,
+                budget_evaluations=args.budget,
+                seed=args.seed,
+                showdown_dir=args.showdown_dir,
+            )
+        except Exception as e:
+            print(f"Anti-meta search execution error: {e}", file=sys.stderr)
+            return 2
+
+        print(json.dumps(dataclasses.asdict(res), indent=2))
         return 0
 
     return 0

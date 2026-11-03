@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "name": "anti-meta-teams",
+  "base_format": "gen9championsdoublescustomgame",
+  "description": "Anti-meta anchored sand team and meta pool archetypes for Study A.",
+  "splits": {
+    "training": [
+      "meta-sun-charizard",
+      "meta-rain-archaludon"
+    ],
+    "validation": [
+      "meta-balance-sneasler"
+    ],
+    "test": [
+      "meta-tailwind-floette",
+      "reference-hippowdon-sand"
+    ]
+  },
+  "teams": {
+    "reference-hippowdon-sand": {
+      "family": "anti-meta-sand",
+      "split": "test",
+      "pokemon": [
+        {
+          "species": "Hippowdon",
+          "item": "Leftovers",
+          "ability": "Sand Force",
+          "moves": ["Body Press", "Heavy Slam", "Earthquake", "Protect"],
+          "nature": "Brave",
+          "evs": {"hp": 252, "atk": 252, "def": 0, "spa": 0, "spd": 4, "spe": 0},
+          "teraType": "Ground"
+        },
+        {
+          "species": "Tyranitar",
+          "item": "Tyranitarite",
+          "ability": "Sand Stream",
+          "moves": ["Rock Slide", "Knock Off", "Low Kick", "Protect"],
+          "nature": "Adamant",
+          "evs": {"hp": 252, "atk": 252, "def": 4, "spa": 0, "spd": 0, "spe": 0},
+          "teraType": "Rock"
+        },
+        {
+          "species": "Farigiraf",
+          "item": "Focus Sash",
+          "ability": "Armor Tail",
+          "moves": ["Trick Room", "Hyper Voice", "Psychic", "Protect"],
+          "nature": "Quiet",
+          "evs": {"hp": 252, "atk": 0, "def": 4, "spa": 252, "spd": 0, "spe": 0},
+          "teraType": "Normal"
+        },
+        {
+          "species": "Sinistcha",
+          "item": "Sitrus Berry",
+          "ability": "Hospitality",
+          "moves": ["Matcha Gotcha", "Life Dew", "Rage Powder", "Protect"],
+          "nature": "Bold",
+          "evs": {"hp": 252, "atk": 0, "def": 156, "spa": 0, "spd": 100, "spe": 0},
+          "teraType": "Grass"
+        },
+        {
+          "species": "Decidueye",
+          "item": "White Herb",
+          "ability": "Long Reach",
+          "moves": ["Leaf Blade", "Brave Bird", "Low Kick", "Protect"],
+          "nature": "Brave",
+          "evs": {"hp": 252, "atk": 252, "def": 0, "spa": 0, "spd": 4, "spe": 0},
+          "teraType": "Grass"
+        },
+        {
+          "species": "Rotom-Heat",
+          "item": "Passho Berry",
+          "ability": "Levitate",
+          "moves": ["Overheat", "Thunderbolt", "Will-O-Wisp", "Protect"],
+          "nature": "Modest",
+          "evs": {"hp": 252, "atk": 0, "def": 4, "spa": 252, "spd": 0, "spe": 0},
+          "teraType": "Fire"
+        }
+      ],
+      "packed": "Hippowdon||Leftovers|SandForce|BodyPress,HeavySlam,Earthquake,Protect|Brave|252,252,,,,4|||||,,,,,Ground]Tyranitar||Tyranitarite|SandStream|RockSlide,KnockOff,LowKick,Protect|Adamant|252,252,4,,,,|||||,,,,,Rock]Farigiraf||FocusSash|ArmorTail|TrickRoom,HyperVoice,Psychic,Protect|Quiet|252,,4,252,,|||||,,,,,Normal]Sinistcha||SitrusBerry|Hospitality|MatchaGotcha,LifeDew,RagePowder,Protect|Bold|252,,156,,100,|||||,,,,,Grass]Decidueye||WhiteHerb|LongReach|LeafBlade,BraveBird,LowKick,Protect|Brave|252,252,,,,4|||||,,,,,Grass]Rotom-Heat||PasshoBerry|Levitate|Overheat,Thunderbolt,WillOWisp,Protect|Modest|252,,4,252,,|||||,,,,,Fire"
+    },
+    "meta-sun-charizard": {
+      "family": "sun-offense",
+      "split": "training",
+      "pokemon": [
+        {
+          "species": "Charizard",
+          "item": "Charizardite Y",
+          "ability": "Drought",
+          "moves": ["Heat Wave", "Overheat", "Air Slash", "Protect"],
+          "nature": "Modest",
+          "evs": {"hp": 4, "atk": 0, "def": 0, "spa": 252, "spd": 0, "spe": 252},
+          "teraType": "Fire"
+        },
+        {
+          "species": "Flutter Mane",
+          "item": "Booster Energy",
+          "ability": "Protosynthesis",
+          "moves": ["Moonblast", "Shadow Ball", "Dazzling Gleam", "Protect"],
+          "nature": "Timid",
+          "evs": {"hp": 116, "atk": 0, "def": 188, "spa": 116, "spd": 4, "spe": 84},
+          "teraType": "Fairy"
+        },
+        {
+          "species": "Rillaboom",
+          "item": "Assault Vest",
+          "ability": "Grassy Surge",
+          "moves": ["Grassy Glide", "Wood Hammer", "High Horsepower", "U-turn"],
+          "nature": "Adamant",
+          "evs": {"hp": 252, "atk": 196, "def": 20, "spa": 0, "spd": 36, "spe": 4},
+          "teraType": "Fire"
+        },
+        {
+          "species": "Torkoal",
+          "item": "Charcoal",
+          "ability": "Drought",
+          "moves": ["Eruption", "Heat Wave", "Solar Beam", "Protect"],
+          "nature": "Quiet",
+          "evs": {"hp": 252, "atk": 0, "def": 0, "spa": 252, "spd": 4, "spe": 0},
+          "teraType": "Fire"
+        },
+        {
+          "species": "Incineroar",
+          "item": "Sitrus Berry",
+          "ability": "Intimidate",
+          "moves": ["Fake Out", "Knock Off", "Flare Blitz", "Parting Shot"],
+          "nature": "Careful",
+          "evs": {"hp": 252, "atk": 4, "def": 156, "spa": 0, "spd": 96, "spe": 0},
+          "teraType": "Ghost"
+        },
+        {
+          "species": "Urshifu-Rapid-Strike",
+          "item": "Choice Scarf",
+          "ability": "Unseen Fist",
+          "moves": ["Surging Strikes", "Close Combat", "Aqua Jet", "U-turn"],
+          "nature": "Adamant",
+          "evs": {"hp": 4, "atk": 252, "def": 0, "spa": 0, "spd": 0, "spe": 252},
+          "teraType": "Water"
+        }
+      ],
+      "packed": "Charizard||CharizarditeY|Drought|HeatWave,Overheat,AirSlash,Protect|Modest|4,,,252,,252|||||,,,,,Fire]Flutter Mane||BoosterEnergy|Protosynthesis|Moonblast,ShadowBall,DazzlingGleam,Protect|Timid|116,,188,116,4,84|||||,,,,,Fairy]Rillaboom||AssaultVest|GrassySurge|GrassyGlide,WoodHammer,HighHorsepower,Uturn|Adamant|252,196,20,,36,4|||||,,,,,Fire]Torkoal||Charcoal|Drought|Eruption,HeatWave,SolarBeam,Protect|Quiet|252,,,252,4,|||||,,,,,Fire]Incineroar||SitrusBerry|Intimidate|FakeOut,KnockOff,FlareBlitz,PartingShot|Careful|252,4,156,,96,|||||,,,,,Ghost]Urshifu-Rapid-Strike||ChoiceScarf|UnseenFist|SurgingStrikes,CloseCombat,AquaJet,Uturn|Adamant|4,252,,,,252|||||,,,,,Water"
+    },
+    "meta-rain-archaludon": {
+      "family": "rain-tempo",
+      "split": "training",
+      "pokemon": [
+        {
+          "species": "Archaludon",
+          "item": "Assault Vest",
+          "ability": "Stamina",
+          "moves": ["Electro Shot", "Flash Cannon", "Draco Meteor", "Body Press"],
+          "nature": "Modest",
+          "evs": {"hp": 252, "atk": 0, "def": 4, "spa": 252, "spd": 0, "spe": 0},
+          "teraType": "Grass"
+        },
+        {
+          "species": "Basculegion",
+          "item": "Choice Band",
+          "ability": "Adaptability",
+          "moves": ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"],
+          "nature": "Adamant",
+          "evs": {"hp": 4, "atk": 252, "def": 0, "spa": 0, "spd": 0, "spe": 252},
+          "teraType": "Water"
+        },
+        {
+          "species": "Pelipper",
+          "item": "Focus Sash",
+          "ability": "Drizzle",
+          "moves": ["Weather Ball", "Hurricane", "Tailwind", "Protect"],
+          "nature": "Modest",
+          "evs": {"hp": 4, "atk": 0, "def": 0, "spa": 252, "spd": 0, "spe": 252},
+          "teraType": "Ghost"
+        },
+        {
+          "species": "Sneasler",
+          "item": "Focus Sash",
+          "ability": "Unburden",
+          "moves": ["Dire Claw", "Close Combat", "Fake Out", "Protect"],
+          "nature": "Jolly",
+          "evs": {"hp": 4, "atk": 252, "def": 0, "spa": 0, "spd": 0, "spe": 252},
+          "teraType": "Fighting"
+        },
+        {
+          "species": "Incineroar",
+          "item": "Sitrus Berry",
+          "ability": "Intimidate",
+          "moves": ["Fake Out", "Knock Off", "Flare Blitz", "Parting Shot"],
+          "nature": "Careful",
+          "evs": {"hp": 252, "atk": 4, "def": 156, "spa": 0, "spd": 96, "spe": 0},
+          "teraType": "Ghost"
+        },
+        {
+          "species": "Rillaboom",
+          "item": "Miracle Seed",
+          "ability": "Grassy Surge",
+          "moves": ["Grassy Glide", "Wood Hammer", "High Horsepower", "Protect"],
+          "nature": "Adamant",
+          "evs": {"hp": 252, "atk": 252, "def": 0, "spa": 0, "spd": 4, "spe": 0},
+          "teraType": "Grass"
+        }
+      ],
+      "packed": "Archaludon||AssaultVest|Stamina|ElectroShot,FlashCannon,DracoMeteor,BodyPress|Modest|252,,4,252,,|||||,,,,,Grass]Basculegion||ChoiceBand|Adaptability|WaveCrash,LastRespects,AquaJet,FlipTurn|Adamant|4,252,,,,252|||||,,,,,Water]Pelipper||FocusSash|Drizzle|WeatherBall,Hurricane,Tailwind,Protect|Modest|4,,,252,,252|||||,,,,,Ghost]Sneasler||FocusSash|Unburden|DireClaw,CloseCombat,FakeOut,Protect|Jolly|4,252,,,,252|||||,,,,,Fighting]Incineroar||SitrusBerry|Intimidate|FakeOut,KnockOff,FlareBlitz,PartingShot|Careful|252,4,156,,96,|||||,,,,,Ghost]Rillaboom||MiracleSeed|GrassySurge|GrassyGlide,WoodHammer,HighHorsepower,Protect|Adamant|252,252,,,,4|||||,,,,,Grass"
+    },
+    "meta-balance-sneasler": {
+      "family": "balance-hyper",
+      "split": "validation",
+      "pokemon": [
+        {
+          "species": "Sneasler",
+          "item": "Focus Sash",
+          "ability": "Unburden",
+          "moves": ["Dire Claw", "Close Combat", "Fake Out", "Protect"],
+          "nature": "Jolly",
+          "evs": {"hp": 4, "atk": 252, "def": 0, "spa": 0, "spd": 0, "spe": 252},
+          "teraType": "Fighting"
+        },
+        {
+          "species": "Incineroar",
+          "item": "Safety Goggles",
+          "ability": "Intimidate",
+          "moves": ["Fake Out", "Knock Off", "Flare Blitz", "Parting Shot"],
+          "nature": "Careful",
+          "evs": {"hp": 252, "atk": 4, "def": 156, "spa": 0, "spd": 96, "spe": 0},
+          "teraType": "Ghost"
+        },
+        {
+          "species": "Rillaboom",
+          "item": "Assault Vest",
+          "ability": "Grassy Surge",
+          "moves": ["Grassy Glide", "Wood Hammer", "High Horsepower", "U-turn"],
+          "nature": "Adamant",
+          "evs": {"hp": 252, "atk": 196, "def": 20, "spa": 0, "spd": 36, "spe": 4},
+          "teraType": "Fire"
+        },
+        {
+          "species": "Flutter Mane",
+          "item": "Choice Specs",
+          "ability": "Protosynthesis",
+          "moves": ["Moonblast", "Shadow Ball", "Dazzling Gleam", "Power Gem"],
+          "nature": "Timid",
+          "evs": {"hp": 4, "atk": 0, "def": 0, "spa": 252, "spd": 0, "spe": 252},
+          "teraType": "Fairy"
+        },
+        {
+          "species": "Basculegion",
+          "item": "Life Orb",
+          "ability": "Adaptability",
+          "moves": ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"],
+          "nature": "Adamant",
+          "evs": {"hp": 4, "atk": 252, "def": 0, "spa": 0, "spd": 0, "spe": 252},
+          "teraType": "Water"
+        },
+        {
+          "species": "Archaludon",
+          "item": "Leftovers",
+          "ability": "Stamina",
+          "moves": ["Flash Cannon", "Draco Meteor", "Body Press", "Protect"],
+          "nature": "Bold",
+          "evs": {"hp": 252, "atk": 0, "def": 252, "spa": 4, "spd": 0, "spe": 0},
+          "teraType": "Electric"
+        }
+      ],
+      "packed": "Sneasler||FocusSash|Unburden|DireClaw,CloseCombat,FakeOut,Protect|Jolly|4,252,,,,252|||||,,,,,Fighting]Incineroar||SafetyGoggles|Intimidate|FakeOut,KnockOff,FlareBlitz,PartingShot|Careful|252,4,156,,96,|||||,,,,,Ghost]Rillaboom||AssaultVest|GrassySurge|GrassyGlide,WoodHammer,HighHorsepower,Uturn|Adamant|252,196,20,,36,4|||||,,,,,Fire]Flutter Mane||ChoiceSpecs|Protosynthesis|Moonblast,ShadowBall,DazzlingGleam,PowerGem|Timid|4,,,252,,252|||||,,,,,Fairy]Basculegion||LifeOrb|Adaptability|WaveCrash,LastRespects,AquaJet,Protect|Adamant|4,252,,,,252|||||,,,,,Water]Archaludon||Leftovers|Stamina|FlashCannon,DracoMeteor,BodyPress,Protect|Bold|252,,252,4,,,|||||,,,,,Electric"
+    },
+    "meta-tailwind-floette": {
+      "family": "fairy-tailwind",
+      "split": "test",
+      "pokemon": [
+        {
+          "species": "Floette",
+          "item": "Floettite",
+          "ability": "Flower Veil",
+          "moves": ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"],
+          "nature": "Modest",
+          "evs": {"hp": 4, "atk": 0, "def": 0, "spa": 252, "spd": 0, "spe": 252},
+          "teraType": "Fairy"
+        },
+        {
+          "species": "Tornadus",
+          "item": "Covert Cloak",
+          "ability": "Prankster",
+          "moves": ["Tailwind", "Bleakwind Storm", "Taunt", "Protect"],
+          "nature": "Timid",
+          "evs": {"hp": 252, "atk": 0, "def": 116, "spa": 4, "spd": 76, "spe": 60},
+          "teraType": "Ghost"
+        },
+        {
+          "species": "Chien-Pao",
+          "item": "Focus Sash",
+          "ability": "Sword of Ruin",
+          "moves": ["Icicle Crash", "Sucker Punch", "Sacred Sword", "Protect"],
+          "nature": "Jolly",
+          "evs": {"hp": 4, "atk": 252, "def": 0, "spa": 0, "spd": 0, "spe": 252},
+          "teraType": "Ghost"
+        },
+        {
+          "species": "Urshifu-Rapid-Strike",
+          "item": "Mystic Water",
+          "ability": "Unseen Fist",
+          "moves": ["Surging Strikes", "Close Combat", "Aqua Jet", "Detect"],
+          "nature": "Adamant",
+          "evs": {"hp": 4, "atk": 252, "def": 0, "spa": 0, "spd": 0, "spe": 252},
+          "teraType": "Water"
+        },
+        {
+          "species": "Incineroar",
+          "item": "Sitrus Berry",
+          "ability": "Intimidate",
+          "moves": ["Fake Out", "Knock Off", "Flare Blitz", "Parting Shot"],
+          "nature": "Careful",
+          "evs": {"hp": 252, "atk": 4, "def": 156, "spa": 0, "spd": 96, "spe": 0},
+          "teraType": "Ghost"
+        },
+        {
+          "species": "Rillaboom",
+          "item": "Assault Vest",
+          "ability": "Grassy Surge",
+          "moves": ["Grassy Glide", "Wood Hammer", "High Horsepower", "U-turn"],
+          "nature": "Adamant",
+          "evs": {"hp": 252, "atk": 196, "def": 20, "spa": 0, "spd": 36, "spe": 4},
+          "teraType": "Fire"
+        }
+      ],
+      "packed": "Floette||Floettite|FlowerVeil|Moonblast,DazzlingGleam,LightofRuin,Protect|Modest|4,,,252,,252|||||,,,,,Fairy]Tornadus||CovertCloak|Prankster|Tailwind,BleakwindStorm,Taunt,Protect|Timid|252,,116,4,76,60|||||,,,,,Ghost]Chien-Pao||FocusSash|SwordofRuin|IcicleCrash,SuckerPunch,SacredSword,Protect|Jolly|4,252,,,,252|||||,,,,,Ghost]Urshifu-Rapid-Strike||MysticWater|UnseenFist|SurgingStrikes,CloseCombat,AquaJet,Detect|Adamant|4,252,,,,252|||||,,,,,Water]Incineroar||SitrusBerry|Intimidate|FakeOut,KnockOff,FlareBlitz,PartingShot|Careful|252,4,156,,96,|||||,,,,,Ghost]Rillaboom||AssaultVest|GrassySurge|GrassyGlide,WoodHammer,HighHorsepower,Uturn|Adamant|252,196,20,,36,4|||||,,,,,Fire"
+    }
+  }
+}

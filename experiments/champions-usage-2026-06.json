@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "date": "2026-06-15",
+  "source": "Ranked Champions Doubles Ladder (Ultra & Master Ball tiers)",
+  "terms": "Usage snapshot from AnAverageRyan 'The Anti-Meta Mindset' (2026-06-15)",
+  "staple_ban_threshold": 15.0,
+  "species_usage": {
+    "Incineroar": 44.2,
+    "Mega Charizard Y": 38.5,
+    "Mega Floette": 32.1,
+    "Archaludon": 29.4,
+    "Flutter Mane": 27.5,
+    "Sneasler": 26.8,
+    "Rillaboom": 25.3,
+    "Basculegion": 24.1,
+    "Urshifu-Rapid-Strike": 21.7,
+    "Chien-Pao": 18.6,
+    "Torkoal": 16.2,
+    "Tornadus": 14.8,
+    "Ursaluna-Bloodmoon": 14.5,
+    "Kingambit": 14.1,
+    "Ogerpon-Wellspring": 13.8,
+    "Pelipper": 12.5,
+    "Tyranitar": 11.2,
+    "Farigiraf": 9.8,
+    "Sinistcha": 7.4,
+    "Rotom-Heat": 5.1,
+    "Hippowdon": 4.8,
+    "Decidueye": 3.2
+  }
+}

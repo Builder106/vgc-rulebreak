@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "regulation_id": "champions-reg-2026-06",
+  "name": "Pokemon Champions Regulation 2026-06 (Doubles)",
+  "season": "2026-06",
+  "base_format": "gen9championsdoublescustomgame",
+  "ruleset": {
+    "protect_max_pp": 8,
+    "rage_fist_switch_reset": true,
+    "champions_speed_stats": true,
+    "mega_evolution": true,
+    "open_team_sheets": true
+  },
+  "usage_snapshot": "champions-usage-2026-06.json",
+  "staple_ban_threshold": 15.0
+}

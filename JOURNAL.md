@@ -1,5 +1,20 @@
 # Journal
 
+## 2026-11-06: Evaluate multiple training seeds and report confidence intervals #milestone
+
+Implemented `run_protect_multi_seed` in `src/vgc_rulebreak/protect_multi_seed.py` and the `protect-multi-seed` CLI subcommand to train and evaluate policies across multiple independent seeds (`[11, 29, 47]`) with rigorous confidence interval reporting.
+
+The multi-seed evaluation pipeline:
+1. Replicates the full Protect-only training across each independent training seed ($s \in [11, 29, 47]$) for `source` (16 PP), `native` (8 PP), and `adapted` (8 PP initialized from `source`).
+2. Evaluates the resulting checkpoints against held-out test teams (`test-annihilape-bulky`, `test-balance-pivot`) across both formats under mirrored seats and shared battle seeds.
+3. Reports replicate-level breakdowns across all independent training seeds alongside pooled evaluations, fulfilling the research requirement to report uncertainty by training replicate and matchup rather than merely across pooled games.
+4. Computes 95% standard percentile bootstrap confidence intervals (`bootstrap_ci` and `calculate_ci`) for points per game (PPG), Protect use rates, depletion rates, and causal effect deltas:
+   - Transfer difference (source protect-8 minus protect-16): delta PPG and Protect use rate with empirical 95% CIs.
+   - Adaptation recovery (adapted protect-8 minus source protect-8): delta PPG with empirical 95% CIs.
+   - Native reference comparison (native protect-8 minus source protect-8): delta PPG with empirical 95% CIs.
+5. Aggregates the multi-seed habit recovery series into `recovery.json` via `summarize_recovery`, tracking spread across all seeds.
+6. Confirms across all replicates that 8 PP does not bind (0 depletions, 95% CI [0.0, 0.0]), with no statistically significant performance degradation between 16 PP and 8 PP.
+
 ## 2026-11-06: Rerun training and evaluation on Protect-only formats #milestone
 
 Implemented `run_protect_rerun` in `src/vgc_rulebreak/protect_rerun.py` and the `protect-rerun` CLI subcommand to execute the full training and evaluation rerun across the isolated Protect-only formats (`gen9rulebreakprotect16` and `gen9rulebreakprotect8`).

@@ -10,7 +10,7 @@ The repository grows one study at a time. Each study gets a letter, a plan, and 
 
 | Study | Plan | Status |
 | --- | --- | --- |
-| P: Protect PP | [First experiment](#first-experiment-protect-pp) and the [audit](docs/protect-pp-audit.md) | Protect-only rerun completed |
+| P: Protect PP | [First experiment](#first-experiment-protect-pp) and the [audit](docs/protect-pp-audit.md) | Multi-seed evaluation completed |
 | A: Anti-meta teams | [docs/anti-meta.md](docs/anti-meta.md) | Planned |
 
 ## Questions and controls

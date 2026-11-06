@@ -509,6 +509,94 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="write results.json and one replay per game here (for example runs/<name>)",
     )
 
+    # Subcommand: protect-rerun
+    rerun_cmd = subcommands.add_parser(
+        "protect-rerun",
+        help="rerun training and evaluation pipeline on the paired Protect-only formats",
+    )
+    rerun_cmd.add_argument(
+        "--output-dir",
+        type=Path,
+        required=True,
+        help="directory to save checkpoints, evaluations, and recovery results",
+    )
+    rerun_cmd.add_argument(
+        "--training-seed",
+        type=int,
+        default=11,
+        help="seed for training parameter sampling and mirrored battle pairs",
+    )
+    rerun_cmd.add_argument(
+        "--eval-seed",
+        type=int,
+        default=101,
+        help="seed for held-out evaluation battles",
+    )
+    rerun_cmd.add_argument(
+        "--generations",
+        type=int,
+        default=3,
+        help="number of training generations per agent",
+    )
+    rerun_cmd.add_argument(
+        "--population",
+        type=int,
+        default=6,
+        help="population size per generation",
+    )
+    rerun_cmd.add_argument(
+        "--elites",
+        type=int,
+        default=2,
+        help="number of elite candidates to refit each generation",
+    )
+    rerun_cmd.add_argument(
+        "--pairs",
+        type=int,
+        default=1,
+        help="mirrored pairs per matchup in training",
+    )
+    rerun_cmd.add_argument(
+        "--eval-pairs",
+        type=int,
+        default=1,
+        help="mirrored pairs per matchup in evaluation",
+    )
+    rerun_cmd.add_argument(
+        "--workers",
+        type=int,
+        default=4,
+        help="parallel battle worker processes",
+    )
+    rerun_cmd.add_argument(
+        "--eval-all-checkpoints",
+        action="store_true",
+        help="evaluate every generation checkpoint instead of initial and final checkpoints",
+    )
+    rerun_cmd.add_argument(
+        "--quick",
+        action="store_true",
+        help="rapid rerun with 1 generation and minimal population for testing",
+    )
+    rerun_cmd.add_argument(
+        "--spec",
+        type=Path,
+        default=Path("experiments/protect-pp.json"),
+        help="path to experiment specification",
+    )
+    rerun_cmd.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("experiments/teams/protect-pp.json"),
+        help="path to Open Team Sheet manifest",
+    )
+    rerun_cmd.add_argument(
+        "--showdown-dir",
+        type=Path,
+        default=None,
+        help="path to local pokemon-showdown checkout",
+    )
+
     args = parser.parse_args(argv)
 
     if args.command == "check":
@@ -997,6 +1085,48 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 2
 
         print(json.dumps(dataclasses.asdict(shift_res), indent=2))
+        return 0
+
+    if args.command == "protect-rerun":
+        from vgc_rulebreak.manifest import load_manifest
+        from vgc_rulebreak.protect_rerun import ProtectRerunConfig, run_protect_rerun
+
+        try:
+            spec = validate_spec(json.loads(args.spec.read_text(encoding="utf-8")))
+            manifest = load_manifest(args.manifest)
+        except Exception as e:
+            print(f"Failed to load spec or manifest: {e}", file=sys.stderr)
+            return 2
+
+        generations = 1 if args.quick else args.generations
+        population = 2 if args.quick else args.population
+        elites = 1 if args.quick else args.elites
+
+        rerun_config = ProtectRerunConfig(
+            training_seed=args.training_seed,
+            eval_seed=args.eval_seed,
+            generations=generations,
+            population=population,
+            elites=elites,
+            pairs=args.pairs,
+            eval_pairs=args.eval_pairs,
+            workers=args.workers,
+            eval_all_checkpoints=args.eval_all_checkpoints,
+        )
+
+        try:
+            rerun_report = run_protect_rerun(
+                output_dir=args.output_dir,
+                config=rerun_config,
+                spec=spec,
+                manifest=manifest,
+                showdown_dir=args.showdown_dir,
+            )
+        except Exception as e:
+            print(f"Protect rerun error: {e}", file=sys.stderr)
+            return 1
+
+        print(json.dumps(dataclasses.asdict(rerun_report), indent=2))
         return 0
 
     return 0

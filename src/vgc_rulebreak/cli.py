@@ -597,6 +597,120 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="path to local pokemon-showdown checkout",
     )
 
+    # Subcommand: protect-multi-seed
+    multi_seed_cmd = subcommands.add_parser(
+        "protect-multi-seed",
+        help="evaluate multiple training seeds and report confidence intervals for Study P",
+    )
+    multi_seed_cmd.add_argument(
+        "--output-dir",
+        type=Path,
+        required=True,
+        help="directory to save checkpoints, evaluations, recovery results, and multi-seed report",
+    )
+    multi_seed_cmd.add_argument(
+        "--training-seeds",
+        type=int,
+        nargs="+",
+        default=[11, 29, 47],
+        help="training seeds to train and evaluate (defaults to 11 29 47)",
+    )
+    multi_seed_cmd.add_argument(
+        "--eval-seed",
+        type=int,
+        default=101,
+        help="seed for held-out evaluation battles (defaults to 101)",
+    )
+    multi_seed_cmd.add_argument(
+        "--generations",
+        type=int,
+        default=3,
+        help="number of training generations per agent",
+    )
+    multi_seed_cmd.add_argument(
+        "--population",
+        type=int,
+        default=6,
+        help="population size per generation",
+    )
+    multi_seed_cmd.add_argument(
+        "--elites",
+        type=int,
+        default=2,
+        help="number of elite candidates to refit each generation",
+    )
+    multi_seed_cmd.add_argument(
+        "--pairs",
+        type=int,
+        default=1,
+        help="mirrored pairs per matchup in training",
+    )
+    multi_seed_cmd.add_argument(
+        "--eval-pairs",
+        type=int,
+        default=1,
+        help="mirrored pairs per matchup in evaluation",
+    )
+    multi_seed_cmd.add_argument(
+        "--workers",
+        type=int,
+        default=4,
+        help="parallel battle worker processes",
+    )
+    multi_seed_cmd.add_argument(
+        "--eval-all-checkpoints",
+        action="store_true",
+        help="evaluate every generation checkpoint instead of initial and final checkpoints",
+    )
+    multi_seed_cmd.add_argument(
+        "--quick",
+        action="store_true",
+        help="rapid rerun with 1 generation and minimal population for testing",
+    )
+    multi_seed_cmd.add_argument(
+        "--opponent",
+        type=str,
+        default="HeuristicBaseline",
+        choices=["HeuristicBaseline", "RandomBaseline"],
+        help="opponent policy for evaluation",
+    )
+    multi_seed_cmd.add_argument(
+        "--bootstrap-resamples",
+        type=int,
+        default=1000,
+        help="number of bootstrap resamples for confidence interval estimation",
+    )
+    multi_seed_cmd.add_argument(
+        "--alpha",
+        type=float,
+        default=0.05,
+        help="significance level alpha for confidence interval (defaults to 0.05 for 95% CI)",
+    )
+    multi_seed_cmd.add_argument(
+        "--bootstrap-seed",
+        type=int,
+        default=42,
+        help="PRNG seed for bootstrap resampling",
+    )
+    multi_seed_cmd.add_argument(
+        "--spec",
+        type=Path,
+        default=Path("experiments/protect-pp.json"),
+        help="path to experiment specification",
+    )
+    multi_seed_cmd.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("experiments/teams/protect-pp.json"),
+        help="path to Open Team Sheet manifest",
+    )
+    multi_seed_cmd.add_argument(
+        "--showdown-dir",
+        type=Path,
+        default=None,
+        help="path to local pokemon-showdown checkout",
+    )
+
     args = parser.parse_args(argv)
 
     if args.command == "check":
@@ -1127,6 +1241,55 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
 
         print(json.dumps(dataclasses.asdict(rerun_report), indent=2))
+        return 0
+
+    if args.command == "protect-multi-seed":
+        from vgc_rulebreak.manifest import load_manifest
+        from vgc_rulebreak.protect_multi_seed import (
+            ProtectMultiSeedConfig,
+            run_protect_multi_seed,
+        )
+
+        try:
+            spec = validate_spec(json.loads(args.spec.read_text(encoding="utf-8")))
+            manifest = load_manifest(args.manifest)
+        except Exception as e:
+            print(f"Failed to load spec or manifest: {e}", file=sys.stderr)
+            return 2
+
+        generations = 1 if args.quick else args.generations
+        population = 2 if args.quick else args.population
+        elites = 1 if args.quick else args.elites
+
+        multi_config = ProtectMultiSeedConfig(
+            training_seeds=tuple(args.training_seeds),
+            eval_seed=args.eval_seed,
+            generations=generations,
+            population=population,
+            elites=elites,
+            pairs=args.pairs,
+            eval_pairs=args.eval_pairs,
+            workers=args.workers,
+            eval_all_checkpoints=args.eval_all_checkpoints,
+            opponent_policy=args.opponent,
+            bootstrap_resamples=args.bootstrap_resamples,
+            alpha=args.alpha,
+            bootstrap_seed=args.bootstrap_seed,
+        )
+
+        try:
+            multi_report = run_protect_multi_seed(
+                output_dir=args.output_dir,
+                config=multi_config,
+                spec=spec,
+                manifest=manifest,
+                showdown_dir=args.showdown_dir,
+            )
+        except Exception as e:
+            print(f"Protect multi-seed error: {e}", file=sys.stderr)
+            return 1
+
+        print(json.dumps(dataclasses.asdict(multi_report), indent=2))
         return 0
 
     return 0

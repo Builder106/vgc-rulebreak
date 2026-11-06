@@ -39,3 +39,6 @@ static/demos/*.webm
 node_modules/
 .astro/
 .shots/
+
+# Local notes
+anti-meta-guide-reg-m-c.md

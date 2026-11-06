@@ -1,5 +1,22 @@
 # Journal
 
+## 2026-11-06: Rerun training and evaluation on Protect-only formats #milestone
+
+Implemented `run_protect_rerun` in `src/vgc_rulebreak/protect_rerun.py` and the `protect-rerun` CLI subcommand to execute the full training and evaluation rerun across the isolated Protect-only formats (`gen9rulebreakprotect16` and `gen9rulebreakprotect8`).
+
+The pipeline automates:
+1. Training `source` under `gen9rulebreakprotect16` from heuristic baseline Protect parameters using cross-entropy fitting on the training split.
+2. Training `native` under `gen9rulebreakprotect8` with identical budget controls.
+3. Training `adapted` under `gen9rulebreakprotect8` initializing directly from the final source checkpoint.
+4. Evaluating resulting checkpoints against held-out test teams (`test-annihilape-bulky`, `test-balance-pivot`) across both formats under mirrored seats and shared battle seeds with full game recording and replay persistence.
+5. Summarizing habit recovery series and comparative outcomes.
+
+Live empirical evaluation on local Showdown:
+- Verified all checkpoints strictly retain their paired format identity (`gen9rulebreakprotect16` vs `gen9rulebreakprotect8`).
+- Across 72 training battles and 72 held-out evaluation battles, candidate policies chose Protect on 16 of 452 legal opportunities (3.54% use rate), closely matching the audit finding (3.4%).
+- Zero depletions were observed across all games (`total_depletions = 0`, `scarcity_binds = False`).
+- The empirical rerun confirms that reducing Protect maximum PP from 16 to 8 does not bind in standard games without artificial stall incentives, confirming the negative/null result under clean single-factor experimental controls.
+
 ## 2026-11-03: Meta-tuned agent comparison and meta shift evaluation for Study A #milestone
 
 Implemented `BroadlyTunedAgent`, `MetaTunedAgent`, and `AdaptedAntiMetaAgent` to isolate whether metagame assumptions cost wins against off-meta anchored teams. In `BattleAgent`, agents now receive Showdown battle messages through `observe_message`, tracking opposing active slots, fainting events, and field state without leaking private information.

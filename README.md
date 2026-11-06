@@ -10,10 +10,10 @@ VGC Rulebreak uses Pokémon Showdown to study how competitive agents handle what
 
 | Study | Question | Status |
 | --- | --- | --- |
-| P: Protect PP | Does cutting Protect from 16 PP to 8 make an agent's old habits costly? | 1,188 games recorded; Protect-only rerun pending |
+| P: Protect PP | Does cutting Protect from 16 PP to 8 make an agent's old habits costly? | Protect-only rerun completed; 8 PP does not bind |
 | A: Anti-meta teams | How strong can a team built around an off-meta anchor get, and do meta-tuned agents pay for their assumptions? | [Planned](docs/anti-meta.md) |
 
-The first batch of Study P games couldn't answer its question. It compared standard Gen 9 with the full Champions mod, which changes more than Protect. The code now has a pair of experimental formats whose overlay changes only Protect PP, but those games have not been rerun. The [research plan](RESEARCH.md) also covers Rage Fist, Speed, full Champions transfer, and Tera/Mega transfer.
+The first batch of Study P games couldn't answer its question. It compared standard Gen 9 with the full Champions mod, which changes more than Protect. The repository now isolates Protect PP via paired experimental formats (`gen9rulebreakprotect16` and `gen9rulebreakprotect8`), and the Protect-only rerun pipeline confirms that 8 PP does not bind in standard games. The [research plan](RESEARCH.md) also covers Rage Fist, Speed, full Champions transfer, and Tera/Mega transfer.
 
 ## Study P status
 

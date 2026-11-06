@@ -41,7 +41,7 @@ In progress. See [the research plan](RESEARCH.md#first-experiment-protect-pp) an
 - [x] Freeze test teams, opponent policies, and seeds.
 - [x] Compare unchanged source, adapted, and target-native agents. These games used the earlier format pair, so they can't isolate Protect PP.
 - [x] Pilot a setup in which Protect reaches the 8 PP limit before repeating training. (Behavioral scarcity pilot verified that 8 PP does not bind in standard games without artificial stall incentives).
-- [ ] Rerun training and evaluation on the Protect-only formats.
+- [x] Rerun training and evaluation on the Protect-only formats.
 - [ ] Evaluate multiple training seeds and report confidence intervals.
 - [ ] Normalize candidate mistakes by eligible decision opportunities.
 - [ ] Produce one replay explanation with repeated-rollout evidence.

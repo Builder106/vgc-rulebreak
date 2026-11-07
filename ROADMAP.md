@@ -43,7 +43,7 @@ In progress. See [the research plan](RESEARCH.md#first-experiment-protect-pp) an
 - [x] Pilot a setup in which Protect reaches the 8 PP limit before repeating training. (Behavioral scarcity pilot verified that 8 PP does not bind in standard games without artificial stall incentives).
 - [x] Rerun training and evaluation on the Protect-only formats.
 - [x] Evaluate multiple training seeds and report confidence intervals.
-- [ ] Normalize candidate mistakes by eligible decision opportunities.
+- [x] Normalize candidate mistakes by eligible decision opportunities.
 - [ ] Produce one replay explanation with repeated-rollout evidence.
 - [ ] Compare original and adapted checkpoints without inferring unsupported internal beliefs.
 

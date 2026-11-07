@@ -17,6 +17,7 @@ from vgc_rulebreak.evaluation import (
     run_evaluation_battle,
 )
 from vgc_rulebreak.manifest import load_manifest
+from vgc_rulebreak.mistakes import DETECTOR
 from vgc_rulebreak.pilot import _count_protect_opportunities
 from vgc_rulebreak.records import GameContext, GameRecorder, game_outcome
 from vgc_rulebreak.simulator.battle import BattleSession
@@ -208,6 +209,26 @@ def test_replay_bytes_are_reproducible(tmp_path: Path) -> None:
     assert (tmp_path / "a/replays/g00001.json.gz").read_bytes() == (
         tmp_path / "b/replays/g00001.json.gz"
     ).read_bytes()
+
+
+def test_recorder_persists_candidate_mistake_counts_and_replay_locations(tmp_path: Path) -> None:
+    request = {
+        "active": [{"moves": [{"id": "protect", "pp": 8}, {"id": "tackle", "pp": 35}]}],
+        "side": {"pokemon": [{"ident": "p2: Annihilape", "condition": "100/100"}]},
+    }
+    decisions = [
+        {"turn": turn, "side": "p2", "choice": "move 1", "request": request} for turn in (1, 2)
+    ]
+    recorder = GameRecorder(tmp_path, {})
+    recorder.record(make_context(), make_result(replay={"log": [], "decisions": decisions}))
+    recorder.record(make_context(), make_result(replay=None))
+    path = recorder.finish({}, {})
+    games = json.loads(path.read_text(encoding="utf-8"))["games"]
+    metric = games[0]["candidate_mistakes"][DETECTOR]
+    assert metric["events"] == metric["eligible_opportunities"] == 1
+    assert metric["rate"] == 1.0
+    assert metric["evidence"] == [{"decision_index": 1, "turn": 2, "slot": 0}]
+    assert games[1]["candidate_mistakes"] is None
 
 
 def test_compare_study_agents_records_every_game(tmp_path: Path) -> None:

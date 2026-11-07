@@ -1,11 +1,14 @@
 """Turn checkpoint evaluations into habit-recovery series for analysis and the showcase."""
 
+import gzip
 import json
 import re
 from collections import defaultdict
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
+
+from vgc_rulebreak.mistakes import DETECTOR, DETECTOR_VERSION, candidate_mistakes
 
 SCHEMA_VERSION = 1
 CHECKPOINT_NAME = re.compile(r"^(?P<agent>source|native|adapted)-s(?P<seed>\d+)-g(?P<gen>\d+)$")
@@ -31,6 +34,44 @@ def across_seeds(per_seed: dict[int, dict[str, float]], key: str) -> dict[str, f
     return {"mean": sum(values) / len(values), "min": min(values), "max": max(values)}
 
 
+def mistake_stats(games: list[dict[str, Any]]) -> dict[str, Any]:
+    """Pool counts, keeping unavailable measurements distinct from zero events."""
+    measured = [
+        game["candidate_mistakes"][DETECTOR]
+        for game in games
+        if game.get("candidate_mistakes") is not None and DETECTOR in game["candidate_mistakes"]
+    ]
+    if any(metric["detector_version"] != DETECTOR_VERSION for metric in measured):
+        raise ValueError("Cannot pool different candidate-mistake detector versions")
+    events = sum(metric["events"] for metric in measured)
+    opportunities = sum(metric["eligible_opportunities"] for metric in measured)
+    return {
+        "events": events,
+        "eligible_opportunities": opportunities,
+        "rate": events / opportunities if opportunities else None,
+        "measured_games": len(measured),
+        "unmeasured_games": len(games) - len(measured),
+    }
+
+
+def mistake_point(seeds: dict[int, list[dict[str, Any]]]) -> dict[str, Any]:
+    per_seed = {str(seed): mistake_stats(games) for seed, games in sorted(seeds.items())}
+    rates = [stats["rate"] for stats in per_seed.values() if stats["rate"] is not None]
+    return {
+        DETECTOR: {
+            "detector_version": DETECTOR_VERSION,
+            **mistake_stats([game for games in seeds.values() for game in games]),
+            "seeds": per_seed,
+            "rate_across_seeds": (
+                {"mean": sum(rates) / len(rates), "min": min(rates), "max": max(rates)}
+                if rates
+                else None
+            ),
+            "seeds_with_opportunities": len(rates),
+        }
+    }
+
+
 def summarize_recovery(results_paths: Iterable[Path]) -> dict[str, Any]:
     """Group evaluated checkpoints by agent, ruleset, and generation.
 
@@ -51,6 +92,14 @@ def summarize_recovery(results_paths: Iterable[Path]) -> dict[str, Any]:
         for key in ("spec", "simulator_revision"):
             provenance[key].add(document[key])
         for game in document["games"]:
+            # Backfill old runs from complete decision records without rewriting them.
+            if "candidate_mistakes" not in game and game.get("replay"):
+                replay_path = path.parent / game["replay"]
+                if replay_path.is_file():
+                    replay = json.loads(gzip.decompress(replay_path.read_bytes()))
+                    game["candidate_mistakes"] = candidate_mistakes(
+                        replay["decisions"], game["candidate_role"]
+                    )
             provenance["opponent"].add(game["opponent"])
             grouped[(agent, game["variant"])][generation][seed].append(game)
 
@@ -63,6 +112,7 @@ def summarize_recovery(results_paths: Iterable[Path]) -> dict[str, Any]:
                 {
                     "generation": generation,
                     "seeds": {str(seed): stats for seed, stats in per_seed.items()},
+                    "candidate_mistakes": mistake_point(seeds),
                     "points_per_game": across_seeds(per_seed, "points_per_game"),
                     "protect_use_rate": across_seeds(per_seed, "protect_use_rate"),
                     "depletion_rate": across_seeds(per_seed, "depletion_rate"),

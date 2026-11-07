@@ -1,5 +1,31 @@
 # Journal
 
+## 2026-11-07: Normalize Study P candidate mistakes by opportunities #milestone #decision
+
+Added a versioned consecutive-Protect choice detector to evaluation recording and
+recovery summaries. An opportunity requires the same Pokémon's Protect choice in
+the same slot on the preceding turn, currently legal Protect, and a legal
+alternative. Each game retains flag counts, eligible slot counts, a normalized
+rate, and replay locations. These choice patterns are review candidates; proving
+harm or estimating outcome cost still requires the later rollout milestone.
+
+Recovery summaries pool numerators and denominators before dividing and retain
+per-seed counts and rate spread. Seeds with no opportunities have null rates and
+are excluded from the rate spread; missing replay evidence remains unmeasured
+with explicit coverage counts. Archived runs can be backfilled from compressed
+replays without modifying the source records. Detector versions cannot be pooled.
+No frontend files or study outcome claims were changed.
+
+Analyzed the existing 72-game Protect-only rerun with complete replay coverage:
+0 consecutive-Protect flags across 16 eligible slot decisions. Points without
+eligible decisions correctly retain null rates. The generated analysis remains
+outside Git, alongside the archived run data.
+
+Validation passed: 135 Python tests including live mechanics/format fixtures,
+strict mypy, Ruff lint/format, source and wheel builds, installed-wheel spec check,
+Python dependency audit, Astro check/lint/build, five browser tests, and the npm
+audit at CI's high-severity threshold.
+
 ## 2026-11-06: Evaluate multiple training seeds and report confidence intervals #milestone
 
 Implemented `run_protect_multi_seed` in `src/vgc_rulebreak/protect_multi_seed.py` and the `protect-multi-seed` CLI subcommand to train and evaluate policies across multiple independent seeds (`[11, 29, 47]`) with rigorous confidence interval reporting.

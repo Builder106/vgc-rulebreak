@@ -1,5 +1,6 @@
 """Tests for grouping checkpoint evaluations into habit-recovery series."""
 
+import gzip
 import json
 from pathlib import Path
 from typing import Any
@@ -7,6 +8,7 @@ from typing import Any
 import pytest
 
 from vgc_rulebreak.cli import main
+from vgc_rulebreak.mistakes import DETECTOR
 from vgc_rulebreak.recovery import summarize_recovery
 
 
@@ -72,3 +74,74 @@ def test_cli_summarize_recovery(tmp_path: Path, capsys: pytest.CaptureFixture[st
     assert (
         main(["summarize-recovery", "--runs", str(tmp_path / "empty"), "--output", str(out)]) == 2
     )
+
+
+def measured_game(events: int, opportunities: int) -> dict[str, Any]:
+    return {
+        **game("win", 1, 4),
+        "candidate_mistakes": {
+            DETECTOR: {
+                "detector_version": 1,
+                "events": events,
+                "eligible_opportunities": opportunities,
+            }
+        },
+    }
+
+
+def test_mistake_rates_pool_opportunities_and_keep_seed_spread(tmp_path: Path) -> None:
+    write_run(tmp_path, "adapted-s11-g00", [measured_game(1, 1), measured_game(0, 9)])
+    write_run(tmp_path, "adapted-s29-g00", [measured_game(1, 2)])
+    write_run(tmp_path, "adapted-s47-g00", [measured_game(0, 0), game("loss", 0, 0)])
+
+    result = summarize_recovery(tmp_path.rglob("results.json"))
+    metric = result["series"][0]["points"][0]["candidate_mistakes"][DETECTOR]
+    assert metric["events"] == 2
+    assert metric["eligible_opportunities"] == 12
+    assert metric["rate"] == 2 / 12  # Not an unweighted average of game rates.
+    assert metric["measured_games"] == 4
+    assert metric["unmeasured_games"] == 1
+    assert metric["seeds"]["11"]["rate"] == 0.1
+    assert metric["seeds"]["29"]["rate"] == 0.5
+    assert metric["seeds"]["47"]["rate"] is None
+    assert metric["seeds_with_opportunities"] == 2
+    assert metric["rate_across_seeds"] == {"mean": 0.3, "min": 0.1, "max": 0.5}
+
+
+def test_legacy_replays_are_backfilled_and_missing_replays_are_unknown(tmp_path: Path) -> None:
+    legacy = {**game("win", 2, 4), "candidate_role": "p2", "replay": "replays/game.json.gz"}
+    path = write_run(tmp_path, "native-s11-g00", [legacy])
+    original = path.read_bytes()
+    request = {
+        "active": [{"moves": [{"id": "protect", "pp": 8}, {"id": "tackle", "pp": 35}]}],
+        "side": {"pokemon": [{"ident": "p2: Annihilape", "condition": "100/100"}]},
+    }
+    replay = {
+        "decisions": [
+            {"turn": turn, "side": "p2", "choice": "move 1", "request": request} for turn in (1, 2)
+        ]
+    }
+    replay_path = path.parent / legacy["replay"]
+    replay_path.parent.mkdir()
+    replay_path.write_bytes(gzip.compress(json.dumps(replay).encode()))
+    result = summarize_recovery([path])
+    metric = result["series"][0]["points"][0]["candidate_mistakes"][DETECTOR]
+    assert metric["events"] == metric["eligible_opportunities"] == 1
+    assert metric["rate"] == 1.0
+    assert path.read_bytes() == original
+
+    replay_path.unlink()
+    result = summarize_recovery([path])
+    metric = result["series"][0]["points"][0]["candidate_mistakes"][DETECTOR]
+    assert metric["rate"] is None
+    assert metric["rate_across_seeds"] is None
+    assert metric["measured_games"] == 0
+    assert metric["unmeasured_games"] == 1
+
+
+def test_different_detector_versions_cannot_be_pooled(tmp_path: Path) -> None:
+    other_version = measured_game(1, 2)
+    other_version["candidate_mistakes"][DETECTOR]["detector_version"] = 2
+    path = write_run(tmp_path, "native-s11-g00", [measured_game(1, 2), other_version])
+    with pytest.raises(ValueError, match="different candidate-mistake detector versions"):
+        summarize_recovery([path])

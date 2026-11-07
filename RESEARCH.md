@@ -56,6 +56,25 @@ Switching Annihilape after it takes hits can still be correct. Running out of Pr
 
 Normalize habit frequencies by opportunities. Fewer costly Annihilape switches means little if the agent stops selecting Annihilape. Keep aggregate results alongside selected replay examples.
 
+Study P records a `consecutive_protect` candidate detector (version 1) in each
+evaluation game's `candidate_mistakes`. It flags choosing Protect after choosing
+Protect with the same Pokémon in the same active slot on the immediately preceding
+turn. Its denominator is active-slot decisions where that preceding choice occurred,
+Protect is currently legal, and at least one other move or switch is legal. Disabled
+or depleted Protect, fainted slots, team preview, waiting, forced replacements, and
+turn gaps do not create opportunities. Other protection moves are outside this
+Protect-only detector. Choices are measured even if execution is prevented; these
+flags are candidates for inspection, not established mistakes or estimated costs.
+
+Each metric retains event and opportunity counts, their ratio, and replay decision
+indices for flagged choices. `summarize-recovery` pools counts before dividing,
+reports each training seed and its rate range, and excludes seeds without eligible
+decisions from the across-seed rate summary. A zero denominator produces a null rate.
+Missing decision evidence remains unmeasured, with coverage counts beside the rate.
+Older runs are analyzed from their compressed replay files when available. This
+analysis does not rewrite those runs or establish the repeated-rollout evidence
+required to call an individual choice harmful.
+
 ## Full transfer and mechanic comparison
 
 Full Champions transfer changes the complete pinned ruleset. Its result describes the combined change. Controlled studies isolate individual factors, with selected interactions reported separately.

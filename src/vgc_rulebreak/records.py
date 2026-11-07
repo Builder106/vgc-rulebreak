@@ -8,6 +8,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from vgc_rulebreak.mistakes import candidate_mistakes
+
 if TYPE_CHECKING:
     from vgc_rulebreak.evaluation import EvaluationBattleResult
 
@@ -70,6 +72,11 @@ class GameRecorder:
                 "opponent_decisions": result.opponent_decisions,
                 "candidate_protect_uses": result.candidate_protect_uses,
                 "candidate_protect_opportunities": result.candidate_protect_opportunities,
+                "candidate_mistakes": (
+                    candidate_mistakes(result.replay["decisions"], context.candidate_role)
+                    if result.replay is not None
+                    else None
+                ),
                 "opponent_protect_uses": result.opponent_protect_uses,
                 "protect_depleted": result.protect_depleted,
                 "duration_seconds": round(result.duration_seconds, 3),

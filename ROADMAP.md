@@ -68,7 +68,7 @@ Exit when the anchored team's held-out result has intervals that can resolve a u
 
 Planned. The hit-counter fixtures already pass.
 
-- [ ] Build a format pair that differs only in whether Rage Fist's hit counter resets on switching.
+- [x] Build a format pair that differs only in whether Rage Fist's hit counter resets on switching.
 - [ ] Estimate the decision cost of switches, normalized by opportunities to switch.
 - [ ] After Study P has a result, run a 2-by-2 with Protect PP to measure the interaction.
 

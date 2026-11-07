@@ -63,7 +63,16 @@ class ShowdownProcess:
             return
 
         overlay = Path(__file__).with_name("protect_formats.cjs")
-        cmd = ["node", "--require", str(overlay), "pokemon-showdown", "simulate-battle"]
+        rage_fist_overlay = Path(__file__).with_name("rage_fist_formats.cjs")
+        cmd = [
+            "node",
+            "--require",
+            str(overlay),
+            "--require",
+            str(rage_fist_overlay),
+            "pokemon-showdown",
+            "simulate-battle",
+        ]
         self._process = subprocess.Popen(
             cmd,
             cwd=str(self.showdown_dir),

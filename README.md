@@ -32,6 +32,17 @@ Both experimental formats copy the same pinned Gen 9 Doubles Custom Game rules. 
 
 These are experimental formats, not official regulations. The existing 1,188 games still belong to the earlier Gen 9 versus full Champions comparison. [Edit this diagram](assets/diagrams/protect-formats.html).
 
+## The Rage Fist formats
+
+Study R uses `gen9rulebreakragefistpersist` and `gen9rulebreakragefistreset`.
+Both copy the pinned Gen 9 Doubles Custom Game format. The first preserves the
+hit counter; the second clears it on switch-out. Protect stays at 16 maximum PP,
+and all other rules and mechanics stay Gen 9. `ShowdownProcess` loads both formats
+without editing the upstream checkout. Live fixtures in `tests/test_rage_fist_formats.py`
+check identical settings, stats, PP, and pre-switch battle logs, then verify hit
+counts, Rage Fist power, and damage after manual, pivot, and forced switches.
+These experimental formats prepare Study R; switch-cost evaluation remains pending.
+
 ## Run the study tools
 
 Use Python 3.12 and uv 0.12.5:

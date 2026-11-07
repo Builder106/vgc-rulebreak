@@ -1,5 +1,31 @@
 # Journal
 
+## 2026-11-07: Isolate Rage Fist hit-counter persistence #milestone #decision
+
+Added `gen9rulebreakragefistpersist` and `gen9rulebreakragefistreset` as copies
+of the pinned Gen 9 Doubles Custom Game format. The reset variant adds only an
+`onSwitchOut` hook that clears `timesAttacked`; the persist variant keeps Gen 9
+behavior. A separate repository-owned CommonJS overlay loads alongside the
+Protect overlay in `ShowdownProcess`, leaving the upstream checkout untouched.
+Using Gen 9 for both arms avoids importing Champions' PP, stat, or other changes.
+Protect remains at 16 maximum PP in both arms; the future Protect interaction
+experiment and switch-cost evaluation remain separate roadmap items.
+
+Live fixtures compare every mechanics-related format setting with the base,
+and compare stats, move slots, Tera availability, and seeded battle logs before
+switching. Manual switches, U-turn, and Roar verify two accumulated hits and
+150 power before switching, then 150 versus 50 power after returning, with
+corresponding damage differences and resumed hit accumulation. Battle-stream
+fixtures check both format IDs and restored Protect PP after returning.
+
+Validation passed: 155 Python tests, strict mypy, Ruff lint and formatting,
+source and wheel builds, installed-wheel spec validation, pip-audit, Astro check,
+ESLint, static build, five Playwright tests, and secret scanning. The npm audit
+passes CI's high-severity threshold with ten existing moderate findings.
+Simulator integration used a writable copy of the pinned checkout in `/tmp`
+because Showdown rebuilds on launch. Browser tests used `SHOWCASE_URL` against
+the running local preview to accommodate Astro's background preview startup.
+
 ## 2026-11-07: Compare original and adapted checkpoints without internal beliefs #milestone #decision
 
 Implemented checkpoint-level comparison and empirical synthesis in

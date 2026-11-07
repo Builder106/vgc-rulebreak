@@ -75,6 +75,16 @@ Older runs are analyzed from their compressed replay files when available. This
 analysis does not rewrite those runs or establish the repeated-rollout evidence
 required to call an individual choice harmful.
 
+To establish causal decision evidence, `explain-replay` reconstructs the board
+state up to a decision point via prefix replay under the original format and
+battle seed, reseeds the simulator PRNG for branching, and repeats paired rollouts
+against multiple opponent policies (e.g. `HeuristicBaseline` and `RandomBaseline`).
+It estimates performance differences ($\Delta$ PPG and win rate) for legal
+alternatives with 95% bootstrap confidence intervals. Descriptions document
+observable board metrics (such as current Protect PP) and empirical rollout
+distributions without inferring unrecorded internal beliefs. Generated explanation
+reports remain outside Git alongside archived run data.
+
 ## Full transfer and mechanic comparison
 
 Full Champions transfer changes the complete pinned ruleset. Its result describes the combined change. Controlled studies isolate individual factors, with selected interactions reported separately.

@@ -1,5 +1,35 @@
 # Journal
 
+## 2026-11-07: Produce Study P replay explanation with repeated-rollout evidence #milestone #decision
+
+Implemented replay branching and counterfactual repeated-rollout evaluation in
+`src/vgc_rulebreak/explanation.py` and added the `explain-replay` CLI subcommand.
+The pipeline reconstructs exact simulator state at any decision point by stepping
+the replay prefix under the battle's original format and seed, reseeds Showdown's
+PRNG for branching divergence, and executes paired rollouts across multiple opponent
+baselines (`HeuristicBaseline` and `RandomBaseline`).
+
+For each legal action alternative, the module evaluates win rates, points per game,
+and average turns, estimating paired performance deltas ($\Delta$ PPG and win rate)
+with 95% standard percentile bootstrap confidence intervals. Explanations synthesize
+an empirical narrative documenting observable Protect PP, remaining HP, and rollout
+distribution bounds without inferring unrecorded internal beliefs or post-hoc intentions.
+
+Produced the milestone explanation artifact (`runs/protect-rerun-milestone/replay_explanation.json`)
+for game `g00007` under target format `gen9rulebreakprotect8` (candidate `adapted-s11-g00`, turn 3):
+180 repeated rollouts across 9 actions and 2 opponent policies. At the decision point,
+Maushold had 8/8 Protect PP remaining, and 0 Protect depletions occurred across all 180
+rollouts, confirming that 8 PP scarcity did not bind. Tactical alternatives targeting
+the opposing slot (e.g. Population Bomb on slot 2: $\Delta = +0.250$ PPG, 95% CI
+$[+0.050, +0.450]$) significantly outperformed defensive Protect, demonstrating how
+counterfactual rollouts evaluate individual decisions without relying on single-game
+outcomes. The generated explanation remains outside Git alongside archived run data.
+No frontend files or visual components were modified.
+
+Validation passed: 143 Python tests including live mechanics and rollout fixtures,
+strict mypy, Ruff lint/format, source and wheel builds, installed-wheel spec check,
+Python dependency audit, Astro check/lint/build, five browser tests, and npm audit.
+
 ## 2026-11-07: Normalize Study P candidate mistakes by opportunities #milestone #decision
 
 Added a versioned consecutive-Protect choice detector to evaluation recording and

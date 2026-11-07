@@ -711,6 +711,73 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="path to local pokemon-showdown checkout",
     )
 
+    # Subcommand: explain-replay
+    explain_cmd = subcommands.add_parser(
+        "explain-replay",
+        help="produce a replay explanation with repeated-rollout evidence for a battle decision",
+    )
+    explain_cmd.add_argument(
+        "--replay",
+        type=Path,
+        required=True,
+        help="path to replay file (.json.gz or .json)",
+    )
+    explain_cmd.add_argument(
+        "--decision-index",
+        type=int,
+        default=None,
+        help="index of decision to explain (defaults to auto-detecting candidate Protect decision)",
+    )
+    explain_cmd.add_argument(
+        "--actual-choice",
+        type=str,
+        default=None,
+        help="override choice string for the candidate at the target decision",
+    )
+    explain_cmd.add_argument(
+        "--alternative",
+        type=str,
+        action="append",
+        default=None,
+        help="specific alternative choice string to evaluate (can be repeated)",
+    )
+    explain_cmd.add_argument(
+        "--trials",
+        type=int,
+        default=10,
+        help="number of rollout trials per alternative per opponent policy (default: 10)",
+    )
+    explain_cmd.add_argument(
+        "--opponent-policies",
+        type=str,
+        default="HeuristicBaseline,RandomBaseline",
+        help="comma-separated opponent policies (default: HeuristicBaseline,RandomBaseline)",
+    )
+    explain_cmd.add_argument(
+        "--checkpoint",
+        type=Path,
+        default=None,
+        help="path to trained candidate checkpoint JSON",
+    )
+    explain_cmd.add_argument(
+        "--seed-base",
+        type=int,
+        default=1000,
+        help="base seed for rollout PRNG reseeding (default: 1000)",
+    )
+    explain_cmd.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="output JSON path to save the explanation artifact",
+    )
+    explain_cmd.add_argument(
+        "--showdown-dir",
+        type=Path,
+        default=None,
+        help="path to local pokemon-showdown checkout",
+    )
+
     args = parser.parse_args(argv)
 
     if args.command == "check":
@@ -1290,6 +1357,34 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
 
         print(json.dumps(dataclasses.asdict(multi_report), indent=2))
+        return 0
+
+    if args.command == "explain-replay":
+        from vgc_rulebreak.explanation import produce_replay_explanation
+
+        policies = tuple(p.strip() for p in args.opponent_policies.split(",") if p.strip())
+        alts = None
+        if args.alternative:
+            alts = [(a, f"Custom alternative: {a}") for a in args.alternative]
+
+        try:
+            explanation = produce_replay_explanation(
+                replay_path=args.replay,
+                decision_index=args.decision_index,
+                candidate_choice_override=args.actual_choice,
+                alternative_choices=alts,
+                trials_per_action=args.trials,
+                opponent_policies=policies,
+                checkpoint_path=args.checkpoint,
+                seed_base=args.seed_base,
+                showdown_dir=args.showdown_dir,
+                output_path=args.output,
+            )
+        except Exception as e:
+            print(f"Explain replay error: {e}", file=sys.stderr)
+            return 1
+
+        print(json.dumps(explanation, indent=2))
         return 0
 
     return 0

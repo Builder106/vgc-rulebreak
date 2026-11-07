@@ -10,7 +10,7 @@ The repository grows one study at a time. Each study gets a letter, a plan, and 
 
 | Study | Plan | Status |
 | --- | --- | --- |
-| P: Protect PP | [First experiment](#first-experiment-protect-pp) and the [audit](docs/protect-pp-audit.md) | Multi-seed evaluation completed |
+| P: Protect PP | [First experiment](#first-experiment-protect-pp) and the [audit](docs/protect-pp-audit.md) | Checkpoint comparison completed |
 | A: Anti-meta teams | [docs/anti-meta.md](docs/anti-meta.md) | Planned |
 
 ## Questions and controls
@@ -84,6 +84,14 @@ alternatives with 95% bootstrap confidence intervals. Descriptions document
 observable board metrics (such as current Protect PP) and empirical rollout
 distributions without inferring unrecorded internal beliefs. Generated explanation
 reports remain outside Git alongside archived run data.
+
+To compare original and adapted checkpoints, `compare-checkpoints` measures
+parameter shifts, unit-space parameter distances, empirical outcome deltas with
+95% bootstrap confidence intervals, opportunity-normalized Protect and mistake
+rates, and decision agreement across identical game requests. Narratives describe
+observable parameters, board state, and rollout distributions, programmatically
+excluding unrecorded internal beliefs. Generated comparison artifacts remain
+outside Git alongside archived run data.
 
 ## Full transfer and mechanic comparison
 

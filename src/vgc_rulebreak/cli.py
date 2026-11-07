@@ -778,6 +778,102 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="path to local pokemon-showdown checkout",
     )
 
+    # Subcommand: compare-checkpoints
+    comp_ckpt_cmd = subcommands.add_parser(
+        "compare-checkpoints",
+        help="compare original and adapted checkpoints without internal belief claims",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--original",
+        type=Path,
+        required=True,
+        help="path to original/source checkpoint JSON",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--adapted",
+        type=Path,
+        required=True,
+        help="path to adapted checkpoint JSON",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--native",
+        type=Path,
+        default=None,
+        help="optional path to target-native checkpoint JSON",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--original-eval",
+        type=Path,
+        default=None,
+        help="path to original evaluation results.json or run directory",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--adapted-eval",
+        type=Path,
+        default=None,
+        help="path to adapted evaluation results.json or run directory",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--native-eval",
+        type=Path,
+        default=None,
+        help="path to native evaluation results.json or run directory",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--spec",
+        type=Path,
+        default=Path("experiments/protect-pp.json"),
+        help="path to experiment specification JSON",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("experiments/teams/protect-pp.json"),
+        help="path to Open Team Sheet manifest",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--opponent",
+        type=str,
+        default="HeuristicBaseline",
+        choices=["HeuristicBaseline", "RandomBaseline"],
+        help="reference opponent policy for evaluation (default: HeuristicBaseline)",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--seed",
+        type=int,
+        default=101,
+        help="evaluation seed for battle generation (default: 101)",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--pairs",
+        type=int,
+        default=1,
+        help="mirrored pairs per matchup if running evaluation (default: 1)",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--run-h2h",
+        action="store_true",
+        help="run direct head-to-head match play between original and adapted checkpoints",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--h2h-pairs",
+        type=int,
+        default=1,
+        help="mirrored pairs for head-to-head match play (default: 1)",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="output JSON path to save the comparison report",
+    )
+    comp_ckpt_cmd.add_argument(
+        "--showdown-dir",
+        type=Path,
+        default=None,
+        help="path to local pokemon-showdown checkout",
+    )
+
     args = parser.parse_args(argv)
 
     if args.command == "check":
@@ -1385,6 +1481,55 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
 
         print(json.dumps(explanation, indent=2))
+        return 0
+
+    if args.command == "compare-checkpoints":
+        from vgc_rulebreak.checkpoint_comparison import compare_checkpoints
+        from vgc_rulebreak.manifest import load_manifest
+
+        try:
+            raw_spec = json.loads(args.spec.read_text(encoding="utf-8"))
+            spec = validate_spec(raw_spec)
+        except Exception as e:
+            print(f"Failed to load spec {args.spec}: {e}", file=sys.stderr)
+            return 2
+
+        try:
+            manifest = load_manifest(args.manifest)
+        except Exception as e:
+            print(f"Failed to load manifest {args.manifest}: {e}", file=sys.stderr)
+            return 2
+
+        try:
+            ckpt_comparison_report = compare_checkpoints(
+                original_checkpoint_path=args.original,
+                adapted_checkpoint_path=args.adapted,
+                native_checkpoint_path=args.native,
+                original_results_path=args.original_eval,
+                adapted_results_path=args.adapted_eval,
+                native_results_path=args.native_eval,
+                spec=spec,
+                manifest=manifest,
+                opponent_policy=args.opponent,
+                eval_seed=args.seed,
+                pairs=args.pairs,
+                run_h2h=args.run_h2h,
+                h2h_pairs=args.h2h_pairs,
+                showdown_dir=args.showdown_dir,
+            )
+        except Exception as e:
+            print(f"Checkpoint comparison error: {e}", file=sys.stderr)
+            return 1
+
+        if args.output is not None:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(
+                json.dumps(dataclasses.asdict(ckpt_comparison_report), indent=2) + "\n",
+                encoding="utf-8",
+            )
+            print(f"Wrote comparison report to {args.output}")
+
+        print(ckpt_comparison_report.empirical_narrative)
         return 0
 
     return 0

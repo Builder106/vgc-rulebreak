@@ -45,7 +45,7 @@ In progress. See [the research plan](RESEARCH.md#first-experiment-protect-pp) an
 - [x] Evaluate multiple training seeds and report confidence intervals.
 - [x] Normalize candidate mistakes by eligible decision opportunities.
 - [x] Produce one replay explanation with repeated-rollout evidence.
-- [ ] Compare original and adapted checkpoints without inferring unsupported internal beliefs.
+- [x] Compare original and adapted checkpoints without inferring unsupported internal beliefs.
 
 Exit with a reproducible result and a replay whose explanation matches the aggregate evidence. A null or negative result is publishable when the experiment can resolve a useful effect.
 

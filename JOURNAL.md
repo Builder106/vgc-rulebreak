@@ -1,5 +1,47 @@
 # Journal
 
+## 2026-11-07: Compare original and adapted checkpoints without internal beliefs #milestone #decision
+
+Implemented checkpoint-level comparison and empirical synthesis in
+`src/vgc_rulebreak/checkpoint_comparison.py` and added the `compare-checkpoints`
+CLI subcommand. The harness compares original source checkpoints (trained under
+`gen9rulebreakprotect16`), adapted checkpoints (adapted under `gen9rulebreakprotect8`),
+and optional target-native references across all research protocol dimensions:
+1. Policy parameters: compares `base_score`, `low_hp_score`, `hp_threshold`,
+   `scarcity_slope`, and `pp_cushion` with unit-space L1 and L2 distances,
+   verifying whether scarcity slope is non-zero.
+2. Controlled evaluation performance: assesses points per game (PPG), win rates,
+   and average turns across formats (`protect-16` and `protect-8`) with 95% standard
+   percentile bootstrap confidence intervals for paired deltas.
+3. Habit and mistake metrics: normalizes Protect choices and consecutive-Protect
+   candidate mistakes by eligible decision opportunities, and verifies Protect depletion counts.
+4. Decision agreement and divergence: compares exact action choices and Protect
+   choice agreement on identical decision requests across replays, characterizing
+   divergences by observable HP thresholds and remaining Protect PP.
+5. Belief exclusion: synthesizes an empirical comparison narrative strictly grounded
+   in observable board state, model parameters, and rollout evidence; programmatically
+   forbids and verifies the absence of internal belief claims (rejecting unrecorded
+   mental states such as "believed", "thought", "hoped", "felt", "intended", "wanted").
+
+Evaluated the milestone checkpoints (`source-s11-g01` vs `adapted-s11-g01` and `native-s11-g01`)
+and generated the comparison report (`runs/protect-rerun-milestone/checkpoint_comparison.json`).
+Results:
+- Both policies have `scarcity_slope = 0.0`, confirming Protect scoring is invariant to remaining PP.
+- Zero Protect depletions occurred across all evaluated games for all policies (depletion rate 0.0,
+  95% bootstrap CI [0.0, 0.0]), proving that 8 PP scarcity did not bind.
+- Under `protect-8`, both original and adapted achieved identical 0.333 PPG (win rate 0.333,
+  Protect use rate 0.0571), yielding a paired delta of +0.000 PPG (95% CI [+0.000, +0.000]),
+  which is not statistically distinguishable from zero.
+- Across all 57 decisions evaluated from recorded games, the original and adapted policies
+  exhibited 100.0% decision agreement and 100.0% Protect choice agreement.
+- The comparison confirms a reproducible null result under clean single-factor experimental controls:
+  reducing Protect PP from 16 to 8 does not constrain play or alter defensive behavior in standard
+  doubles games.
+
+Validation passed: 150 Python tests, strict mypy, Ruff lint and formatting, source and wheel builds,
+installed-wheel spec validation, pip-audit dependency inventory, Astro check, ESLint, static build,
+5 Playwright browser tests, and npm audit.
+
 ## 2026-11-07: Produce Study P replay explanation with repeated-rollout evidence #milestone #decision
 
 Implemented replay branching and counterfactual repeated-rollout evaluation in

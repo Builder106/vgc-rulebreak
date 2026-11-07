@@ -56,6 +56,12 @@ Switching Annihilape after it takes hits can still be correct. Running out of Pr
 
 Normalize habit frequencies by opportunities. Fewer costly Annihilape switches means little if the agent stops selecting Annihilape. Keep aggregate results alongside selected replay examples.
 
+Study R's `estimate-switch-cost` estimates signed stay-minus-switch points from
+paired rollouts against two opponent policies, pooling costs before dividing by
+all eligible Rage Fist switch opportunities, including decisions to stay. The
+fixed stay comparator, opportunity exclusions, uncertainty methods, recorded-state
+conditioning and limits of interpretation are specified in [the protocol](docs/rage-fist.md).
+
 Study P records a `consecutive_protect` candidate detector (version 1) in each
 evaluation game's `candidate_mistakes`. It flags choosing Protect after choosing
 Protect with the same Pokémon in the same active slot on the immediately preceding

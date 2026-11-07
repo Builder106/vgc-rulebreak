@@ -50,6 +50,7 @@ class RolloutTrialResult:
     points: float
     turns: int
     protect_depleted: bool
+    end_reason: str = "unknown"
 
 
 def read_replay_file(path: Path) -> dict[str, Any]:
@@ -306,14 +307,21 @@ def replay_prefix_to_decision(
         p1_can = session.p1_request is not None and not session.p1_request.get("wait", False)
         p2_can = session.p2_request is not None and not session.p2_request.get("wait", False)
 
-        c1: str | None = None
-        c2: str | None = None
-        if p1_can and d_idx < target_decision_index and decisions[d_idx]["side"] == "p1":
-            c1 = decisions[d_idx]["choice"]
+        # Decisions for simultaneous requests are one indivisible step. In
+        # particular, branching at p2 must not submit p1 and wait for p2 here.
+        roles = [role for role, can_act in (("p1", p1_can), ("p2", p2_can)) if can_act]
+        if not roles:
+            raise ValueError("Replay prefix stalled before the target decision.")
+        if d_idx + len(roles) > target_decision_index:
+            return d_idx
+        choices: dict[str, str] = {}
+        for role in roles:
+            if decisions[d_idx]["side"] != role:
+                raise ValueError("Replay decision order does not match simulator requests.")
+            choices[role] = decisions[d_idx]["choice"]
             d_idx += 1
-        if p2_can and d_idx < target_decision_index and decisions[d_idx]["side"] == "p2":
-            c2 = decisions[d_idx]["choice"]
-            d_idx += 1
+        c1 = choices.get("p1")
+        c2 = choices.get("p2")
         session.step(c1, c2)
 
     return d_idx
@@ -356,6 +364,11 @@ def execute_rollout_trial(
 
         if session.is_ended:
             raise RuntimeError("Battle ended before reaching target decision.")
+
+        target = replay_data["decisions"][decision_index]
+        current_request = session.p1_request if candidate_role == "p1" else session.p2_request
+        if target["side"] != candidate_role or current_request != target.get("request"):
+            raise ValueError("Reconstructed request does not match the recorded target decision.")
 
         # Reseed simulator PRNG for branching stochasticity
         s_str = ",".join(map(str, reseed))
@@ -424,6 +437,15 @@ def execute_rollout_trial(
             points=points,
             turns=session.turn,
             protect_depleted=depleted,
+            end_reason=(
+                "win"
+                if winner is not None
+                else "tie"
+                if session.is_ended
+                else "turn_limit"
+                if session.turn >= max_turns
+                else "stalled"
+            ),
         )
 
 

@@ -41,7 +41,10 @@ and all other rules and mechanics stay Gen 9. `ShowdownProcess` loads both forma
 without editing the upstream checkout. Live fixtures in `tests/test_rage_fist_formats.py`
 check identical settings, stats, PP, and pre-switch battle logs, then verify hit
 counts, Rage Fist power, and damage after manual, pivot, and forced switches.
-These experimental formats prepare Study R; switch-cost evaluation remains pending.
+The [Study R switch-cost analysis](docs/rage-fist.md) compares voluntary switches
+with a fixed legal stay action through paired rollouts and normalizes signed
+costs by eligible switch opportunities. `estimate-switch-cost` reports each format
+and opponent separately, retaining replay evidence and uncertainty.
 
 ## Run the study tools
 

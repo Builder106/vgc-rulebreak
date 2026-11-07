@@ -711,6 +711,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="path to local pokemon-showdown checkout",
     )
 
+    switch_cmd = subcommands.add_parser(
+        "estimate-switch-cost", help="estimate opportunity-normalized Study R switch costs"
+    )
+    switch_cmd.add_argument("--replay", type=Path, nargs="+", required=True)
+    switch_cmd.add_argument("--candidate-role", choices=("p1", "p2"), required=True)
+    switch_cmd.add_argument("--trials", type=int, default=20)
+    switch_cmd.add_argument("--seed-base", type=int, default=1000)
+    switch_cmd.add_argument("--max-turns", type=int, default=100)
+    switch_cmd.add_argument("--showdown-dir", type=Path, default=None)
+    switch_cmd.add_argument("--output", type=Path, default=None)
+
     # Subcommand: explain-replay
     explain_cmd = subcommands.add_parser(
         "explain-replay",
@@ -1453,6 +1464,25 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
 
         print(json.dumps(dataclasses.asdict(multi_report), indent=2))
+        return 0
+
+    if args.command == "estimate-switch-cost":
+        from vgc_rulebreak.switch_cost import estimate_switch_costs
+
+        try:
+            switch_report = estimate_switch_costs(
+                args.replay,
+                args.candidate_role,
+                trials=args.trials,
+                seed_base=args.seed_base,
+                max_turns=args.max_turns,
+                showdown_dir=args.showdown_dir,
+                output_path=args.output,
+            )
+        except (ValueError, KeyError, OSError, RuntimeError) as e:
+            print(f"Switch cost error: {e}", file=sys.stderr)
+            return 1
+        print(json.dumps(switch_report, indent=2))
         return 0
 
     if args.command == "explain-replay":

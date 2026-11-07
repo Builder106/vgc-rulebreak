@@ -1,5 +1,43 @@
 # Journal
 
+## 2026-11-07: Estimate Rage Fist switch costs per opportunity #milestone #decision
+
+Added `estimate-switch-cost` and `src/vgc_rulebreak/switch_cost.py` for the isolated
+Study R formats. Each unfainted active Rage Fist user with both a legal voluntary
+switch and a legal move contributes one opportunity, including decisions to stay.
+The partner's switch reserves its destination. Forced replacements, known trapping,
+preview, waiting and fainted slots are excluded; missing request evidence fails.
+
+A chosen switch is compared with a prespecified first legal move in request order,
+holding the partner's action fixed. Paired simulator and opponent seeds estimate
+signed stay-minus-switch points against HeuristicBaseline and RandomBaseline;
+negative costs remain negative. This fixed comparator avoids selecting the largest
+noisy alternative estimate and measures a specific alternative, not optimal regret.
+Future candidate actions use the heuristic continuation policy. Reports separate
+formats and opponents, pool counts before dividing, retain all opportunity records
+and paired rollout evidence, report termination and turn-limit counts, and use null
+rates when there are no opportunities. Per-decision intervals bootstrap paired
+trials; aggregate intervals bootstrap whole replay games conditional on their cost
+estimates. Neither substitutes for training-replicate uncertainty.
+
+Fixed shared replay reconstruction so a player-2 branch stops before the entire
+simultaneous decision step, avoiding a blocking half-submission. Rollouts now verify
+the reconstructed request against the saved target and expose termination reasons.
+The protocol in `docs/rage-fist.md` documents hidden-state conditioning, finite-horizon
+scoring, comparator limitations, exploratory costly flags and the inability to infer
+a causal reset effect from different format cohorts alone. The Protect interaction
+remains a separate milestone. No frontend implementation was required.
+
+Validation passed: the full Python suite (173 tests), the additional player-2
+atomic-step regression, strict mypy, Ruff lint and formatting, source and wheel
+builds, installed-wheel CLI and specification checks, pip-audit, Astro check,
+ESLint, a 1,196-page static build, five Playwright tests, and staged secret scanning.
+The npm audit passes the high-severity threshold with ten existing moderate
+findings. Live tests cover both formats and both candidate seats. An eight-rollout
+CLI smoke report and the four live fixture reports are retained under ignored
+`runs/study-r-switch-cost-validation/`; these tiny synthetic cohorts validate the
+estimator and are not population estimates or evidence of a causal reset effect.
+
 ## 2026-11-07: Isolate Rage Fist hit-counter persistence #milestone #decision
 
 Added `gen9rulebreakragefistpersist` and `gen9rulebreakragefistreset` as copies

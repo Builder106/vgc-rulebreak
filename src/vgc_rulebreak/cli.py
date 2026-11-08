@@ -3,6 +3,7 @@
 import argparse
 import dataclasses
 import json
+import subprocess
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -899,7 +900,30 @@ def main(argv: Sequence[str] | None = None) -> int:
     interaction.add_argument("--workers", type=int, default=4)
     interaction.add_argument("--showdown-dir", type=Path, default=None)
 
+    speed = subcommands.add_parser(
+        "compare-speed", help="compare legal stat builds, move order and one-turn pivot exposure"
+    )
+    speed.add_argument("--output-dir", type=Path, required=True)
+    speed.add_argument("--trials", type=int, default=16)
+    speed.add_argument("--seed", type=int, default=79)
+    speed.add_argument("--showdown-dir", type=Path, default=None)
+
     args = parser.parse_args(argv)
+
+    if args.command == "compare-speed":
+        from vgc_rulebreak.speed import run_speed_comparison
+
+        try:
+            speed_report = run_speed_comparison(
+                args.output_dir, args.trials, args.seed, args.showdown_dir
+            )
+        except (OSError, ValueError, subprocess.SubprocessError) as error:
+            print(f"Speed comparison error: {error}", file=sys.stderr)
+            if isinstance(error, subprocess.CalledProcessError) and error.stderr:
+                print(error.stderr, file=sys.stderr)
+            return 2
+        print(json.dumps(speed_report["summary"], indent=2))
+        return 0
 
     if args.command == "rage-fist-interaction":
         from vgc_rulebreak.interaction import run_interaction

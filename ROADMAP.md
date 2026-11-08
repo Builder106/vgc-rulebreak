@@ -74,9 +74,9 @@ Fixed-policy interaction evaluation completed. See [the protocol and result](doc
 
 ## Study S: Speed
 
-Planned. The Speed fixtures already pass.
+In progress. See [the legal-build comparison](docs/speed.md). Opponent Speed inference remains planned.
 
-- [ ] Compare move order and pivot decisions under equivalent legal builds in both stat systems.
+- [x] Compare move order and pivot decisions under equivalent legal builds in both stat systems.
 - [ ] Report uncertainty about opponent Speed without exposing hidden state.
 
 ## Study F: Full transfer

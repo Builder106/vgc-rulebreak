@@ -1,5 +1,47 @@
 # Journal
 
+## 2026-11-08: Compare legal Speed builds and pivot exposure #milestone #decision
+
+Added `compare-speed`, two experimental stat-only doubles formats, and the
+protocol/results in `docs/speed.md`. Both formats keep Gen 9 battle mechanics;
+the SP variant adopts only the pinned Champions `statModify` function. Separate
+native-mod Obtainable validators check species, moves, abilities, IVs and stat
+budgets. Explicit trusted custom-rule parsing avoids Showdown's silent fallback
+to unrestricted Custom Game; regressions reject illegal IVs and point spreads.
+
+At level 50 with 31 IVs, n Stat Points match `max(0, 8*n - 4)` EVs. The converter
+rejects legal Champions spreads without a legal 510-EV counterpart. Exact matches
+and Speed ties are separate from the unavoidable minimum-Speed exception: Brave
+Incineroar has 58 Speed with Gen 9's legal 0 IV and 72 with Champions' required
+31 IV. Its non-Speed stats remain matched; Impish Hippowdon has 67 Speed.
+
+The fixed decision comparison is Parting Shot versus a hard switch to Rotom-Wash,
+against Crunch, with protected partners. Normal, pre-existing Trick Room,
+candidate Tailwind, and opposing Protect fixtures use 16 shared battle seeds and
+both seats. All 1,536 one-turn branches completed. Exact-stat matches had no
+cross-system move-order or pivot-exposure differences. Minimum-Speed move order
+reversed in all normal and Trick Room pairs. The SP-minus-EV contrast in incoming
+damage from pivoting versus hard switching was +0.1397 maximum-HP fraction in
+normal conditions, 95% CI [0.1202, 0.1676], and -0.1397 under Trick Room,
+[-0.1676, -0.1202]. Intervals bootstrap paired seed means after averaging seats.
+
+This measures immediate damage exposure, not win probability, optimal regret,
+learned behavior or hidden-Speed inference. Full private stats are fixture audit
+evidence and are never passed to an agent. The next Speed roadmap item remains
+unchecked. Configuration, source hashes, initial stats/PP, requests, legal choices,
+completion, damage and full branch logs are retained under ignored
+`runs/study-s-comparison-legal-20261108/`. An independent audit verified complete
+matrix coverage, source/evidence hashes and the reported primary contrasts.
+The protocol records report and evidence checksums.
+
+Validation passed: 217 Python tests (including 20 new Speed cases), strict mypy,
+Ruff lint/formatting, CJS syntax checks, source/wheel builds, installed-wheel spec
+and live Speed commands, pip-audit, Astro check, ESLint, the 1,196-page build,
+five browser/accessibility tests, and Gitleaks. npm audit passes CI's high-severity
+threshold with the same ten existing moderate findings. A clean local clone of
+the pinned simulator avoided modifying the available checkout's changed lockfile.
+No frontend implementation was needed.
+
 ## 2026-11-08: Measure Protect PP by Rage Fist interaction #milestone #decision
 
 Added `rage-fist-interaction` and four combined Gen 9 formats by composing the

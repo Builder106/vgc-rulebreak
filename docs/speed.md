@@ -3,7 +3,7 @@
 The first Speed milestone compares observed move order and the immediate damage
 from two fixed pivot decisions under equivalent legal level-50 builds. It is a
 mechanics and decision-exposure study, not an agent-training or win-rate study.
-Opponent Speed inference remains the next roadmap item.
+The separate public-evidence report below describes uncertainty about opponent Speed.
 
 ## Controls and acceptance criteria
 
@@ -128,5 +128,69 @@ configuration and estimates are reproducible.
 
 Immediate damage exposure does not establish which pivot decision wins more games.
 The fixed opponent, replacement, action pair, and starting states limit the result.
-Future outcome rollouts and uncertainty about unobserved opponent Speed require
-separate evaluation and must not reuse private fixture state as agent observations.
+Future outcome rollouts require separate evaluation and must not reuse private
+fixture state as agent observations.
+
+## Opponent Speed uncertainty
+
+`report-speed-uncertainty` reports the remaining possible unmodified level-50
+opponent Speed stats from a deliberately narrow, player-information input. It
+does not ingest complete-information comparison files, opponent requests, seeds,
+private builds or raw simulator logs. Extra or missing fields fail validation.
+No agent policy or frontend changes are needed for this report.
+
+The public species/form's base Speed and the declared stat system generate the
+initial legal possibilities using the formulas from the pinned simulator revision
+above. Nature and investment remain unknown. Gen 9 allows 0–31 Speed IVs and
+0–252 effective Speed EVs; Champions fixes IVs at 31 and allows 0–32 Speed points.
+Each allocation is individually feasible within its system's total budget. The
+report makes no assumption about other stats or how frequently builds occur.
+The same bound can contain gaps, so the report retains the complete possibility
+set as well as its minimum, maximum and count.
+
+Input has exactly `base_speed`, `system` (`ev` or `sp`), and `observations`.
+Each observation has exactly the fields shown in the committed synthetic example:
+
+```sh
+uv run vgc-rulebreak report-speed-uncertainty experiments/speed-public-example.json
+```
+
+The example is invented public evidence, not an evaluated game: the same opposing
+Hippowdon acts before a 72-Speed ally, then after an 80-Speed ally on the next
+turn. Both pairs use equal-priority moves in normal conditions. Its EV prior is
+46–108 (63 possibilities); the intersection is 72–80 (nine possibilities).
+These are logical possibilities conditional on the evidence, not a posterior,
+credible interval, confidence interval or empirical performance result.
+
+An observation records `turn`, the player's own unmodified `own_speed`, observed
+`opponent_first`, both effective move priorities, `trick_room`, both Tailwind
+flags, and `speed_order_certified`. The player's Speed can come from their own
+request. Public move events establish order; their own build plus revealed move,
+ability, item and field information must establish eligibility. Certification
+must be false unless the evidence producer can exclude every other Speed/order
+effect: boosts, paralysis, weather abilities, Choice Scarf, Quick Claw, lagging
+items, Stall, priority abilities, Quash, After You, forced/called moves, missing
+actions, and any intervening state change. Unknown context is skipped. This is
+an explicit evidence-producer obligation, not an automatic replay certifier.
+Differing move priorities are always skipped, including Protect versus Parting
+Shot. Skips retain the prior uncertainty and appear with reasons in the report.
+
+For certified equal-priority moves, normal order constrains opponent effective
+Speed to be at least the player's if it acts first, and at most if it acts second.
+Trick Room reverses these inequalities; Tailwind doubles the corresponding side's
+Speed. Equality survives either observed order, including repeated observations.
+Sets intersect across observations of one unchanged opponent species/form and
+build; start a separate input for another Pokemon or a form/build change.
+An empty set is labeled `inconsistent_evidence`, with null bounds, rather than
+silently resetting or claiming a known Speed. Certification cannot justify
+exposing an unobserved opponent stat.
+
+Acceptance requires no-evidence and inconclusive cases to retain legal uncertainty,
+tie-safe normal/Trick Room/Tailwind bounds, explicit contradictions and skip counts,
+and strict rejection of private fields. Tests exhaustively retain every possible
+true Speed under the supported order model. Live paired fixtures project only
+own-request Speed, public order and declared starting context into this input;
+hidden opponent Speed is used exclusively in assertions that it survives. Tests
+also verify identical reports for identical public observations with distinct
+hidden builds. This establishes conditional constraint soundness, not probability
+calibration or the safety of an arbitrary future replay parser.

@@ -1,5 +1,38 @@
 # Journal
 
+## 2026-11-08: Report opponent Speed uncertainty from public evidence #milestone #decision
+
+Added `report-speed-uncertainty` and a strictly typed constraint engine with a
+closed input schema. Public base Speed and the declared EV/SP system generate
+all legal level-50 Speed possibilities with unknown nature and investment.
+Only the player's own stat, observed move order and explicitly certified public
+context narrow the set. Tailwind and Trick Room are supported; unequal move
+priorities and uncertified contexts are skipped with reasons. Ties survive both
+orders, repeated observations intersect, and contradictions produce an explicit
+empty set with null bounds. No probabilities or usage assumptions are invented.
+
+The boundary accepts neither complete simulator records nor opponent requests,
+seeds, IVs or actual Speed. The caller must certify no unmodeled Speed/order
+effects and track one unchanged opponent form/build. This deliberately scoped
+report is not an automatic arbitrary-replay certifier or a policy change. Full
+private fixture evidence remains audit-only. The protocol documents certification
+obligations, acceptance criteria and limitations. The committed synthetic public
+example narrows the EV prior from 63 values (46–108) to nine (72–80).
+
+Added 39 synthetic cases for priors, tie-safe constraints, exhaustive support
+soundness, confounds, contradictory evidence, strict private-field rejection,
+hidden-build invariance and CLI validation. Extended the existing live Speed
+fixture to project own-request Speed and public order/context into the engine;
+actual opponent Speed is used only to assert that the inferred set retains it.
+No frontend implementation was required.
+
+Validation passed: all 256 Python tests including live simulator checks, strict
+mypy, Ruff lint/formatting, source/wheel builds, installed-wheel specification and
+uncertainty commands, pip-audit, Astro check, ESLint, the 1,196-page build, five
+browser/accessibility tests and Gitleaks. Browser checks and dependency audits
+required access outside the sandbox. npm audit passes the CI high-severity
+threshold with the same ten existing moderate findings.
+
 ## 2026-11-08: Compare legal Speed builds and pivot exposure #milestone #decision
 
 Added `compare-speed`, two experimental stat-only doubles formats, and the

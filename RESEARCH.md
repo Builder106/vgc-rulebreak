@@ -12,7 +12,7 @@ The repository grows one study at a time. Each study gets a letter, a plan, and 
 | --- | --- | --- |
 | P: Protect PP | [First experiment](#first-experiment-protect-pp) and the [audit](docs/protect-pp-audit.md) | Checkpoint comparison completed |
 | A: Anti-meta teams | [docs/anti-meta.md](docs/anti-meta.md) | Planned |
-| S: Speed | [docs/speed.md](docs/speed.md) | Legal-build move order and one-turn pivot comparison implemented; hidden-Speed inference pending |
+| S: Speed | [docs/speed.md](docs/speed.md) | Legal-build pivot comparison and conditional public-evidence Speed uncertainty implemented |
 
 ## Questions and controls
 

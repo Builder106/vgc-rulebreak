@@ -18,6 +18,7 @@ from vgc_rulebreak.speed import (
     run_speed_comparison,
     summarize_speed,
 )
+from vgc_rulebreak.speed_uncertainty import report_speed_uncertainty
 
 
 def test_equivalent_allocation_matches_every_legal_single_stat_point() -> None:
@@ -163,6 +164,32 @@ def test_live_legal_builds_move_order_pivot_cost_and_controls(tmp_path: Path) ->
     assert len(rows) == report["branches"]
     assert len(report["summary"]) == 12
     for row in rows:
+        if row["action"] == "pivot":
+            # Only player-visible order, own request Speed, and declared public
+            # context cross the inference boundary. Private stats are audit-only.
+            own_speed = row["requests"]["candidate"]["side"]["pokemon"][0]["stats"]["spe"]
+            public = {
+                "base_speed": 47,
+                "system": row["system"],
+                "observations": [
+                    {
+                        "turn": 1,
+                        "own_speed": own_speed,
+                        "opponent_first": not row["pivot_before_opponent"],
+                        "own_priority": 0,
+                        "opponent_priority": 4 if row["context"] == "opponent_protect" else 0,
+                        "trick_room": row["context"] == "trick_room",
+                        "own_tailwind": row["context"] == "tailwind",
+                        "opponent_tailwind": False,
+                        "speed_order_certified": True,
+                    }
+                ],
+            }
+            inferred = report_speed_uncertainty(public)
+            possible = inferred["possible_speeds"]
+            assert isinstance(possible, list)
+            assert row["opponent_speed"] in possible
+            assert inferred["observations_skipped"] == int(row["context"] == "opponent_protect")
         assert row["requests"]["candidate"]["active"][0]["moves"][0]["id"] == "partingshot"
         for pokemon in row["initial"]:
             for move in pokemon["moves"]:

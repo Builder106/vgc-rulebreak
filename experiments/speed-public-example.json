@@ -1,0 +1,28 @@
+{
+  "base_speed": 47,
+  "system": "ev",
+  "observations": [
+    {
+      "turn": 1,
+      "own_speed": 72,
+      "opponent_first": true,
+      "own_priority": 0,
+      "opponent_priority": 0,
+      "trick_room": false,
+      "own_tailwind": false,
+      "opponent_tailwind": false,
+      "speed_order_certified": true
+    },
+    {
+      "turn": 2,
+      "own_speed": 80,
+      "opponent_first": false,
+      "own_priority": 0,
+      "opponent_priority": 0,
+      "trick_room": false,
+      "own_tailwind": false,
+      "opponent_tailwind": false,
+      "speed_order_certified": true
+    }
+  ]
+}

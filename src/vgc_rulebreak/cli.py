@@ -908,7 +908,25 @@ def main(argv: Sequence[str] | None = None) -> int:
     speed.add_argument("--seed", type=int, default=79)
     speed.add_argument("--showdown-dir", type=Path, default=None)
 
+    speed_uncertainty = subcommands.add_parser(
+        "report-speed-uncertainty", help="report possible opponent Speeds from public evidence"
+    )
+    speed_uncertainty.add_argument("evidence", type=Path)
+
     args = parser.parse_args(argv)
+
+    if args.command == "report-speed-uncertainty":
+        from vgc_rulebreak.speed_uncertainty import report_speed_uncertainty
+
+        try:
+            uncertainty_report = report_speed_uncertainty(
+                json.loads(args.evidence.read_text(encoding="utf-8"))
+            )
+        except (OSError, ValueError) as error:
+            print(f"Speed uncertainty error: {error}", file=sys.stderr)
+            return 2
+        print(json.dumps(uncertainty_report, indent=2))
+        return 0
 
     if args.command == "compare-speed":
         from vgc_rulebreak.speed import run_speed_comparison

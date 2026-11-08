@@ -22,24 +22,32 @@ def _showdown_dir() -> Path | None:
 
 @pytest.mark.skipif(_showdown_dir() is None, reason="Showdown not found in default paths")
 @pytest.mark.parametrize("switch_kind", ["manual", "pivot", "forced"])
-def test_rage_fist_formats_change_only_switch_reset(switch_kind: str) -> None:
+@pytest.mark.parametrize("protect_pp", [None, 16, 8])
+def test_rage_fist_formats_change_only_switch_reset(
+    switch_kind: str, protect_pp: int | None
+) -> None:
     showdown_dir = _showdown_dir()
     assert showdown_dir is not None
-    overlay = Path(process.__file__).with_name("rage_fist_formats.cjs")
+    overlay = Path(process.__file__).with_name("interaction_formats.cjs")
     script = """
     const assert = require('node:assert/strict');
     const {Battle} = require('./dist/sim/battle.js');
     const {Dex} = require('./dist/sim/dex.js');
-    const ids = ['gen9rulebreakragefistpersist', 'gen9rulebreakragefistreset'];
+    const pp = process.argv[2];
+    const prefix = pp === 'None' ? 'gen9rulebreak' : `gen9rulebreakprotect${pp}`;
+    const ids = [`${prefix}ragefistpersist`, `${prefix}ragefistreset`];
     const base = Dex.formats.get('gen9doublescustomgame');
     // Compare all mechanics, excluding identity, menu placement, and the reset hook.
     function settings(format) {
-      const {id, name, fullname, section, column, onSwitchOut, ...rest} = format;
+      const {id, name, fullname, section, column, onSwitchOut, onBegin, ...rest} = format;
       return rest;
     }
     for (const id of ids) assert.deepEqual(settings(Dex.formats.get(id)), settings(base));
     assert.equal(Dex.formats.get(ids[0]).onSwitchOut, undefined);
     assert.equal(typeof Dex.formats.get(ids[1]).onSwitchOut, 'function');
+    for (const id of ids) {
+      assert.equal(typeof Dex.formats.get(id).onBegin, pp === '8' ? 'function' : 'undefined');
+    }
 
     const observations = ids.map(id => {
       const b = new Battle({formatid: id, seed: [101, 102, 103, 104]});
@@ -101,7 +109,7 @@ def test_rage_fist_formats_change_only_switch_reset(switch_kind: str) -> None:
     console.log(JSON.stringify(observations));
     """
     result = subprocess.run(
-        ["node", "--require", str(overlay), "-e", script, switch_kind],
+        ["node", "--require", str(overlay), "-e", script, switch_kind, str(protect_pp)],
         cwd=showdown_dir,
         capture_output=True,
         text=True,
@@ -131,11 +139,21 @@ def test_rage_fist_formats_change_only_switch_reset(switch_kind: str) -> None:
     for pokemon in persist["initial"]["pokemon"]:
         for move in pokemon["moves"]:
             if move["id"] == "protect":
-                assert move["pp"] == move["maxpp"] == 16
+                assert move["pp"] == move["maxpp"] == (protect_pp or 16)
 
 
 @pytest.mark.skipif(_showdown_dir() is None, reason="Showdown not found in default paths")
-@pytest.mark.parametrize("format_id", FORMATS)
+@pytest.mark.parametrize(
+    "format_id",
+    (
+        *FORMATS,
+        *(
+            f"gen9rulebreakprotect{pp}ragefist{mode}"
+            for pp in (16, 8)
+            for mode in ("persist", "reset")
+        ),
+    ),
+)
 def test_rage_fist_formats_work_through_battle_stream(format_id: str) -> None:
     team = (
         "Annihilape|||VitalSpirit|RageFist,Protect|Serious||||||"
@@ -146,10 +164,12 @@ def test_rage_fist_formats_work_through_battle_stream(format_id: str) -> None:
         session = BattleSession(showdown)
         session.start(format_id, "Alice", team, "Bob", team, seed=(101, 102, 103, 104))
         session.step("default", "default")
+        session.step("move 2, move 1", "move 2, move 1")
         session.step("switch 3, move 1", "move 2, move 1")
         session.step("switch 3, move 1", "move 2, move 1")
-        assert session.turn == 3
+        assert session.turn == 4
         assert session.p1_request is not None
         moves = session.p1_request["active"][0]["moves"]
         protect = next(move for move in moves if move["id"] == "protect")
-        assert protect["pp"] == protect["maxpp"] == 16
+        assert protect["maxpp"] == (8 if "protect8" in format_id else 16)
+        assert protect["pp"] == protect["maxpp"] - 1

@@ -130,8 +130,8 @@ def test_run_evaluation_battle_captures_replay() -> None:
     stream = ScriptedStream(battle_script("Candidate"))
 
     class FakeProcess:
-        def __init__(self, showdown_dir: Any) -> None:  # noqa: ANN401
-            pass
+        def __init__(self, showdown_dir: Any, *, skip_build: bool = False) -> None:  # noqa: ANN401
+            assert skip_build is False
 
         def __enter__(self) -> ScriptedStream:
             return stream

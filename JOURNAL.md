@@ -1,5 +1,52 @@
 # Journal
 
+## 2026-11-08: Measure Protect PP by Rage Fist interaction #milestone #decision
+
+Added `rage-fist-interaction` and four combined Gen 9 formats by composing the
+independently fixture-checked Protect and Rage Fist hooks. A completed Protect-only
+Study P result and a clean pinned simulator checkout are required. The runner
+builds once, then evaluates fixed heuristic and random policies with fresh shared
+battle/policy seeds in every four-cell block and mirrored seat. Four workers run
+independent cells; recording order is deterministic. Candidate teams stay fixed
+when seats reverse. The three upper-triangle team pairings, evaluation seeds and
+opponents come from the frozen Study P controls. No training or tuning occurs;
+random is a switching diagnostic, reported separately from the competent baseline.
+
+The estimand is `(8-reset - 8-persist) - (16-reset - 16-persist)` in candidate points
+per game. Intervals bootstrap whole evaluation-seed means, preserving matched
+cells, seats and strata; they do not represent training-seed uncertainty. Reports
+retain conditional mechanic effects, all block outcomes, opponent/team strata,
+switch opportunity counts, PP exposure, termination, full configuration, source
+hashes and one compressed replay per game. Compact simulator choices after the
+first active slot faints are normalized with explicit passes before switch-cost
+slot assignment; a regression covers this real recorded-request edge case.
+The protocol documents the shared Protect counters' stale-slot limitation and
+does not use those counters as a rate denominator.
+
+Ran 864 games (216 complete four-cell blocks; 108 mirrored pairs) on seeds
+101/202/303, three pairs per matchup and a 100-turn limit. Every game completed
+with a win/loss. Heuristic PPG was 0.6296 in every cell. Random PPG was 0.2778
+with persistence and 0.2685 with reset at either PP level; its conditional reset
+effect was -0.0093 PPG, 95% CI [-0.0278, 0.0278]. Both candidates and all 12
+opponent/team strata had observed interaction 0.0000, conditional CI [0, 0].
+Protect was used at most five times by one Pokémon in a game; minimum remaining
+PP was 3 under the 8 PP cap. Thus this result does not establish absence of an
+interaction under scarcity or equivalence outside these fixed policies. Each
+persist cell had 520 candidate switch opportunities and 141 switches; each reset
+cell had 523 and 145. The run took 425.71 wall seconds with four workers.
+
+The reproducible command, estimates, limits and report checksum are recorded in
+`docs/rage-fist-interaction.md`. Evidence stays under ignored
+`runs/study-r-factorial-complete-20261108/`. An independent audit verified all
+864 replays, matching seeds and teams, complete blocks and mirrored seats,
+outcome scoring, source hashes, prerequisite provenance and recomputed intervals.
+
+Validation passed: 197 Python tests, strict mypy, Ruff lint and formatting, source
+and wheel builds, installed-wheel specification checks and live requests for all
+four formats, pip-audit, Astro check, ESLint, the 1,196-page static build and five
+Playwright/accessibility tests. npm audit meets CI's high-severity threshold with
+ten existing moderate findings. No frontend implementation was required.
+
 ## 2026-11-07: Estimate Rage Fist switch costs per opportunity #milestone #decision
 
 Added `estimate-switch-cost` and `src/vgc_rulebreak/switch_cost.py` for the isolated

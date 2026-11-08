@@ -52,7 +52,14 @@ def switch_opportunities(
             raise ValueError(f"Missing active evidence at decision {index}")
         actions = [a.strip() for a in decision["choice"].split(",")]
         pokemon = request.get("side", {}).get("pokemon", [])
-        for slot, active in get_active_unfainted_slots(request):
+        active_slots = get_active_unfainted_slots(request)
+        # Showdown accepts compact choices when a fainted active slot cannot act.
+        if len(actions) == len(active_slots) < len(request["active"]):
+            expanded = ["pass"] * len(request["active"])
+            for (slot, _), action in zip(active_slots, actions, strict=True):
+                expanded[slot] = action
+            actions = expanded
+        for slot, active in active_slots:
             if slot >= len(pokemon) or slot >= len(actions) or not pokemon[slot].get("ident"):
                 raise ValueError(f"Incomplete slot evidence at decision {index}")
             if "ragefist" not in pokemon[slot].get("moves", []):

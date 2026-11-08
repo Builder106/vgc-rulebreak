@@ -31,8 +31,9 @@ class ShowdownProcess:
         Path("./pokemon-showdown"),
     )
 
-    def __init__(self, showdown_dir: Path | str | None = None) -> None:
+    def __init__(self, showdown_dir: Path | str | None = None, *, skip_build: bool = False) -> None:
         self.showdown_dir = self._resolve_showdown_dir(showdown_dir)
+        self.skip_build = skip_build
         self._process: subprocess.Popen[str] | None = None
 
     @classmethod
@@ -62,17 +63,16 @@ class ShowdownProcess:
         if self._process is not None and self._process.poll() is None:
             return
 
-        overlay = Path(__file__).with_name("protect_formats.cjs")
-        rage_fist_overlay = Path(__file__).with_name("rage_fist_formats.cjs")
+        overlay = Path(__file__).with_name("interaction_formats.cjs")
         cmd = [
             "node",
             "--require",
             str(overlay),
-            "--require",
-            str(rage_fist_overlay),
             "pokemon-showdown",
             "simulate-battle",
         ]
+        if self.skip_build:
+            cmd.append("--skip-build")
         self._process = subprocess.Popen(
             cmd,
             cwd=str(self.showdown_dir),

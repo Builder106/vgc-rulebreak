@@ -62,6 +62,21 @@ def test_opportunities_include_stays_and_preserve_partner() -> None:
     assert found[0].pokemon == "p1: Annihilape"
 
 
+def test_compact_choice_after_first_slot_faints() -> None:
+    d = decision("switch 3")
+    req = d["request"]
+    req["side"]["pokemon"][0]["condition"] = "0 fnt"
+    # An unrelated living slot must not be mistaken for missing choice evidence.
+    assert switch_opportunities([d], "p1") == []
+    req["side"]["pokemon"][1]["moves"] = ["ragefist"]
+    req["active"][1] = req["active"][0]
+    (opportunity,) = switch_opportunities([d], "p1")
+    assert opportunity.slot == 1
+    assert opportunity.chose_switch
+    assert opportunity.actual_choice == "switch 3"
+    assert opportunity.stay_choice == "pass, move 1 1"
+
+
 def test_p2_branch_does_not_submit_half_a_simultaneous_step() -> None:
     session = MagicMock(spec=BattleSession)
     session.is_ended = False

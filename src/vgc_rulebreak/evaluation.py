@@ -244,6 +244,7 @@ def run_evaluation_battle(
     seed: tuple[int, int, int, int] | None = None,
     showdown_dir: Path | str | None = None,
     max_turns: int = 60,
+    skip_build: bool = False,
 ) -> EvaluationBattleResult:
     """Execute a single evaluation battle between candidate and opponent."""
     start_time = time.perf_counter()
@@ -269,7 +270,7 @@ def run_evaluation_battle(
         p1_team = opponent_team
         p2_team = candidate_team
 
-    with ShowdownProcess(showdown_dir) as process:
+    with ShowdownProcess(showdown_dir, skip_build=skip_build) as process:
         session = BattleSession(process)
         initial_msgs = session.start(
             format_id, p1_agent.name, p1_team, p2_agent.name, p2_team, seed=seed

@@ -36,6 +36,12 @@ The specification is `experiments/protect-pp.json`. Its team manifest, mechanics
 
 Start with Protect alone. Add Rage Fist next, then use a 2-by-2 experiment to measure the interaction between PP and hit-counter persistence. Avoid changing every rule at once and attributing the total loss to one mechanic.
 
+The [implemented 2-by-2 protocol](docs/rage-fist-interaction.md) uses fixed policies,
+four matched mechanic cells, shared battle and policy seeds, and mirrored seats.
+It reports signed outcome interactions and mechanic exposure separately, with
+evaluation-seed intervals. These fixed-policy intervals do not measure uncertainty
+across learned training replicates or establish equivalence when PP never binds.
+
 ## Evaluation protocol
 
 1. Pin the simulator revision and the exact custom rules or published regulation. Record species, items, moves, timings, team selection, and information available to each player.

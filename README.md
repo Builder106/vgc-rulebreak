@@ -45,6 +45,9 @@ The [Study R switch-cost analysis](docs/rage-fist.md) compares voluntary switche
 with a fixed legal stay action through paired rollouts and normalizes signed
 costs by eligible switch opportunities. `estimate-switch-cost` reports each format
 and opponent separately, retaining replay evidence and uncertainty.
+The [Protect PP interaction experiment](docs/rage-fist-interaction.md) adds four
+combined formats and `rage-fist-interaction` for a matched 2-by-2 with shared
+battle/policy seeds, mirrored seats, and evaluation-seed bootstrap intervals.
 
 ## Run the study tools
 

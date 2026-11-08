@@ -3,7 +3,8 @@
 The paired formats `gen9rulebreakragefistpersist` and
 `gen9rulebreakragefistreset` share pinned Gen 9 rules and differ only in the
 switch-out hit-counter reset. The format fixtures are the prerequisite for this
-analysis. The Protect PP interaction is a separate roadmap experiment.
+analysis. The [Protect PP interaction](rage-fist-interaction.md) crosses both
+mechanics in a separate matched 2-by-2 evaluation.
 
 `estimate-switch-cost` analyzes recorded requests and branches from each chosen
 voluntary switch by a Rage Fist user. Supply original simulator replay records
@@ -30,6 +31,8 @@ chosen switch reserves its bench destination. Trapped slots, no living bench,
 forced replacements, preview, waiting and pivot moves do not create switch events.
 Pivot decisions remain outside this manual-switch estimand. Missing requests or
 unsupported choices fail explicitly instead of being reported as zero activity.
+Compact simulator choices after an active slot faints are expanded with `pass`
+before assigning choices to living slots and preserving the partner's action.
 
 Each chosen switch is compared with the first legal move in request order, with
 its first enumerated target, holding the partner's action fixed. This comparator

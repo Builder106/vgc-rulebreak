@@ -885,7 +885,42 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="path to local pokemon-showdown checkout",
     )
 
+    interaction = subcommands.add_parser(
+        "rage-fist-interaction", help="run the matched Protect PP by Rage Fist 2-by-2"
+    )
+    interaction.add_argument("--spec", type=Path, default=Path("experiments/protect-pp.json"))
+    interaction.add_argument(
+        "--manifest", type=Path, default=Path("experiments/teams/protect-pp.json")
+    )
+    interaction.add_argument("--study-p-result", type=Path, required=True)
+    interaction.add_argument("--output-dir", type=Path, required=True)
+    interaction.add_argument("--pairs", type=int, default=3)
+    interaction.add_argument("--max-turns", type=int, default=100)
+    interaction.add_argument("--workers", type=int, default=4)
+    interaction.add_argument("--showdown-dir", type=Path, default=None)
+
     args = parser.parse_args(argv)
+
+    if args.command == "rage-fist-interaction":
+        from vgc_rulebreak.interaction import run_interaction
+        from vgc_rulebreak.manifest import load_manifest
+
+        try:
+            interaction_report = run_interaction(
+                validate_spec(json.loads(args.spec.read_text(encoding="utf-8"))),
+                load_manifest(args.manifest),
+                args.study_p_result,
+                args.output_dir,
+                pairs=args.pairs,
+                max_turns=args.max_turns,
+                showdown_dir=args.showdown_dir,
+                workers=args.workers,
+            )
+        except (OSError, ValueError, RuntimeError) as error:
+            print(f"Interaction error: {error}", file=sys.stderr)
+            return 2
+        print(json.dumps(interaction_report["by_candidate"], indent=2))
+        return 0
 
     if args.command == "check":
         try:

@@ -15,7 +15,7 @@ evaluation. Families and IDs are disjoint across splits. All members are level
 50, neutral nature, default IVs, zero EV/SP investment, and no items. Packed
 teams are identical in both domains. Their zero-investment stats match across
 the two stat formulas. Teams are synthetic test fixtures created for this study;
-legal, sourced OTS reference matchups remain a separate roadmap item.
+the sourced OTS reference pool below is kept separate from these pilot teams.
 
 The current policy inherits the competent heuristic and learns its five Protect
 parameters with the existing cross-entropy optimizer. Source trains in Gen 9;
@@ -59,8 +59,8 @@ Acceptance requires an actual pinned-simulator run with a loss/recovery report,
 per-team results, independently trained native reference, recorded checkpoints,
 per-game results and compressed replays, configuration and input hashes, plus
 tests for pairing, interval units, scoring, initialization, and split isolation.
-There is no UI change. Sourced legal OTS matchups and bidirectional Tera/Mega
-transfer remain separate milestones. The opponent-pool comparison below extends
+There is no UI change. Sourced legal OTS matchups are covered below; bidirectional
+Tera/Mega transfer remains a separate milestone. The opponent-pool comparison extends
 this protocol without changing the original command's evaluation schedule.
 
 ## Reproduction
@@ -170,3 +170,71 @@ pinned-simulator comparison. At defaults the extension runs 108 training and
 records both pool memberships and the additional manifest hash in the existing
 protocol and report files. Original artifacts remain separate. Small or null
 recovery differences cannot establish generalization to unseen opponents.
+
+## Legal sourced OTS reference matchups
+
+```sh
+uv run vgc-rulebreak build-ots-references \
+  --output-dir runs/ots-reference-2026-11-09
+```
+
+`--showdown-dir` selects a clean checkout of the same pinned simulator revision.
+The command validates the frozen source pastes offline, constructs every distinct
+cross-team pairing, mirrors seats with identical seeds, and verifies actual open
+team sheets before selecting four members. It stops at turn one, before any move;
+these are reference matchup configurations, not evaluated policy results.
+
+The existing `champions-reg-2026-06` file specifies mechanics on unrestricted
+`gen9championsdoublescustomgame`. It does not define an eligible roster or item
+pool. These references therefore declare **Regulation M-B** explicitly, using
+`gen9championsvgc2026regmb` at the pinned revision. The [official announcement](https://champions-news.pokemon-home.com/en/page/776.html)
+dates M-B from June 17 through September 9, 2026. This supplements the June
+declaration without relabeling its earlier custom-game results. Teams from later
+in M-B are included; this is not a sample of the June metagame.
+
+The small, purposively chosen pool spans sand, snow and rain with Mega options:
+
+| ID | Attribution and report | Source paste | Report date |
+| --- | --- | --- | --- |
+| `ots-sand` | [Lycopoky, The Dragon's Sand](https://lycopoky.wordpress.com/2026/07/11/the-dragons-sand/) | [79000b4543608f9d](https://pokepast.es/79000b4543608f9d) | 2026-07-11 |
+| `ots-snow` | [Onion, Mega Froslass good-stuff](https://onion-poke.hatenablog.com/entry/2026/07/17/183155) | [3f601efc2858f387](https://pokepast.es/3f601efc2858f387) | 2026-07-17 |
+| `ots-rain` | [freezai, Day 0 Mega Swampert Rain](https://teamsheet.gg/t/mega-swampert-rain-master-rank-zc4mut) | [a109e64a9539968e](https://pokepast.es/a109e64a9539968e) | 2026-06 (day unspecified) |
+
+The English paste for Onion's original snow team is linked by
+[JoeyvanDiepen's derivative-team report](https://teamsheet.gg/t/m-b-mega-froslass-mega-gyarados-radal8).
+Use that original paste, not the derivative `99e73d8b17c077d0`, which the pinned
+validator rejects for Sneasler's Poison Point ability. No ability is silently
+corrected. `experiments/teams/full-transfer-ots.json` records both the original
+report and the page establishing the paste link, authors, report date precision,
+retrieval date (2026-11-09), local paste path, SHA-256 and reuse terms. The local
+files retain the paste text from each public `/json` endpoint, including source
+line endings and whitespace. No report prose is copied and no blanket license
+is inferred for third-party material.
+
+Acceptance requires all three six-member, four-move teams to pass the regulated
+TeamValidator, including learnsets, ability/item availability, species and item
+clauses, max IVs and the Champions per-stat/total investment limits. Custom Game
+alone is insufficient. Showdown normalizes the rain paste's pre-labeled Mega
+Swampert and Mega Venusaur to their starting base species; the report records
+these changes alongside the original source hashes. Items, abilities, moves,
+natures and investment remain as sourced. No substitution is made for SV.
+
+The 2026-11-09 run passed all three teams and **18 preview setups**: three
+cross-team pairs, two seats and three seeds (101, 202, 303). Both complete public
+six-member sheets appeared before selection in every setup, followed by four
+selected members and two active leads per side. The format replaces optional
+`Open Team Sheets` with `Force Open Team Sheets`; this changes disclosure, not
+team legality. In the pinned Champions implementation nature is public. Stat
+points and IVs are private and must be absent from the public sheet. The probe
+checks public species, items, abilities, natures and moves against validated sets.
+
+`ots_references.json` contains the full source metadata, input/code hashes,
+validated private teams and packed strings, normalization records, mirrored
+schedule, and actual public `showteam` messages. Keep it under ignored `runs/`.
+Private configurations are for reproducibility, not opponent observations.
+Existing training and evaluation commands do not load this pool; all references
+are reserved from training and checkpoint selection. OTS-aware policy evaluation,
+SV-compatible conversions, transfer estimates on these teams, and Study T's
+bidirectional mechanic comparison require their own protocol. Validator approval
+certifies the pinned simulator's M-B interpretation, not agreement with every
+detail of the game software or representative tournament strength.

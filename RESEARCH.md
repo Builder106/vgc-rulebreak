@@ -116,7 +116,9 @@ independently trained target-native reference. It reports signed points-per-game
 effects and training-seed intervals for each held-out candidate team. This pilot
 uses custom-game fixtures and a policy with five trainable Protect parameters;
 the fixed/new synthetic opponent-team comparison uses matched checkpoints and
-seeds; legal sourced OTS matchups remain future work.
+seeds. A separate [legal sourced OTS reference pool](docs/full-transfer.md#legal-sourced-ots-reference-matchups)
+now validates Regulation M-B teams and mirrored preview configurations; policy
+transfer evaluation on that pool remains future work.
 
 For Tera/Mega experiments, use a shared base-species pool where possible and document item, form, and team differences that the mechanic requires. Use one action schema that can represent both mechanics. Record what each source policy encountered during training. An action head that never learned Mega is itself a transfer limitation. Include both transfer directions and independently trained references before comparing recovery speed.
 

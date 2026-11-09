@@ -1,5 +1,29 @@
 # Journal
 
+## 2026-11-09: Build legal sourced OTS reference matchups #milestone #decision
+
+Freeze attributed public sand, snow and rain pastes for Study F in a separate
+reference-only pool. Record report/paste links (including the intermediary
+link for Onion's English paste), publication date precision, retrieval date,
+reuse terms and exact source hashes. Reject the derivative snow paste's illegal
+Poison Point Sneasler rather than silently correcting it; use the linked original
+team instead. Keep raw paste text unchanged and record validator normalization
+of the rain team's pre-labeled Mega species to starting base forms.
+
+The existing June Champions declaration names an unrestricted custom-game mod,
+so it cannot certify legal roster/items. Validate these references specifically
+against pinned Showdown Regulation M-B, effective from June 17, and cite its
+official announcement. Later M-B reports do not make this a June usage sample.
+Do not change the completed synthetic pilots or infer source-domain legality.
+
+Add `build-ots-references` to validate all sets and verify real public sheets
+before default bring-six/pick-four selection. The 18 setups cover three distinct
+pairs, mirrored seats and three matched seeds. Champions nature is public;
+investment and IVs stay private. Preserve private configurations, public sheets,
+normalizations, schedule and hashes in an ignored run report. This completes the
+reference-building milestone without policy outcome claims, OTS-aware agent
+training, matched SV conversions, or frontend changes.
+
 ## 2026-11-09: Compare fixed and new full-transfer opponent pools #milestone #decision
 
 Extend `measure-full-transfer` with `--compare-opponent-pools`. Keep the original

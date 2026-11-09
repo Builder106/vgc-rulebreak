@@ -1,0 +1,2 @@
+# Source paste hashes cover the exact upstream bytes, including whitespace.
+experiments/teams/ots/*.txt -text -whitespace

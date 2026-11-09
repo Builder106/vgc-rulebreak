@@ -929,7 +929,29 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="compare fixed and new synthetic opponent teams with frozen checkpoints",
     )
 
+    ots = subcommands.add_parser(
+        "build-ots-references", help="validate sourced legal Champions OTS reference matchups"
+    )
+    ots.add_argument("--output-dir", type=Path, required=True)
+    ots.add_argument("--showdown-dir", type=Path)
+    ots.add_argument(
+        "--manifest", type=Path, default=Path("experiments/teams/full-transfer-ots.json")
+    )
+
     args = parser.parse_args(argv)
+
+    if args.command == "build-ots-references":
+        from vgc_rulebreak.ots_reference import build_ots_references
+
+        try:
+            ots_report = build_ots_references(args.output_dir, args.showdown_dir, args.manifest)
+        except (OSError, ValueError, subprocess.SubprocessError) as error:
+            print(f"OTS reference error: {error}", file=sys.stderr)
+            if isinstance(error, subprocess.CalledProcessError) and error.stderr:
+                print(error.stderr, file=sys.stderr)
+            return 2
+        print(json.dumps(ots_report, indent=2))
+        return 0
 
     if args.command == "measure-full-transfer":
         from vgc_rulebreak.full_transfer import FullTransferConfig, run_full_transfer

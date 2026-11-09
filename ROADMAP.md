@@ -81,11 +81,11 @@ Completed within the fixed-fixture and certified-public-evidence scope. See [the
 
 ## Study F: Full transfer
 
-In progress. The [held-out synthetic-team pilot and opponent-pool comparison](docs/full-transfer.md) use the pinned Champions regulation. Legal sourced OTS matchups remain to add.
+The [held-out synthetic-team pilots and legal sourced OTS references](docs/full-transfer.md) are available. The reference pool validates Regulation M-B separately from the earlier custom-game pilots; policy transfer on those references remains to measure.
 
 - [x] Measure transfer loss and recovery on held-out teams.
 - [x] Compare fixed and new opponent pools.
-- [ ] Build legal OTS reference matchups and record their sources.
+- [x] Build legal OTS reference matchups and record their sources.
 
 ## Study T: Tera and Mega
 

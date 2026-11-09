@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "regulation_id": "champions-reg-2026-06",
+  "legality_format": "gen9championsvgc2026regmb",
+  "regulation_source": "https://champions-news.pokemon-home.com/en/page/776.html",
+  "teams": {
+    "ots-sand": {
+      "family": "sand",
+      "author": "Lycopoky",
+      "title": "The Dragon's Sand",
+      "published": "2026-07-11",
+      "retrieved": "2026-11-09",
+      "report_url": "https://lycopoky.wordpress.com/2026/07/11/the-dragons-sand/",
+      "paste_url": "https://pokepast.es/79000b4543608f9d",
+      "paste_file": "ots/sand.txt",
+      "paste_sha256": "7fd0e8c0bf32204331d8b72f8e1c29c457b874877f505c18b30553c5e8aa5466",
+      "terms": "No explicit reuse license found. Attributed factual team configuration; report prose excluded.",
+      "paste_context_url": "https://lycopoky.wordpress.com/2026/07/11/the-dragons-sand/"
+    },
+    "ots-snow": {
+      "family": "snow",
+      "author": "Onion",
+      "title": "Mega Froslass good-stuff (English paste linked by JoeyvanDiepen)",
+      "published": "2026-07-17",
+      "retrieved": "2026-11-09",
+      "report_url": "https://onion-poke.hatenablog.com/entry/2026/07/17/183155",
+      "paste_url": "https://pokepast.es/3f601efc2858f387",
+      "paste_file": "ots/snow.txt",
+      "paste_sha256": "505c1d6d9fcdae953c2728d733ee4ab7264612808b047059dc16715970880027",
+      "terms": "No explicit reuse license found. Attributed factual team configuration; report prose excluded.",
+      "paste_context_url": "https://teamsheet.gg/t/m-b-mega-froslass-mega-gyarados-radal8"
+    },
+    "ots-rain": {
+      "family": "rain",
+      "author": "freezai",
+      "title": "Day 0 Mega Swampert Rain (Master Rank)",
+      "published": "2026-06",
+      "retrieved": "2026-11-09",
+      "report_url": "https://teamsheet.gg/t/mega-swampert-rain-master-rank-zc4mut",
+      "paste_url": "https://pokepast.es/a109e64a9539968e",
+      "paste_file": "ots/rain.txt",
+      "paste_sha256": "3d77557fcacd2caa73dd2a82e6fc92fa6f1f72402e436bee7921f11379143b22",
+      "terms": "No explicit reuse license found. Attributed factual team configuration; report prose excluded.",
+      "paste_context_url": "https://teamsheet.gg/t/mega-swampert-rain-master-rank-zc4mut"
+    }
+  }
+}

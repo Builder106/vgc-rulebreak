@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "description": "Frozen additional Study F opponents: synthetic snow and electric-terrain families. Four members, level 50, neutral natures, zero investment, default IVs, no items. Evaluation only; not official legal sourced OTS teams.",
+  "teams": {
+    "new-snow": {
+      "family": "snow",
+      "split": "test",
+      "pokemon": [
+        {
+          "species": "Abomasnow",
+          "item": "",
+          "ability": "Snow Warning",
+          "moves": [
+            "Blizzard",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Ice"
+        },
+        {
+          "species": "Glaceon",
+          "item": "",
+          "ability": "Snow Cloak",
+          "moves": [
+            "Ice Beam",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Ice"
+        },
+        {
+          "species": "Cetitan",
+          "item": "",
+          "ability": "Slush Rush",
+          "moves": [
+            "Ice Spinner",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Ice"
+        },
+        {
+          "species": "Froslass",
+          "item": "",
+          "ability": "Snow Cloak",
+          "moves": [
+            "Shadow Ball",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Ghost"
+        }
+      ],
+      "packed": "Abomasnow|||Snow Warning|Blizzard,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Ice]Glaceon|||Snow Cloak|Ice Beam,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Ice]Cetitan|||Slush Rush|Ice Spinner,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Ice]Froslass|||Snow Cloak|Shadow Ball,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Ghost"
+    },
+    "new-terrain": {
+      "family": "electric-terrain",
+      "split": "test",
+      "pokemon": [
+        {
+          "species": "Pincurchin",
+          "item": "",
+          "ability": "Electric Surge",
+          "moves": [
+            "Thunderbolt",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Electric"
+        },
+        {
+          "species": "Raichu-Alola",
+          "item": "",
+          "ability": "Surge Surfer",
+          "moves": [
+            "Psychic",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Psychic"
+        },
+        {
+          "species": "Rotom-Wash",
+          "item": "",
+          "ability": "Levitate",
+          "moves": [
+            "Hydro Pump",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Water"
+        },
+        {
+          "species": "Magnezone",
+          "item": "",
+          "ability": "Sturdy",
+          "moves": [
+            "Flash Cannon",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Steel"
+        }
+      ],
+      "packed": "Pincurchin|||Electric Surge|Thunderbolt,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Electric]Raichu-Alola|||Surge Surfer|Psychic,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Psychic]Rotom-Wash|||Levitate|Hydro Pump,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Water]Magnezone|||Sturdy|Flash Cannon,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Steel"
+    }
+  }
+}

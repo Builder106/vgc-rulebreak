@@ -15,6 +15,7 @@ from vgc_rulebreak.cli import main
 from vgc_rulebreak.evaluation import EvaluationBattleResult
 from vgc_rulebreak.manifest import load_manifest
 from vgc_rulebreak.recovery import summarize_recovery
+from vgc_rulebreak.simulator.process import ShowdownProcess
 
 
 def rows() -> list[dict[str, Any]]:
@@ -131,9 +132,11 @@ def test_invalid_budget_or_seed_schedule(overrides: dict[str, Any]) -> None:
         ft.FullTransferConfig(**overrides).validate()
 
 
+@pytest.mark.parametrize("compare_pools", [False, True])
 def test_pipeline_freezes_source_and_uses_only_training_split(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    compare_pools: bool,
 ) -> None:
     calls: list[dict[str, Any]] = []
 
@@ -157,6 +160,7 @@ def test_pipeline_freezes_source_and_uses_only_training_split(
                 other=other,
                 role=role,
                 seed=seed,
+                opponent=opponent.name,
             )
         )
         return EvaluationBattleResult(
@@ -177,15 +181,22 @@ def test_pipeline_freezes_source_and_uses_only_training_split(
     monkeypatch.setattr(ft, "run_evaluation_battle", battle)
     monkeypatch.setattr(subprocess, "check_output", lambda *a, **k: ft.SIMULATOR_REVISION)
     monkeypatch.setattr(subprocess, "run", lambda *a, **k: subprocess.CompletedProcess([], 0))
-    report = ft.run_full_transfer(tmp_path, showdown_dir=tmp_path)
-    assert report["total_games"] == 216
+    report = ft.run_full_transfer(
+        tmp_path, ft.FullTransferConfig(compare_opponent_pools=compare_pools), showdown_dir=tmp_path
+    )
+    expected_games = 576 if compare_pools else 216
+    assert report["total_games"] == expected_games
     assert report["training_games"] == 108
     manifest = load_manifest(ft.MANIFEST_PATH)
     training = {manifest.teams[t].packed for t in manifest.splits["training"]}
     test = {manifest.teams[t].packed for t in manifest.splits["test"]}
+    extended, pools = ft.load_opponent_pools()
+    new = {extended.teams[t].packed for t in pools["new"]}
     for call in calls:
         pool = training if call["candidate"] == "Candidate" else test
-        assert call["own"] in pool and call["other"] in pool
+        assert call["own"] in pool
+        assert call["other"] in (test | new if compare_pools and pool == test else pool)
+        assert call["opponent"] == "HeuristicBaseline"
     for seed in (11, 29, 47):
         source = json.loads((tmp_path / f"checkpoints/source-s{seed}-g01.json").read_text())
         initial = json.loads((tmp_path / f"checkpoints/adapted-s{seed}-g00.json").read_text())
@@ -193,7 +204,7 @@ def test_pipeline_freezes_source_and_uses_only_training_split(
         assert source["format_id"] == ft.SOURCE_FORMAT
         assert initial["format_id"] == "gen9championsdoublescustomgame"
     games = json.loads((tmp_path / "results.json").read_text())["games"]
-    assert len(list((tmp_path / "replays").glob("*.json.gz"))) == 216
+    assert len(list((tmp_path / "replays").glob("*.json.gz"))) == expected_games
     for a in games:
         matched = [
             b
@@ -203,8 +214,16 @@ def test_pipeline_freezes_source_and_uses_only_training_split(
                 for k in ("training_seed", "eval_seed", "matchup", "pair_index", "game_in_pair")
             )
         ]
-        assert len(matched) == 4
+        assert len(matched) == (8 if compare_pools else 4)
         assert all(a["battle_seed"] == b["battle_seed"] for b in matched)
+    if compare_pools:
+        assert report["opponent_pools"] == pools
+        assert len(report["new_opponents_sha256"]) == 64
+        for game in games:
+            assert game["candidate_team"] in manifest.splits["test"]
+            assert game["opponent_team"] in pools[game["opponent_pool"]]
+        assert report["by_candidate_team"]["all"]["paired_blocks"] == 72
+        assert set(report["by_candidate_team"]) == {"all", *manifest.splits["test"]}
     assert json.loads((tmp_path / "transfer_report.json").read_text())["limitations"]
     assert summarize_recovery([tmp_path / "results.json"])["series"] == []
     with pytest.raises(ValueError, match="empty"):
@@ -261,3 +280,217 @@ def test_unfinished_training_game_is_never_scored_as_a_draw(
     task = GameTask(asdict(HEURISTIC_PARAMS), ft.SOURCE_FORMAT, "a", "b", "p1", (1, 2, 3, 4), None)
     with pytest.raises(ValueError, match="unfinished training"):
         ft._training_game(task)
+
+
+def pool_rows() -> list[dict[str, Any]]:
+    outcomes = {
+        "source-source": "tie",
+        "source-target": "win",
+        "native-target": "loss",
+        "adapted-g01-target": "win",
+    }
+    return [
+        {
+            **game,
+            "opponent_pool": pool,
+            "opponent_team": game["opponent_team"] if pool == "fixed" else "new-opponent",
+            "result": game["result"] if pool == "fixed" else outcomes[game["cell"]],
+            "checkpoint": f"{game['training_seed']}/{game['cell']}.json",
+            "format_id": ft.SOURCE_FORMAT if game["cell"] == "source-source" else "target",
+            "opponent": "HeuristicBaseline",
+        }
+        for game in rows()
+        for pool in ("fixed", "new")
+    ]
+
+
+def test_pool_metrics_and_paired_differences() -> None:
+    report = ft.summarize_transfer(pool_rows(), 1, compare_opponent_pools=True)
+    for team in ("all", "team-a", "team-b"):
+        metrics = report["by_candidate_team"][team]["metrics"]
+        for name, value in (
+            ("fixed/transfer_loss_ppg", 1),
+            ("new/transfer_loss_ppg", -0.5),
+            ("new_minus_fixed/transfer_loss_ppg", -1.5),
+            ("new_minus_fixed/recovery_g01_ppg", -0.5),
+            ("new_minus_fixed/native_gap_g01_ppg", -1.5),
+            ("new_minus_fixed/source-target", 1),
+        ):
+            assert metrics[name]["mean"] == value
+            assert metrics[name]["ci_lower"] == value
+            assert metrics[name]["ci_upper"] == value
+            assert metrics[name]["n"] == 3
+
+
+def test_unfinished_pool_game_excludes_both_pools_and_all_checkpoints() -> None:
+    games = pool_rows()
+    games[1]["result"] = "unfinished"
+    report = ft.summarize_transfer(games, 1, compare_opponent_pools=True)
+    assert report["excluded_paired_blocks"] == 1
+    assert report["unfinished_games"] == 1
+    assert report["by_candidate_team"]["all"]["paired_blocks"] == 17
+    assert (
+        report["by_candidate_team"]["all"]["metrics"]["new_minus_fixed/transfer_loss_ppg"]["mean"]
+        == -1.5
+    )
+
+
+@pytest.mark.parametrize(
+    "defect", ["missing-pool", "unknown-pool", "checkpoint", "opponent", "format", "policy", "seat"]
+)
+def test_pool_pairing_rejects_mismatched_inputs(defect: str) -> None:
+    games = pool_rows()
+    if defect == "missing-pool":
+        games = [g for g in games if g["opponent_pool"] == "fixed"]
+    elif defect == "unknown-pool":
+        games[1]["opponent_pool"] = "other"
+    elif defect == "checkpoint":
+        games[1]["checkpoint"] = "another-checkpoint.json"
+    elif defect == "format":
+        games[1]["format_id"] = "another-format"
+    elif defect == "policy":
+        games[1]["opponent"] = "another-policy"
+    elif defect == "seat":
+        for game in games:
+            game["candidate_role"] = "p1"
+    else:
+        games[1]["opponent_team"] = "wrong-team"
+    with pytest.raises(ValueError):
+        ft.summarize_transfer(games, 1, compare_opponent_pools=True)
+
+
+@pytest.mark.parametrize("defect", ["family", "packed", "id", "size", "split"])
+def test_new_opponents_reject_contamination_or_unequal_pools(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, defect: str
+) -> None:
+    data = json.loads(ft.NEW_OPPONENTS_PATH.read_text())
+    original = load_manifest(ft.MANIFEST_PATH)
+    first = data["teams"]["new-snow"]
+    if defect == "family":
+        first["family"] = original.teams["train-rain"].family
+    elif defect == "packed":
+        first["packed"] = original.teams["test-sand"].packed
+    elif defect == "id":
+        data["teams"]["test-sand"] = data["teams"].pop("new-snow")
+    elif defect == "size":
+        data["teams"].pop("new-snow")
+    else:
+        first["split"] = "training"
+    path = tmp_path / "opponents.json"
+    path.write_text(json.dumps(data))
+    monkeypatch.setattr(ft, "NEW_OPPONENTS_PATH", path)
+    with pytest.raises(ValueError):
+        ft.load_opponent_pools()
+
+
+def test_pool_bootstrap_weights_training_seeds_equally() -> None:
+    games = pool_rows()
+    for game in games:
+        if game["training_seed"] == 47 and game["eval_seed"] != 101:
+            game["result"] = "unfinished"
+        elif game["training_seed"] == 47 and game["opponent_pool"] == "new":
+            game["result"] = "loss"
+    metrics = ft.summarize_transfer(games, 1, compare_opponent_pools=True)["by_candidate_team"][
+        "all"
+    ]["metrics"]
+    # Seed deltas: 1, 1, 0. The last seed has fewer retained blocks, but equal weight.
+    assert metrics["new_minus_fixed/source-target"]["mean"] == pytest.approx(2 / 3, abs=0.0001)
+    assert metrics["new_minus_fixed/source-target"]["n"] == 3
+
+
+def test_pool_difference_interval_preserves_seed_pairing() -> None:
+    games = pool_rows()
+    for game in games:
+        if game["cell"] == "source-target":
+            game["result"] = {11: "loss", 29: "tie", 47: "win"}[game["training_seed"]]
+    metrics = ft.summarize_transfer(games, 1, compare_opponent_pools=True)["by_candidate_team"][
+        "all"
+    ]["metrics"]
+    assert metrics["fixed/source-target"]["ci_lower"] == 0
+    assert metrics["fixed/source-target"]["ci_upper"] == 1
+    assert metrics["new_minus_fixed/source-target"]["ci_lower"] == 0
+    assert metrics["new_minus_fixed/source-target"]["ci_upper"] == 0
+
+
+def test_pool_comparison_retains_each_adapted_checkpoint() -> None:
+    games = pool_rows()
+    games += [
+        {
+            **game,
+            "cell": "adapted-g02-target",
+            "checkpoint": f"{game['training_seed']}/adapted-g02.json",
+            "result": "win" if game["opponent_pool"] == "fixed" else "tie",
+        }
+        for game in games
+        if game["cell"] == "adapted-g01-target"
+    ]
+    metrics = ft.summarize_transfer(games, 2, compare_opponent_pools=True)["by_candidate_team"][
+        "all"
+    ]["metrics"]
+    assert metrics["new_minus_fixed/recovery_g01_ppg"]["mean"] == -0.5
+    assert metrics["new_minus_fixed/recovery_g02_ppg"]["mean"] == -1.5
+    assert metrics["new_minus_fixed/native_gap_g02_ppg"]["mean"] == -0.5
+
+
+def test_cli_forwards_pool_comparison_option(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def run(output: Path, config: ft.FullTransferConfig, sd: Path | None) -> dict[str, bool]:
+        assert output == tmp_path
+        assert sd is None
+        return {"compare_pools": config.compare_opponent_pools}
+
+    monkeypatch.setattr(ft, "run_full_transfer", run)
+    assert (
+        main(["measure-full-transfer", "--output-dir", str(tmp_path), "--compare-opponent-pools"])
+        == 0
+    )
+    assert json.loads(capsys.readouterr().out) == {"compare_pools": True}
+
+
+def test_new_opponent_packed_teams_match_sheets_and_stats_across_domains() -> None:
+    try:
+        sd = ShowdownProcess._resolve_showdown_dir(None)
+    except FileNotFoundError:
+        pytest.skip("Showdown not found in default paths")
+    script = """
+    const fs = require('fs');
+    const {Battle} = require('./dist/sim/battle.js');
+    const {Teams} = require('./dist/sim/teams.js');
+    const teams = JSON.parse(fs.readFileSync(0, 'utf8'));
+    console.log(JSON.stringify(teams.map(team => ({
+      unpacked: Teams.unpack(team),
+      stats: ['gen9doublescustomgame', 'gen9championsdoublescustomgame'].map(formatid => {
+        const battle = new Battle({formatid, seed: [1, 2, 3, 4]});
+        battle.setPlayer('p1', {name: 'Candidate', team});
+        battle.setPlayer('p2', {name: 'Opponent', team});
+        return battle.p1.pokemon.map(p => ({hp: p.maxhp, ...p.storedStats}));
+      }),
+    }))));
+    """
+    manifest, pools = ft.load_opponent_pools()
+    teams = [manifest.teams[t] for t in pools["new"]]
+    result = subprocess.run(
+        ["node", "-e", script],
+        cwd=sd,
+        input=json.dumps([t.packed for t in teams]),
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    observations = json.loads(result.stdout)
+    for team, observed in zip(teams, observations, strict=True):
+        assert observed["stats"][0] == observed["stats"][1]
+        for stats in observed["stats"][0]:
+            assert set(stats) == {"hp", "atk", "def", "spa", "spd", "spe"}
+            assert all(value > 0 for value in stats.values())
+        assert len(observed["unpacked"]) == 4
+        for member, unpacked in zip(team.pokemon, observed["unpacked"], strict=True):
+            assert unpacked["species"] == member.species
+            assert unpacked["ability"] == member.ability
+            assert unpacked["moves"] == list(member.moves)
+            assert unpacked["nature"] == member.nature == "Serious"
+            assert unpacked["evs"] == member.evs
+            assert unpacked["item"] == member.item == ""
+            assert unpacked["teraType"] == member.tera_type
+            assert unpacked["level"] == 50

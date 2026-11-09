@@ -923,6 +923,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     transfer.add_argument("--elites", type=int, default=1)
     transfer.add_argument("--pairs", type=int, default=1)
     transfer.add_argument("--workers", type=int, default=4)
+    transfer.add_argument(
+        "--compare-opponent-pools",
+        action="store_true",
+        help="compare fixed and new synthetic opponent teams with frozen checkpoints",
+    )
 
     args = parser.parse_args(argv)
 
@@ -938,6 +943,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     elites=args.elites,
                     pairs=args.pairs,
                     workers=args.workers,
+                    compare_opponent_pools=args.compare_opponent_pools,
                 ),
                 args.showdown_dir,
             )

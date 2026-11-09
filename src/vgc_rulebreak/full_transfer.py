@@ -19,7 +19,7 @@ from vgc_rulebreak.agents.trained import (
 )
 from vgc_rulebreak.champions import load_champions_regulation
 from vgc_rulebreak.evaluation import build_test_matchups, run_evaluation_battle
-from vgc_rulebreak.manifest import TeamManifest, load_manifest
+from vgc_rulebreak.manifest import TeamManifest, load_manifest, validate_manifest
 from vgc_rulebreak.protect_multi_seed import calculate_ci
 from vgc_rulebreak.records import GameContext, GameRecorder, game_outcome
 from vgc_rulebreak.simulator.process import ShowdownProcess
@@ -36,6 +36,7 @@ from vgc_rulebreak.training import (
 SIMULATOR_REVISION = "9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e"
 SOURCE_FORMAT = "gen9doublescustomgame"
 MANIFEST_PATH = Path("experiments/teams/full-transfer.json")
+NEW_OPPONENTS_PATH = Path("experiments/teams/full-transfer-new-opponents.json")
 REGULATION_PATH = Path("experiments/champions-regulation.json")
 
 
@@ -48,6 +49,7 @@ class FullTransferConfig:
     elites: int = 1
     pairs: int = 1
     workers: int = 4
+    compare_opponent_pools: bool = False
 
     def validate(self) -> None:
         for seeds in (self.training_seeds, self.evaluation_seeds):
@@ -59,6 +61,50 @@ class FullTransferConfig:
             raise ValueError("training budgets, pairs, and workers must be positive")
         if self.elites > self.population:
             raise ValueError("elites must not exceed population")
+
+
+def load_opponent_pools() -> tuple[TeamManifest, dict[str, tuple[str, ...]]]:
+    """Extend evaluation only; new families cannot overlap any original split."""
+    original = load_manifest(MANIFEST_PATH)
+    extra = json.loads(NEW_OPPONENTS_PATH.read_text())
+    if (
+        not isinstance(extra, dict)
+        or set(extra) != {"schema_version", "description", "teams"}
+        or type(extra["schema_version"]) is not int
+        or extra["schema_version"] != 1
+        or not isinstance(extra["teams"], dict)
+        or len(extra["teams"]) != len(original.splits["test"])
+    ):
+        raise ValueError("new opponent manifest must declare an equally sized pool")
+    ids = tuple(extra["teams"])
+    if set(ids) & set(original.teams):
+        raise ValueError("new opponent IDs must be disjoint from the original manifest")
+    combined = json.loads(MANIFEST_PATH.read_text())
+    combined["splits"]["test"].extend(ids)
+    combined["teams"].update(extra["teams"])
+    manifest = validate_manifest(combined)
+    families = {t.family for t in original.teams.values()}
+    packed = {t.packed for t in original.teams.values()}
+    for team_id in ids:
+        team = manifest.teams[team_id]
+        if team.family in families or team.packed in packed:
+            raise ValueError("new opponent families and packed teams must be disjoint")
+        families.add(team.family)
+        packed.add(team.packed)
+    return manifest, {"fixed": original.splits["test"], "new": ids}
+
+
+def _transfer_metrics(points: dict[str, float], generations: int) -> dict[str, float]:
+    metrics = dict(points)
+    metrics["transfer_loss_ppg"] = points["source-source"] - points["source-target"]
+    for g in range(1, generations + 1):
+        metrics[f"recovery_g{g:02d}_ppg"] = (
+            points[f"adapted-g{g:02d}-target"] - points["source-target"]
+        )
+        metrics[f"native_gap_g{g:02d}_ppg"] = (
+            points["native-target"] - points[f"adapted-g{g:02d}-target"]
+        )
+    return metrics
 
 
 def _training_game(task: GameTask) -> dict[str, float]:
@@ -158,16 +204,20 @@ def _train(
     return paths
 
 
-def summarize_transfer(games: list[dict[str, Any]], generations: int) -> dict[str, Any]:
+def summarize_transfer(
+    games: list[dict[str, Any]], generations: int, *, compare_opponent_pools: bool = False
+) -> dict[str, Any]:
     """Pair cells before seed-level bootstrap; incomplete blocks never become draws."""
     if generations < 1:
         raise ValueError("generations must be positive")
-    cells = (
+    base_cells = (
         "source-source",
         "source-target",
         "native-target",
         *(f"adapted-g{g:02d}-target" for g in range(1, generations + 1)),
     )
+    pools = ("fixed", "new") if compare_opponent_pools else ("",)
+    cells = tuple(f"{pool}/{cell}" if pool else cell for pool in pools for cell in base_cells)
     blocks: dict[tuple[object, ...], dict[str, dict[str, Any]]] = defaultdict(dict)
     for game in games:
         key = tuple(
@@ -175,7 +225,7 @@ def summarize_transfer(games: list[dict[str, Any]], generations: int) -> dict[st
         )
         if game["result"] not in ("win", "loss", "tie", "unfinished"):
             raise ValueError("unknown game result")
-        cell = game["cell"]
+        cell = f"{game['opponent_pool']}/{game['cell']}" if compare_opponent_pools else game["cell"]
         if cell not in cells or cell in blocks[key]:
             raise ValueError("unknown or duplicate evaluation cell")
         blocks[key][cell] = game
@@ -187,9 +237,22 @@ def summarize_transfer(games: list[dict[str, Any]], generations: int) -> dict[st
         seats[key[:-1]].add(key[-1])
         schedules[key[0]].add(key[1:])
         first = next(iter(block.values()))
-        context = ("candidate_team", "opponent_team", "candidate_role", "battle_seed")
+        context = ("candidate_team", "candidate_role", "battle_seed")
         if any(game[field] != first[field] for game in block.values() for field in context):
             raise ValueError("paired cells disagree on team, seat, or battle seed")
+        for pool in pools:
+            group = [block[f"{pool}/{c}" if pool else c] for c in base_cells]
+            if any(g["opponent_team"] != group[0]["opponent_team"] for g in group):
+                raise ValueError("paired cells disagree on opponent team within a pool")
+        if compare_opponent_pools:
+            if first["candidate_role"] != ("p1" if key[-1] == 0 else "p2"):
+                raise ValueError("mirrored games must use opposite candidate seats")
+            for cell in base_cells:
+                if any(
+                    block[f"fixed/{cell}"][field] != block[f"new/{cell}"][field]
+                    for field in ("checkpoint", "format_id", "opponent")
+                ):
+                    raise ValueError("pools must use identical checkpoints, formats and policies")
     if any(value != {0, 1} for value in seats.values()):
         raise ValueError("both mirrored seats required")
     if any(value != next(iter(schedules.values())) for value in schedules.values()):
@@ -208,15 +271,26 @@ def summarize_transfer(games: list[dict[str, Any]], generations: int) -> dict[st
             if team != "all" and first["candidate_team"] != team:
                 continue
             points = {c: {"win": 1.0, "loss": 0.0, "tie": 0.5}[block[c]["result"]] for c in cells}
-            metrics = dict(points)
-            metrics["transfer_loss_ppg"] = points["source-source"] - points["source-target"]
-            for g in range(1, generations + 1):
-                metrics[f"recovery_g{g:02d}_ppg"] = (
-                    points[f"adapted-g{g:02d}-target"] - points["source-target"]
+            if compare_opponent_pools:
+                per_pool = {
+                    pool: _transfer_metrics(
+                        {c: points[f"{pool}/{c}"] for c in base_cells}, generations
+                    )
+                    for pool in pools
+                }
+                metrics = {
+                    f"{pool}/{name}": value
+                    for pool, values in per_pool.items()
+                    for name, value in values.items()
+                }
+                metrics.update(
+                    {
+                        f"new_minus_fixed/{name}": per_pool["new"][name] - value
+                        for name, value in per_pool["fixed"].items()
+                    }
                 )
-                metrics[f"native_gap_g{g:02d}_ppg"] = (
-                    points["native-target"] - points[f"adapted-g{g:02d}-target"]
-                )
+            else:
+                metrics = _transfer_metrics(points, generations)
             by_seed[first["training_seed"]].append(metrics)
         expected_seeds = {g["training_seed"] for g in games}
         if set(by_seed) != expected_seeds or len(by_seed) < 3:
@@ -256,6 +330,10 @@ def run_full_transfer(
     if output_dir.exists() and any(output_dir.iterdir()):
         raise ValueError("output directory must be empty to avoid mixing runs")
     manifest = load_manifest(MANIFEST_PATH)
+    candidate_teams = manifest.splits["test"]
+    opponent_pools: dict[str, tuple[str, ...]] = {}
+    if config.compare_opponent_pools:
+        manifest, opponent_pools = load_opponent_pools()
     families = [
         {manifest.teams[t].family for t in manifest.splits[s]}
         for s in ("training", "validation", "test")
@@ -282,13 +360,40 @@ def run_full_transfer(
         "manifest_sha256": hashlib.sha256(MANIFEST_PATH.read_bytes()).hexdigest(),
         "regulation_sha256": hashlib.sha256(REGULATION_PATH.read_bytes()).hexdigest(),
         "training_teams": manifest.splits["training"],
-        "test_teams": manifest.splits["test"],
+        "test_teams": candidate_teams,
         "opponent": "HeuristicBaseline",
         "information_mode": "public battle observations",
     }
+    if config.compare_opponent_pools:
+        provenance.update(
+            opponent_pools=opponent_pools,
+            new_opponents_sha256=hashlib.sha256(NEW_OPPONENTS_PATH.read_bytes()).hexdigest(),
+            pool_pairing="candidate team, opponent slot, evaluation seed, pair and seat",
+        )
     (output_dir / "protocol.json").write_text(json.dumps(provenance, indent=2) + "\n")
     recorder = GameRecorder(output_dir, {t: v.packed for t, v in manifest.teams.items()})
-    matchups = build_test_matchups(manifest, manifest.splits["test"])
+    if config.compare_opponent_pools:
+        schedule = [
+            (
+                pool,
+                index,
+                own_id,
+                manifest.teams[own_id].packed,
+                other_id,
+                manifest.teams[other_id].packed,
+            )
+            for pool, opponents in opponent_pools.items()
+            for index, (own_id, other_id) in enumerate(
+                (own, other) for own in candidate_teams for other in opponents
+            )
+        ]
+    else:
+        schedule = [
+            ("", index, t1, packed1, t2, packed2)
+            for index, (t1, packed1, t2, packed2) in enumerate(
+                build_test_matchups(manifest, candidate_teams)
+            )
+        ]
     for training_seed in config.training_seeds:
         source = _train(
             config, manifest, output_dir, "source", training_seed, formats["source"], sd
@@ -313,16 +418,17 @@ def run_full_transfer(
         ] + [(f"adapted-g{g:02d}-target", p, "target") for g, p in enumerate(adapted) if g > 0]
         for cell, checkpoint, domain in targets:
             for eval_seed in config.evaluation_seeds:
-                for m, (t1, packed1, t2, packed2) in enumerate(matchups):
+                for opponent_pool, m, t1, packed1, t2, packed2 in schedule:
                     for pair in range(config.pairs):
                         # Same seed and team assignment across every checkpoint/domain and seat.
                         seed = training_battle_seed(eval_seed, 0, m, pair)
-                        for seat, (own, other, own_id, other_id, role) in enumerate(
-                            (
-                                (packed1, packed2, t1, t2, "p1"),
-                                (packed2, packed1, t2, t1, "p2"),
-                            )
-                        ):
+                        assignments = (
+                            (packed1, packed2, t1, t2, "p1"),
+                            (packed1, packed2, t1, t2, "p2")
+                            if config.compare_opponent_pools
+                            else (packed2, packed1, t2, t1, "p2"),
+                        )
+                        for seat, (own, other, own_id, other_id, role) in enumerate(assignments):
                             candidate = checkpoint_agent(checkpoint)
                             opponent = HeuristicAgent("HeuristicBaseline")
                             result = run_evaluation_battle(
@@ -359,12 +465,15 @@ def run_full_transfer(
                                     "cell": cell,
                                     "matchup": m,
                                     "checkpoint": str(checkpoint),
+                                    **({"opponent_pool": opponent_pool} if opponent_pool else {}),
                                 }
                             )
         recorder.finish(
             provenance, {"status": "in-progress", "candidate_name": "FullTransferStudy"}
         )
-    summary = summarize_transfer(recorder.games, config.generations)
+    summary = summarize_transfer(
+        recorder.games, config.generations, compare_opponent_pools=config.compare_opponent_pools
+    )
     report = {
         **provenance,
         **summary,
@@ -383,6 +492,11 @@ def run_full_transfer(
             "No Mega stones or learned Tera choices; not a Tera/Mega transfer study.",
             "Combined simulator ruleset effect, not an isolated mechanic or human skill claim.",
             "Pilot budgets and three seeds cannot establish metagame optimality.",
+            *(
+                ["Frozen opponent team pools with one heuristic policy; no policy or ladder shift."]
+                if config.compare_opponent_pools
+                else []
+            ),
         ],
     }
     recorder.finish(provenance, report)

@@ -59,8 +59,9 @@ Acceptance requires an actual pinned-simulator run with a loss/recovery report,
 per-team results, independently trained native reference, recorded checkpoints,
 per-game results and compressed replays, configuration and input hashes, plus
 tests for pairing, interval units, scoring, initialization, and split isolation.
-There is no UI change. Comparing new opponent pools, sourced legal OTS matchups,
-and bidirectional Tera/Mega transfer remain separate milestones.
+There is no UI change. Sourced legal OTS matchups and bidirectional Tera/Mega
+transfer remain separate milestones. The opponent-pool comparison below extends
+this protocol without changing the original command's evaluation schedule.
 
 ## Reproduction
 
@@ -118,3 +119,54 @@ the pinned revision; the pre-existing shared checkout was left untouched. The fr
 is `94c4d3e1e055adf759898e47039e16ebf884529aadc9a90db9d8f86077d410ca`;
 the completed `transfer_report.json` SHA-256 is
 `4927633cf69f3671f24e814d7fec12e20f4ac875a8bec5a1cac2e7c988b91f40`.
+
+## Fixed and new opponent pools
+
+```sh
+uv run vgc-rulebreak measure-full-transfer --compare-opponent-pools \
+  --output-dir runs/full-transfer-pools-2026-11-09
+```
+
+This extension tests whether the measured transfer and recovery persist against
+additional team families. Candidate teams remain bulky and sand. The fixed
+opponent pool contains those same two teams; the new pool contains snow and
+electric-terrain fixtures frozen in
+`experiments/teams/full-transfer-new-opponents.json`. Both pools use the same
+`HeuristicBaseline` policy. This measures an opponent **team** distribution
+change; it does not test a new opponent policy or an evolving ladder. All teams
+retain the original synthetic, level-50, zero-investment custom-game scope.
+New IDs, families, and packed teams must be disjoint from every original split,
+and new teams never enter training or checkpoint selection.
+
+Train each role once per training seed, with the original budget, then evaluate
+the same checkpoints against both pools. Each pool uses the Cartesian product
+of two candidate teams and two opponent teams, with each candidate playing both
+seats. Thus the fixed-pool schedule here weights candidate/opponent assignments
+equally, unlike the earlier unique-pair schedule. Its fixed-pool numbers should
+not be subtracted directly from the earlier pilot's numbers.
+
+Pool entries are paired by their frozen manifest order: bulky with snow, sand
+with terrain. This pairing supplies common random numbers, not a claim that the
+paired teams are strategically equivalent. Each evaluation seed, candidate
+team, opponent slot, pair, and seat defines a block containing both pools and
+all checkpoint/domain cells. Battle seeds match throughout that block. A game
+that does not finish excludes all eight cells (at one generation), and the
+report counts excluded blocks and unfinished games. Every candidate team must
+retain support from all three training seeds.
+
+The report gives `fixed/` and `new/` scores, transfer loss, checkpoint recovery,
+and native gaps, plus signed `new_minus_fixed/` differences of every metric.
+Differences are computed within completed blocks before averaging within each
+training seed. The same 5,000-resample training-seed bootstrap supplies 95%
+intervals for both pool metrics and their differences; these are conditional on
+the frozen teams and evaluation seeds. A positive recovery difference means
+more measured recovery on the new pool; a positive transfer-loss difference
+means a larger transfer penalty there. A new-pool score difference also reflects
+opponent difficulty and cannot by itself establish transfer failure.
+
+Acceptance requires the paired statistical and contamination tests plus a real
+pinned-simulator comparison. At defaults the extension runs 108 training and
+576 evaluation games, preserves all compressed replays and checkpoints, and
+records both pool memberships and the additional manifest hash in the existing
+protocol and report files. Original artifacts remain separate. Small or null
+recovery differences cannot establish generalization to unseen opponents.

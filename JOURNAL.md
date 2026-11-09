@@ -1,5 +1,28 @@
 # Journal
 
+## 2026-11-09: Compare fixed and new full-transfer opponent pools #milestone #decision
+
+Extend `measure-full-transfer` with `--compare-opponent-pools`. Keep the original
+training split, five-parameter policy, native budget, candidate teams and
+heuristic opponent policy. Freeze additional snow and electric-terrain teams as
+evaluation-only synthetic fixtures, disjoint in ID, family and packed team from
+every original split. This tests a team-distribution shift; new opponent
+policies and an evolving ladder are outside this milestone's claim.
+
+Evaluate each candidate against every opponent in each equally sized pool,
+mirroring its seat while retaining its team. Pair fixed/new opponent slots with
+common battle seeds and identical frozen checkpoints. Report per-pool transfer
+loss, each checkpoint's recovery and native gaps, and paired new-minus-fixed
+differences. Bootstrap training-seed means, conditional on the finite pools.
+Exclude every compared cell when any member of a block is unfinished. The new
+Cartesian schedule gives equal weight to candidate/opponent assignments, so its
+fixed-pool scores are not directly comparable to the earlier unique-pair pilot.
+
+Keep the original command's schedule and artifacts intact. Store the extension's
+pool definitions, input hashes, checkpoints, per-game results and compressed
+replays under its own ignored run directory. Legal sourced OTS reference
+matchups remain the next Study F milestone. No frontend files change.
+
 ## 2026-11-09: Measure full-ruleset transfer on held-out teams #milestone #decision
 
 Added Study F's `measure-full-transfer` pipeline and protocol. The existing

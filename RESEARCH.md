@@ -115,7 +115,8 @@ Study F now has a [held-out synthetic-team protocol](docs/full-transfer.md) and
 independently trained target-native reference. It reports signed points-per-game
 effects and training-seed intervals for each held-out candidate team. This pilot
 uses custom-game fixtures and a policy with five trainable Protect parameters;
-legal sourced OTS matchups and new opponent pools remain future work.
+the fixed/new synthetic opponent-team comparison uses matched checkpoints and
+seeds; legal sourced OTS matchups remain future work.
 
 For Tera/Mega experiments, use a shared base-species pool where possible and document item, form, and team differences that the mechanic requires. Use one action schema that can represent both mechanics. Record what each source policy encountered during training. An action head that never learned Mega is itself a transfer limitation. Include both transfer directions and independently trained references before comparing recovery speed.
 

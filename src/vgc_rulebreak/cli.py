@@ -913,7 +913,39 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     speed_uncertainty.add_argument("evidence", type=Path)
 
+    transfer = subcommands.add_parser(
+        "measure-full-transfer", help="measure held-out SV-to-Champions transfer and recovery"
+    )
+    transfer.add_argument("--output-dir", type=Path, required=True)
+    transfer.add_argument("--showdown-dir", type=Path)
+    transfer.add_argument("--generations", type=int, default=1)
+    transfer.add_argument("--population", type=int, default=2)
+    transfer.add_argument("--elites", type=int, default=1)
+    transfer.add_argument("--pairs", type=int, default=1)
+    transfer.add_argument("--workers", type=int, default=4)
+
     args = parser.parse_args(argv)
+
+    if args.command == "measure-full-transfer":
+        from vgc_rulebreak.full_transfer import FullTransferConfig, run_full_transfer
+
+        try:
+            transfer_report = run_full_transfer(
+                args.output_dir,
+                FullTransferConfig(
+                    generations=args.generations,
+                    population=args.population,
+                    elites=args.elites,
+                    pairs=args.pairs,
+                    workers=args.workers,
+                ),
+                args.showdown_dir,
+            )
+        except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+            print(f"Full transfer error: {error}", file=sys.stderr)
+            return 2
+        print(json.dumps(transfer_report, indent=2))
+        return 0
 
     if args.command == "report-speed-uncertainty":
         from vgc_rulebreak.speed_uncertainty import report_speed_uncertainty

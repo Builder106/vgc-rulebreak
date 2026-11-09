@@ -1,5 +1,40 @@
 # Journal
 
+## 2026-11-09: Measure full-ruleset transfer on held-out teams #milestone #decision
+
+Added Study F's `measure-full-transfer` pipeline and protocol. The existing
+Protect-only comparison cannot complete this milestone: this run instead moves
+from Gen 9 doubles custom game to the complete pinned Champions custom-game mod.
+Reuse the established five-parameter Protect policy and CEM optimizer, with
+source pretraining, exact source initialization for target adaptation, and an
+independent native reference receiving the same target training budget. This
+measures the combined ruleset effect for this policy class.
+
+Freeze new synthetic four-member rain/sun training teams, reserve tailwind for
+validation, and hold out bulky/sand families. Zero EV/SP investment, level 50,
+neutral natures and identical packed teams avoid an accidental illegal stat
+allocation conversion. This is deliberately a custom-game benchmark. Official
+legal sourced OTS matchups and changing opponent pools remain separate Study F
+items; Tera/Mega transfer remains Study T. The agents use public battle messages
+and their own requests; full OTS injection is not claimed.
+
+Pair evaluation games by seed, team assignment and seat across every checkpoint
+and domain. Report points per game, signed transfer loss, recovery at each
+adapted generation, native gaps, and per-candidate-team results. Bootstrap
+training-seed means, conditional on the frozen evaluation pool. Fail unfinished
+training games; exclude incomplete evaluation blocks across all cells and report
+them. Preserve checkpoints, configuration/input hashes, game records and every
+compressed evaluation replay under ignored runs/.
+
+The default pilot used seeds 11/29/47, evaluation seeds 101/202/303, one generation,
+population two, and one mirrored pair: 108 training games and 216 evaluations.
+One turn-limit game excluded one matched block, leaving 53. Pooled transfer loss
+was -0.0011 PPG (95% training-seed CI [-0.0588, 0.0556]); bulky loss was +0.0741
+and sand loss -0.0741. Recovery and native gaps were zero in retained games.
+The protocol records the full result and artifact hashes. This low-power pilot
+resolves no general transfer penalty and supports no claim about human skill or
+metagame optimality. No frontend implementation was required.
+
 ## 2026-11-08: Report opponent Speed uncertainty from public evidence #milestone #decision
 
 Added `report-speed-uncertainty` and a strictly typed constraint engine with a

@@ -81,9 +81,9 @@ Completed within the fixed-fixture and certified-public-evidence scope. See [the
 
 ## Study F: Full transfer
 
-Planned. Needs the pinned Champions regulation.
+In progress. The [held-out synthetic-team pilot](docs/full-transfer.md) uses the pinned Champions regulation. Legal sourced OTS matchups and new opponent pools remain to add.
 
-- [ ] Measure transfer loss and recovery on held-out teams.
+- [x] Measure transfer loss and recovery on held-out teams.
 - [ ] Compare fixed and new opponent pools.
 - [ ] Build legal OTS reference matchups and record their sources.
 

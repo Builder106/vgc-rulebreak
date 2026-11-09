@@ -1,0 +1,436 @@
+{
+  "schema_version": 1,
+  "name": "full-transfer-synthetic",
+  "base_format": "gen9doublescustomgame",
+  "description": "Synthetic four-member level-50 custom-game fixtures. Zero EV/SP investment and default IVs; identical packed teams across domains. Not official OTS reference matchups.",
+  "splits": {
+    "training": [
+      "train-rain",
+      "train-sun"
+    ],
+    "validation": [
+      "val-tailwind"
+    ],
+    "test": [
+      "test-bulky",
+      "test-sand"
+    ]
+  },
+  "teams": {
+    "train-rain": {
+      "family": "rain",
+      "split": "training",
+      "pokemon": [
+        {
+          "species": "Pelipper",
+          "item": "",
+          "ability": "Drizzle",
+          "moves": [
+            "Hurricane",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Water"
+        },
+        {
+          "species": "Ludicolo",
+          "item": "",
+          "ability": "Swift Swim",
+          "moves": [
+            "Giga Drain",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Grass"
+        },
+        {
+          "species": "Raichu",
+          "item": "",
+          "ability": "Lightning Rod",
+          "moves": [
+            "Thunderbolt",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Electric"
+        },
+        {
+          "species": "Gyarados",
+          "item": "",
+          "ability": "Intimidate",
+          "moves": [
+            "Waterfall",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Water"
+        }
+      ],
+      "packed": "Pelipper|||Drizzle|Hurricane,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Water]Ludicolo|||Swift Swim|Giga Drain,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Grass]Raichu|||Lightning Rod|Thunderbolt,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Electric]Gyarados|||Intimidate|Waterfall,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Water"
+    },
+    "train-sun": {
+      "family": "sun",
+      "split": "training",
+      "pokemon": [
+        {
+          "species": "Torkoal",
+          "item": "",
+          "ability": "Drought",
+          "moves": [
+            "Heat Wave",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Fire"
+        },
+        {
+          "species": "Venusaur",
+          "item": "",
+          "ability": "Chlorophyll",
+          "moves": [
+            "Sludge Bomb",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Poison"
+        },
+        {
+          "species": "Arcanine",
+          "item": "",
+          "ability": "Intimidate",
+          "moves": [
+            "Flamethrower",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Fire"
+        },
+        {
+          "species": "Charizard",
+          "item": "",
+          "ability": "Solar Power",
+          "moves": [
+            "Air Slash",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Flying"
+        }
+      ],
+      "packed": "Torkoal|||Drought|Heat Wave,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Fire]Venusaur|||Chlorophyll|Sludge Bomb,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Poison]Arcanine|||Intimidate|Flamethrower,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Fire]Charizard|||Solar Power|Air Slash,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Flying"
+    },
+    "val-tailwind": {
+      "family": "tailwind",
+      "split": "validation",
+      "pokemon": [
+        {
+          "species": "Talonflame",
+          "item": "",
+          "ability": "Gale Wings",
+          "moves": [
+            "Brave Bird",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Flying"
+        },
+        {
+          "species": "Dragonite",
+          "item": "",
+          "ability": "Inner Focus",
+          "moves": [
+            "Dragon Claw",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Dragon"
+        },
+        {
+          "species": "Gengar",
+          "item": "",
+          "ability": "Cursed Body",
+          "moves": [
+            "Shadow Ball",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Ghost"
+        },
+        {
+          "species": "Lucario",
+          "item": "",
+          "ability": "Inner Focus",
+          "moves": [
+            "Aura Sphere",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Fighting"
+        }
+      ],
+      "packed": "Talonflame|||Gale Wings|Brave Bird,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Flying]Dragonite|||Inner Focus|Dragon Claw,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Dragon]Gengar|||Cursed Body|Shadow Ball,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Ghost]Lucario|||Inner Focus|Aura Sphere,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Fighting"
+    },
+    "test-bulky": {
+      "family": "bulky",
+      "split": "test",
+      "pokemon": [
+        {
+          "species": "Annihilape",
+          "item": "",
+          "ability": "Defiant",
+          "moves": [
+            "Rage Fist",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Ghost"
+        },
+        {
+          "species": "Maushold",
+          "item": "",
+          "ability": "Friend Guard",
+          "moves": [
+            "Population Bomb",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Normal"
+        },
+        {
+          "species": "Snorlax",
+          "item": "",
+          "ability": "Thick Fat",
+          "moves": [
+            "Body Slam",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Normal"
+        },
+        {
+          "species": "Slowbro",
+          "item": "",
+          "ability": "Regenerator",
+          "moves": [
+            "Psychic",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Psychic"
+        }
+      ],
+      "packed": "Annihilape|||Defiant|Rage Fist,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Ghost]Maushold|||Friend Guard|Population Bomb,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Normal]Snorlax|||Thick Fat|Body Slam,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Normal]Slowbro|||Regenerator|Psychic,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Psychic"
+    },
+    "test-sand": {
+      "family": "sand",
+      "split": "test",
+      "pokemon": [
+        {
+          "species": "Tyranitar",
+          "item": "",
+          "ability": "Sand Stream",
+          "moves": [
+            "Rock Slide",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Rock"
+        },
+        {
+          "species": "Excadrill",
+          "item": "",
+          "ability": "Sand Rush",
+          "moves": [
+            "Earthquake",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Ground"
+        },
+        {
+          "species": "Hippowdon",
+          "item": "",
+          "ability": "Sand Force",
+          "moves": [
+            "Earth Power",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Ground"
+        },
+        {
+          "species": "Garchomp",
+          "item": "",
+          "ability": "Rough Skin",
+          "moves": [
+            "Dragon Claw",
+            "Protect"
+          ],
+          "nature": "Serious",
+          "evs": {
+            "hp": 0,
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0
+          },
+          "teraType": "Dragon"
+        }
+      ],
+      "packed": "Tyranitar|||Sand Stream|Rock Slide,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Rock]Excadrill|||Sand Rush|Earthquake,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Ground]Hippowdon|||Sand Force|Earth Power,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Ground]Garchomp|||Rough Skin|Dragon Claw,Protect|Serious|0,0,0,0,0,0||||50|,,,,,Dragon"
+    }
+  }
+}

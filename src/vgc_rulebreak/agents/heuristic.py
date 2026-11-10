@@ -273,12 +273,10 @@ class HeuristicAgent(BattleAgent):
         elif msg_type == "faint" and len(args) >= 1:
             slot_id = args[0].split(":")[0].strip()
             self._slot_species[slot_id] = ""
-        elif msg_type == "-fieldstart" and len(args) >= 1:
-            if "Trick Room" in args[0]:
-                self._trick_room_turns_left = 5
-        elif msg_type == "-fieldend" and len(args) >= 1:
-            if "Trick Room" in args[0]:
-                self._trick_room_turns_left = 0
+        elif msg_type == "-fieldstart" and len(args) >= 1 and "Trick Room" in args[0]:
+            self._trick_room_turns_left = 5
+        elif msg_type == "-fieldend" and len(args) >= 1 and "Trick Room" in args[0]:
+            self._trick_room_turns_left = 0
 
     def score_target_bonus(self, target_species: str, target_slot: int, slot_idx: int) -> float:
         """Score modifier for targeting a specific foe species (neutral by default)."""

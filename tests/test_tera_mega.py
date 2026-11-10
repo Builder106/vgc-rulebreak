@@ -110,9 +110,11 @@ def test_total_native_participates_in_paired_exclusion_and_gap() -> None:
         )
 
 
+@pytest.mark.parametrize("rules_mode", ["full", "mechanic-only"])
 def test_pipeline_keeps_splits_budgets_and_both_directions(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    rules_mode: str,
 ) -> None:
     calls: list[tuple[str, str, str]] = []
 
@@ -137,7 +139,17 @@ def test_pipeline_keeps_splits_budgets_and_both_directions(
     monkeypatch.setattr(tm, "run_evaluation_battle", battle)
     monkeypatch.setattr(subprocess, "check_output", lambda *a, **k: SIMULATOR_REVISION)
     monkeypatch.setattr(subprocess, "run", lambda *a, **k: subprocess.CompletedProcess([], 0))
-    report = tm.run_tera_mega(tmp_path, showdown_dir=tmp_path)
+    report = tm.run_tera_mega(tmp_path, showdown_dir=tmp_path, rules_mode=rules_mode)
+    formats = tm.FORMAT_SETS[rules_mode]
+    assert report["rules_mode"] == rules_mode
+    assert report["formats"] == formats
+    assert report["format_overlay_sha256"]
+    protocol = json.loads((tmp_path / "protocol.json").read_text())
+    assert protocol["rules_mode"] == rules_mode
+    assert protocol["formats"] == formats
+    if rules_mode == "mechanic-only":
+        assert report["rules_background"] == "champions"
+        assert not any("no mechanic-only attribution" in s for s in report["limitations"])
     assert report["total_games"] == 540
     assert report["training_games"] == 216
     assert report["games_per_seed"] == {
@@ -148,7 +160,8 @@ def test_pipeline_keeps_splits_budgets_and_both_directions(
     }
     assert set(report["directions"]) == {"tera-to-mega", "mega-to-tera"}
     manifest = load_manifest(tm.MANIFEST_PATH)
-    for domain, format_id in tm.FORMATS.items():
+    assert {fmt for _, _, fmt in calls} == set(formats.values())
+    for domain, format_id in formats.items():
         teams = tm.domain_teams(manifest, domain)
         train = {teams[t] for t in manifest.splits["training"]}
         test = {teams[t] for t in manifest.splits["test"]}
@@ -165,6 +178,7 @@ def test_pipeline_keeps_splits_budgets_and_both_directions(
             source = tmp_path / f"checkpoints/fresh-{source_domain}-s{seed}-g01.json"
             assert initial["threshold"] == json.loads(source.read_text())["threshold"]
             assert initial["init_checkpoint"] == str(source)
+            assert initial["format_id"] == format_id
             for generation in (1, 2):
                 native = json.loads(
                     (
@@ -172,8 +186,10 @@ def test_pipeline_keeps_splits_budgets_and_both_directions(
                     ).read_text()
                 )
                 assert native["init_checkpoint"] is None
+                assert native["format_id"] == format_id
                 assert native["training_games"] == generation * 12
     games = json.loads((tmp_path / "results.json").read_text())["games"]
+    assert {g["format_id"] for g in games} == set(formats.values())
     assert len(list((tmp_path / "replays").glob("*.json.gz"))) == len(games)
     assert all(g["replay"] for g in games)
     assert all(
@@ -203,7 +219,10 @@ def test_cli_budget_error(tmp_path: Path, capsys: pytest.CaptureFixture[str]) ->
 
 
 @pytest.mark.parametrize("domain,event", [("tera", "-terastallize"), ("mega", "-mega")])
-def test_real_simulator_activates_requested_mechanic(domain: str, event: str) -> None:
+@pytest.mark.parametrize("rules_mode", ["full", "mechanic-only"])
+def test_real_simulator_activates_requested_mechanic(
+    domain: str, event: str, rules_mode: str
+) -> None:
     try:
         sd = ShowdownProcess._resolve_showdown_dir(None)
     except FileNotFoundError:
@@ -213,7 +232,7 @@ def test_real_simulator_activates_requested_mechanic(domain: str, event: str) ->
     result = run_evaluation_battle(
         tm.ActivationAgent(1),
         tm.ActivationAgent(1, "Opponent"),
-        tm.FORMATS[domain],
+        tm.FORMAT_SETS[rules_mode][domain],
         teams["test-sand"],
         teams["train-sun"],
         "p1",
@@ -289,7 +308,8 @@ def test_fixture_drift_is_rejected(tmp_path: Path, defect: str) -> None:
         tm.domain_teams(load_manifest(path), "mega")
 
 
-def test_all_domain_sets_match_sheets_stats_and_mechanic_eligibility() -> None:
+@pytest.mark.parametrize("rules_mode", ["full", "mechanic-only"])
+def test_all_domain_sets_match_sheets_stats_and_mechanic_eligibility(rules_mode: str) -> None:
     try:
         sd = ShowdownProcess._resolve_showdown_dir(None)
     except FileNotFoundError:
@@ -297,7 +317,7 @@ def test_all_domain_sets_match_sheets_stats_and_mechanic_eligibility() -> None:
     manifest = load_manifest(tm.MANIFEST_PATH)
     inputs = [
         dict(domain=domain, format_id=fmt, team=team_id, packed=packed)
-        for domain, fmt in tm.FORMATS.items()
+        for domain, fmt in tm.FORMAT_SETS[rules_mode].items()
         for team_id, packed in tm.domain_teams(manifest, domain).items()
     ]
     script = """
@@ -318,7 +338,13 @@ def test_all_domain_sets_match_sheets_stats_and_mechanic_eligibility() -> None:
     """
     observed = json.loads(
         subprocess.run(
-            ["node", "-e", script],
+            [
+                "node",
+                "--require",
+                str(Path(tm.__file__).with_name("simulator") / "tera_mega_formats.cjs"),
+                "-e",
+                script,
+            ],
             cwd=sd,
             input=json.dumps(inputs),
             capture_output=True,

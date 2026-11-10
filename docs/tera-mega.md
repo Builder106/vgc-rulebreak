@@ -2,15 +2,16 @@
 
 This backend pilot compares learned mechanic activation timing in both directions:
 Gen 9 Tera to Champions Mega and Champions Mega to Gen 9 Tera. It uses the pinned
-Showdown revision `9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e` and the complete
-`gen9doublescustomgame` / `gen9championsdoublescustomgame` rulesets. These are
-synthetic custom-game fixtures. They do not certify official regulation legality
-or isolate the mechanic from the other ruleset changes.
+Showdown revision `9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e`. The original `full`
+mode uses the complete `gen9doublescustomgame` / `gen9championsdoublescustomgame`
+rulesets. The `mechanic-only` mode holds the Champions background fixed while
+varying mechanic availability and declared stones. Both use synthetic custom-game
+fixtures and do not certify official regulation legality.
 
 ## Protocol and acceptance
 
 ```sh
-uv run vgc-rulebreak compare-tera-mega --output-dir runs/tera-mega-2026-11-10
+uv run vgc-rulebreak compare-tera-mega --rules-mode full --output-dir runs/tera-mega-2026-11-10
 ```
 
 Use an empty directory. `--showdown-dir` overrides simulator discovery; tracked
@@ -27,8 +28,7 @@ The Tera domain has no held items. The Mega domain adds Gyaradosite to rain's
 Gyarados, Charizardite Y to sun's Charizard, Lucarionite to validation's Lucario,
 Slowbronite to bulky's Slowbro, and Tyranitarite to sand's Tyranitar. The private
 packed sets for both domains are recorded in `protocol.json`. Detailed species,
-form and item accounting is below; controlled mechanic-only formats remain a
-subsequent roadmap task.
+form and item accounting is below. The controlled formats use these same sets.
 
 `ActivationAgent` learns one scalar, an HP-fraction threshold in [0, 1]. It uses
 its own requests and public log messages. After choosing moves with the existing
@@ -169,7 +169,8 @@ persists through switching. Tera can select any of the four members; Mega can
 select only that team's stone holder. Thus matching base species cannot match
 the recipient choices, item slots or activated types, abilities and stats.
 These differences are part of this transfer setup. The complete format change
-still includes other rules; this accounting does not isolate a mechanic effect.
+in `full` mode still includes other rules; this accounting alone does not isolate
+a mechanic effect.
 
 The item mapping and exact packed-set invariant are implemented in
 [`domain_teams`](../src/vgc_rulebreak/tera_mega.py). At simulator revision
@@ -187,6 +188,54 @@ They reject fixture drift, compare every unpacked set with the manifest, verify
 equal starting stats and the four-versus-one eligibility difference for every
 team, and execute both mechanics in real simulator battles. The form tables
 record the resolved simulator data; they do not certify official team legality.
+
+## Separate the mechanic intervention from the rules background
+
+```sh
+uv run vgc-rulebreak compare-tera-mega --rules-mode mechanic-only --output-dir runs/tera-mega-controlled-2026-11-10
+```
+
+The controlled pair copies the same pinned Champions Doubles Custom Game format:
+
+| Domain | Experimental format | Availability override |
+| --- | --- | --- |
+| Tera | `gen9rulebreakchampionstera` | Disable Mega eligibility; restore the base Gen 9 Tera eligibility function |
+| Mega | `gen9rulebreakchampionsmega` | Keep native Champions eligibility and execution |
+
+Both retain the Champions Dex, species/form data, moves, abilities, damage
+calculation, PP calculation (including 8 maximum Protect PP), stat formulas,
+Rage Fist reset, switch behavior, team preview and every other format setting.
+Tera execution already exists in the pinned simulator; the overlay restores its
+availability without importing a different mod. Both players use the same chosen
+domain. The repository-owned preload leaves the simulator checkout untouched.
+
+The experimental intervention includes the five declared stone additions, Mega's
+recipient restriction and resulting form/type/ability/stat changes. These are
+part of the mechanic package described above. This is not an estimate of
+activation alone at identical held items or identical recipient choices.
+
+Both modes run the same bidirectional training/evaluation protocol, split,
+budgets, seeds and paired-block statistics. `full` remains the CLI default for
+compatibility with the original pilot. Every protocol/report records the mode,
+resolved format IDs, rules background, intervention description and overlay
+SHA-256; checkpoints and individual games record their actual format IDs. Use
+separate empty output directories to keep the two experiments distinct.
+
+The controlled loss/recovery estimates describe transfer of the mechanic package
+conditional on the Champions background. The original full-mode estimates still
+combine mechanic and unrelated rule changes. Independently trained source
+policies can differ between modes, so subtracting these reports does not produce
+an additive causal decomposition or a rule-only effect. Testing background
+interactions on additional fixed backgrounds would require a further experiment.
+
+Acceptance checks in `tests/test_tera_mega_formats.py` compare all format settings
+except identity and eligibility, the resolved Dex/rules/action functions, all
+five teams' stats/PP, Champions Rage Fist reset, and identical seeded battle traces
+with no activation. `tests/test_tera_mega.py` verifies availability for every team,
+real Tera and Mega events through the normal process adapter, and both modes'
+training formats, exact adaptation initialization, native budgets, split isolation
+and output provenance. These checks isolate the intervention at the simulator
+boundary; they do not turn the earlier full-mode result into a controlled result.
 
 ## Pilot result: 2026-11-10
 

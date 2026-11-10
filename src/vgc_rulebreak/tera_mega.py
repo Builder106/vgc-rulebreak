@@ -26,6 +26,11 @@ from vgc_rulebreak.training import MIN_STD, training_battle_seed
 
 MANIFEST_PATH = Path("experiments/teams/tera-mega.json")
 FORMATS = {"tera": "gen9doublescustomgame", "mega": "gen9championsdoublescustomgame"}
+CONTROLLED_FORMATS = {
+    "tera": "gen9rulebreakchampionstera",
+    "mega": "gen9rulebreakchampionsmega",
+}
+FORMAT_SETS = {"full": FORMATS, "mechanic-only": CONTROLLED_FORMATS}
 MEGA_ITEMS = {
     "Gyarados": "Gyaradosite",
     "Charizard": "Charizardite Y",
@@ -177,9 +182,11 @@ def _train(
     sd: Path,
     *,
     init: Path | None = None,
+    format_id: str | None = None,
 ) -> list[Path]:
     """One-dimensional CEM over activation timing; held-out results never select a model."""
     initial = json.loads(init.read_text())["threshold"] if init else 0.75
+    format_id = format_id or FORMATS[domain]
     mean, std = float(initial), 0.1 if init else 0.25
     rng = random.Random(seed)
     generations = config.generations if init else 2 * config.generations
@@ -200,7 +207,7 @@ def _train(
                     "generation": generation,
                     "threshold": mean,
                     "unit_std": std,
-                    "format_id": FORMATS[domain],
+                    "format_id": format_id,
                     "training_teams": manifest.splits["training"],
                     "training_games": generation * games_per_generation,
                     "init_checkpoint": str(init) if init else None,
@@ -223,7 +230,7 @@ def _train(
             tasks = [
                 ActivationTask(
                     value,
-                    FORMATS[domain],
+                    format_id,
                     teams[own],
                     teams[other],
                     role,
@@ -256,10 +263,15 @@ def run_tera_mega(
     output_dir: Path,
     config: FullTransferConfig | None = None,
     showdown_dir: Path | str | None = None,
+    *,
+    rules_mode: str = "full",
 ) -> dict[str, Any]:
     """Evaluate both transfer directions with equal target and total game references."""
     config = config or FullTransferConfig()
     config.validate()
+    if rules_mode not in FORMAT_SETS:
+        raise ValueError("rules mode must be full or mechanic-only")
+    formats = FORMAT_SETS[rules_mode]
     if config.compare_opponent_pools:
         raise ValueError("Study T uses one frozen opponent pool")
     if output_dir.exists() and any(output_dir.iterdir()):
@@ -282,7 +294,13 @@ def run_tera_mega(
     provenance = {
         "study": "tera-mega",
         "simulator_revision": revision,
-        "formats": FORMATS,
+        "formats": formats,
+        "rules_mode": rules_mode,
+        "rules_background": "champions" if rules_mode == "mechanic-only" else "gen9-to-champions",
+        "intervention": "Tera availability versus Mega availability plus declared stones",
+        "format_overlay_sha256": hashlib.sha256(
+            Path(__file__).with_name("simulator").joinpath("tera_mega_formats.cjs").read_bytes()
+        ).hexdigest(),
         "config": asdict(config),
         "manifest_sha256": hashlib.sha256(MANIFEST_PATH.read_bytes()).hexdigest(),
         "mega_items": MEGA_ITEMS,
@@ -314,7 +332,9 @@ def run_tera_mega(
     )
     for seed in config.training_seeds:
         fresh = {
-            domain: _train(config, manifest, pool, output_dir, domain, seed, sd)
+            domain: _train(
+                config, manifest, pool, output_dir, domain, seed, sd, format_id=formats[domain]
+            )
             for domain, pool in teams.items()
         }
         for source_domain, target_domain in (("tera", "mega"), ("mega", "tera")):
@@ -329,6 +349,7 @@ def run_tera_mega(
                 seed,
                 sd,
                 init=source,
+                format_id=formats[target_domain],
             )
             cells = [
                 ("source-source", source, source_domain),
@@ -355,7 +376,7 @@ def run_tera_mega(
                                 result = run_evaluation_battle(
                                     agent,
                                     opponent,
-                                    FORMATS[domain],
+                                    formats[domain],
                                     teams[domain][own],
                                     teams[domain][other],
                                     role,
@@ -367,7 +388,7 @@ def run_tera_mega(
                                     GameContext(
                                         "tera-mega",
                                         f"{direction}/{cell}",
-                                        FORMATS[domain],
+                                        formats[domain],
                                         eval_seed,
                                         battle_seed,
                                         agent.name,
@@ -412,7 +433,14 @@ def run_tera_mega(
         "training_games": 6 * budget * len(config.training_seeds),
         "limitations": [
             "Synthetic custom-game fixtures, not official legal regulation teams.",
-            "Combined Gen 9/Champions rules and stone changes; no mechanic-only attribution.",
+            (
+                "Champions background held fixed; mechanic availability and stones change together."
+                if rules_mode == "mechanic-only"
+                else "Combined Gen 9/Champions rules and stone changes; "
+                "no mechanic-only attribution."
+            ),
+            "Controlled effects are conditional on the Champions background; no additive "
+            "decomposition of the full-rules result is inferred.",
             "Only a shared HP activation threshold learns; moves/recipient order stay heuristic.",
             "Tera can select any active member; Mega requires the designated stone holder.",
             "Pilot intervals condition on fixed teams/evaluation seeds; no human-skill inference.",

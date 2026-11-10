@@ -1,5 +1,29 @@
 # Journal
 
+## 2026-11-10: Hold the Study T rules background fixed #milestone #decision
+
+Add `compare-tera-mega --rules-mode mechanic-only`, retaining `full` as the
+default for compatibility with the original pilot. Both experimental formats
+copy Champions Doubles Custom Game. Restore base Gen 9 Tera eligibility and
+disable Mega in the Tera cell; retain native Champions Mega in the other cell.
+Keep the Champions Dex and every unrelated rule unchanged, including PP, stat
+calculation, Rage Fist reset and damage/switch behavior. This avoids porting
+Champions Mega forms onto a Gen 9 background with different species data.
+
+The intervention includes the already documented stone, recipient and form
+differences. It measures that mechanic package conditional on Champions rules,
+not activation alone or a background-independent mechanic effect. The original
+full-rules pilot remains a different experiment; subtraction of independently
+trained results is not an additive causal decomposition.
+
+Thread the selected format IDs through every fresh/adapted training stage,
+checkpoint, evaluation game and report. Freeze mode, background and overlay hash
+in provenance. Reuse the existing budgets, seeds, split and paired statistics.
+Live fixtures compare the complete format settings, action function identities,
+all five teams' stats and PP, Rage Fist reset, and seeded no-activation traces.
+Exercise both activation mechanisms through the process adapter in both modes.
+No frontend files change.
+
 ## 2026-11-10: Compare both Tera/Mega directions and native budgets #milestone #decision
 
 Add Study T's backend-only `compare-tera-mega` pilot, with a separate frozen

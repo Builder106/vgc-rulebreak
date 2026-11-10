@@ -125,8 +125,12 @@ For Tera/Mega experiments, use a shared base-species pool where possible and doc
 Study T's [bidirectional activation-timing pilot](docs/tera-mega.md) uses
 `compare-tera-mega` to transfer one learned HP threshold in both directions. Fresh
 native references receive equal target-stage and equal total training-game
-budgets. The complete Gen 9/Champions rules and declared Mega-stone differences
-remain combined; mechanic-only attribution is a separate roadmap milestone.
+budgets. Its original `--rules-mode full` comparison combines Gen 9/Champions
+rules and declared Mega-stone differences. `--rules-mode mechanic-only` holds
+the complete Champions background fixed and varies Tera/Mega availability plus
+the declared stones. Controlled estimates are conditional on that background
+and include recipient/item/form differences; subtracting separately trained
+full and controlled results does not establish an additive rule-only effect.
 
 Fixed-team studies measure battle decisions. Claims about Annihilape's overall viability, partner slots, or an optimal team require later team-selection experiments.
 

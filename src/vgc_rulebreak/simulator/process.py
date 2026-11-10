@@ -64,10 +64,13 @@ class ShowdownProcess:
             return
 
         overlay = Path(__file__).with_name("interaction_formats.cjs")
+        mechanic_overlay = Path(__file__).with_name("tera_mega_formats.cjs")
         cmd = [
             "node",
             "--require",
             str(overlay),
+            "--require",
+            str(mechanic_overlay),
             "pokemon-showdown",
             "simulate-battle",
         ]

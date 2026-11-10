@@ -943,6 +943,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     tera_mega.add_argument("--output-dir", type=Path, required=True)
     tera_mega.add_argument("--showdown-dir", type=Path)
+    tera_mega.add_argument(
+        "--rules-mode",
+        choices=("full", "mechanic-only"),
+        default="full",
+        help="hold Champions rules fixed for mechanic-only transfer (including stone changes)",
+    )
     for option, default in (
         ("generations", 1),
         ("population", 2),
@@ -969,6 +975,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     workers=args.workers,
                 ),
                 args.showdown_dir,
+                rules_mode=args.rules_mode,
             )
         except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
             print(f"Tera/Mega transfer error: {error}", file=sys.stderr)

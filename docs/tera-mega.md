@@ -237,7 +237,7 @@ training formats, exact adaptation initialization, native budgets, split isolati
 and output provenance. These checks isolate the intervention at the simulator
 boundary; they do not turn the earlier full-mode result into a controlled result.
 
-## Pilot result: 2026-11-10
+## Full-rules pilot result: 2026-11-10
 
 The default pinned-simulator run completed 216 training games and recorded all
 540 evaluations, 540 compressed replays and 30 checkpoints in
@@ -281,3 +281,37 @@ Frozen manifest SHA-256:
 `124a8738eac25a679e1b32ae7beabfbff1fdd63c4a94d2d0e5f7335000089154`.
 Completed `transfer_report.json` SHA-256:
 `a81cf43afe4f116ee13b5c9e534352ea58a47fa8c9161d5ac5adf3bc3e2d0ef2`.
+
+## Controlled pilot result: 2026-11-10
+
+The default-budget `mechanic-only` run completed 216 training games and retained
+540 evaluations, 540 compressed replays and 30 checkpoints under
+`runs/tera-mega-controlled-2026-11-10/`. It used the clean pinned checkout at
+`/tmp/vgc-rulebreak-milestone95-showdown`. Evaluation battle time summed to
+536.375 seconds, excluding training and orchestration. Game `g00330`, a
+Mega-to-Tera native-2B evaluation at training seed 29, stalled before turn one;
+its entire five-cell block was excluded. The two directions retain 54 and 53
+blocks, respectively, with all three training seeds supporting every team.
+
+| Direction / whole pool | Transfer loss [95% CI] | Recovery g1 [95% CI] | Native B gap [95% CI] | Native 2B gap [95% CI] |
+| --- | --- | --- | --- | --- |
+| Tera to Mega | 0.1111 [0.1111, 0.1111] | 0.0000 [0.0000, 0.0000] | -0.0741 [-0.2222, 0.0000] | -0.0741 [-0.2222, 0.0000] |
+| Mega to Tera | -0.1874 [-0.3333, -0.1111] | 0.0000 [0.0000, 0.0000] | 0.0000 [0.0000, 0.0000] | 0.0000 [0.0000, 0.0000] |
+
+Scores are points per game with the same training-seed bootstrap as the full
+pilot. Tera-to-Mega source/home, source/target and adapted/target score 0.5000,
+0.3889 and 0.3889; both native references score 0.3148. Mega-to-Tera's scores on
+its retained blocks are 0.3028, 0.4902 and 0.4902; both natives score 0.4902.
+There is no measured adaptation recovery. Zero-width intervals mean identical
+observed seed differences on this finite schedule, not certainty on unseen
+teams. The changed loss relative to the full pilot is not a rule-only effect:
+the Tera training/evaluation background differs between experiments.
+
+An audit of all 540 replays found no simulator errors, no wrong-mechanic events,
+at most one executed activation per side, and exact agreement between requested
+and executed activation counts (538 Tera and 531 Mega across both players).
+Training checkpoint records account for all 216 games. The run retains the
+executed Python source snapshot as `implementation.py`, matching its protocol
+implementation hash, alongside the frozen inputs and overlay hash.
+Completed `transfer_report.json` SHA-256:
+`d1797bcba66f2fcd2783c26a7a4100259f8266f2107c197632f747aea9d0ad3f`.

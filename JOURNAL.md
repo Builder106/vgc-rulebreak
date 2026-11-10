@@ -24,6 +24,21 @@ all five teams' stats and PP, Rage Fist reset, and seeded no-activation traces.
 Exercise both activation mechanisms through the process adapter in both modes.
 No frontend files change.
 
+The controlled default pilot completed 216 training games and recorded 540
+evaluation replays and 30 checkpoints. One native-2B Mega-to-Tera evaluation
+stalled before turn one, excluding its five-cell block. Pooled controlled
+transfer loss is 0.1111 PPG for Tera-to-Mega and -0.1874 for Mega-to-Tera;
+adaptation recovery is zero in both directions. The protocol documents the
+training-seed intervals and conditional interpretation. The complete replay
+audit found no simulator errors, wrong-mechanic activations or requested/executed
+count disagreements. Keep the executed source snapshot with the ignored run.
+
+Verification passed: 352 Python tests with the pinned simulator, strict mypy,
+Ruff lint/format, source/wheel builds and installed-wheel checks, five browser
+tests, showcase check/lint/build, Python dependency audit, npm's high-severity
+audit threshold and secret scanning. npm reports ten existing moderate findings
+in the lint-tool dependency tree; no frontend dependencies were changed.
+
 ## 2026-11-10: Compare both Tera/Mega directions and native budgets #milestone #decision
 
 Add Study T's backend-only `compare-tera-mega` pilot, with a separate frozen

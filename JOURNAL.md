@@ -1,5 +1,49 @@
 # Journal
 
+## 2026-11-10: Compare both Tera/Mega directions and native budgets #milestone #decision
+
+Add Study T's backend-only `compare-tera-mega` pilot, with a separate frozen
+synthetic manifest and the pinned Gen 9/Champions custom-game formats. Transfer
+one learned HP activation threshold through a shared action rule that can issue
+both Tera and Mega choices. Keep the existing move/preview heuristic fixed and
+remove its unconditional Mega move bonus for this policy. Record training
+outcomes and mechanic opportunities rather than describing a Protect-only policy
+as mechanic transfer.
+
+Train fresh domain trajectories to twice the source-stage budget. Reuse each
+fresh B checkpoint as that domain's source and the reverse direction's native
+B reference; use fresh 2B as the native reference matching final adaptation's
+total experience. Neither native reference inherits the transferred policy.
+Adaptation copies the exact opposite-domain B scalar and records its source
+hash. This reuses identical deterministic training without treating correlated
+cross-direction estimates as additional independent replicates.
+
+Pair held-out evaluations across source at home, unchanged source on target,
+every adapted generation, native B and native 2B. Extend the existing paired
+summarizer with an opt-in total-budget native cell so incomplete games exclude
+both native references too. Preserve existing Study F behavior. Report signed
+loss/recovery/native gaps and seed-bootstrap intervals per team and direction;
+store raw results, checkpoints, hashes and every evaluation replay under ignored
+runs/. Native gaps at intermediate adaptation generations are against fixed
+final-budget references and cannot establish equal-budget recovery speed.
+
+This pilot changes the full simulator rulesets and the declared stone items.
+Tera can activate any member, while Mega requires the designated holder. Keep
+mechanic-only attribution, detailed species/form/item accounting, and broader
+interpretive limits as the remaining Study T milestones. No frontend files
+change.
+
+The default run completed 216 training games and 540 evaluations with every
+compressed replay and 30 checkpoints. One stalled evaluation excluded one
+five-cell Mega-to-Tera block. Tera-to-Mega transfer loss was 0.0000 PPG;
+Mega-to-Tera loss was -0.0784 (95% training-seed CI [-0.2353, 0.0000]). Recovery
+was zero in both directions. Native B and 2B gaps were -0.0741 and -0.0196,
+respectively by direction, with intervals including zero. These are low-power
+fixture results, not evidence of universal transfer or a transfer advantage.
+The protocol records per-team estimates and artifact hashes; the full replay
+audit found no simulator errors or disagreement between requested and executed
+mechanic activations.
+
 ## 2026-11-09: Build legal sourced OTS reference matchups #milestone #decision
 
 Freeze attributed public sand, snow and rain pastes for Study F in a separate

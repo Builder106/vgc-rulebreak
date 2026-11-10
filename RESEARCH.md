@@ -122,6 +122,12 @@ transfer evaluation on that pool remains future work.
 
 For Tera/Mega experiments, use a shared base-species pool where possible and document item, form, and team differences that the mechanic requires. Use one action schema that can represent both mechanics. Record what each source policy encountered during training. An action head that never learned Mega is itself a transfer limitation. Include both transfer directions and independently trained references before comparing recovery speed.
 
+Study T's [bidirectional activation-timing pilot](docs/tera-mega.md) uses
+`compare-tera-mega` to transfer one learned HP threshold in both directions. Fresh
+native references receive equal target-stage and equal total training-game
+budgets. The complete Gen 9/Champions rules and declared Mega-stone differences
+remain combined; mechanic-only attribution is a separate roadmap milestone.
+
 Fixed-team studies measure battle decisions. Claims about Annihilape's overall viability, partner slots, or an optimal team require later team-selection experiments.
 
 ## Sources and provenance

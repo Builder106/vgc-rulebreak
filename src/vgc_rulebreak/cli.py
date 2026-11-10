@@ -938,7 +938,43 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--manifest", type=Path, default=Path("experiments/teams/full-transfer-ots.json")
     )
 
+    tera_mega = subcommands.add_parser(
+        "compare-tera-mega", help="compare both mechanic transfer directions and native budgets"
+    )
+    tera_mega.add_argument("--output-dir", type=Path, required=True)
+    tera_mega.add_argument("--showdown-dir", type=Path)
+    for option, default in (
+        ("generations", 1),
+        ("population", 2),
+        ("elites", 1),
+        ("pairs", 1),
+        ("workers", 4),
+    ):
+        tera_mega.add_argument(f"--{option}", type=int, default=default)
+
     args = parser.parse_args(argv)
+
+    if args.command == "compare-tera-mega":
+        from vgc_rulebreak.full_transfer import FullTransferConfig
+        from vgc_rulebreak.tera_mega import run_tera_mega
+
+        try:
+            mechanic_report = run_tera_mega(
+                args.output_dir,
+                FullTransferConfig(
+                    generations=args.generations,
+                    population=args.population,
+                    elites=args.elites,
+                    pairs=args.pairs,
+                    workers=args.workers,
+                ),
+                args.showdown_dir,
+            )
+        except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+            print(f"Tera/Mega transfer error: {error}", file=sys.stderr)
+            return 2
+        print(json.dumps(mechanic_report, indent=2))
+        return 0
 
     if args.command == "build-ots-references":
         from vgc_rulebreak.ots_reference import build_ots_references

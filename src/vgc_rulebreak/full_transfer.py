@@ -104,6 +104,10 @@ def _transfer_metrics(points: dict[str, float], generations: int) -> dict[str, f
         metrics[f"native_gap_g{g:02d}_ppg"] = (
             points["native-target"] - points[f"adapted-g{g:02d}-target"]
         )
+        if "native-total-target" in points:
+            metrics[f"native_total_gap_g{g:02d}_ppg"] = (
+                points["native-total-target"] - points[f"adapted-g{g:02d}-target"]
+            )
     return metrics
 
 
@@ -205,7 +209,11 @@ def _train(
 
 
 def summarize_transfer(
-    games: list[dict[str, Any]], generations: int, *, compare_opponent_pools: bool = False
+    games: list[dict[str, Any]],
+    generations: int,
+    *,
+    compare_opponent_pools: bool = False,
+    total_budget_native: bool = False,
 ) -> dict[str, Any]:
     """Pair cells before seed-level bootstrap; incomplete blocks never become draws."""
     if generations < 1:
@@ -214,6 +222,7 @@ def summarize_transfer(
         "source-source",
         "source-target",
         "native-target",
+        *(("native-total-target",) if total_budget_native else ()),
         *(f"adapted-g{g:02d}-target" for g in range(1, generations + 1)),
     )
     pools = ("fixed", "new") if compare_opponent_pools else ("",)

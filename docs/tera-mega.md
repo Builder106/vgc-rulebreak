@@ -27,8 +27,8 @@ The Tera domain has no held items. The Mega domain adds Gyaradosite to rain's
 Gyarados, Charizardite Y to sun's Charizard, Lucarionite to validation's Lucario,
 Slowbronite to bulky's Slowbro, and Tyranitarite to sand's Tyranitar. The private
 packed sets for both domains are recorded in `protocol.json`. Detailed species,
-form and item accounting and controlled mechanic-only formats remain subsequent
-roadmap tasks.
+form and item accounting is below; controlled mechanic-only formats remain a
+subsequent roadmap task.
 
 `ActivationAgent` learns one scalar, an HP-fraction threshold in [0, 1]. It uses
 its own requests and public log messages. After choosing moves with the existing
@@ -108,6 +108,85 @@ and real simulator Tera/Mega execution. A real pinned-simulator run must retain
 `transfer_report.json` under ignored `runs/`, with input and implementation hashes.
 Report negative or null pilot results without generalizing beyond this policy
 and these fixtures. No frontend implementation is part of this milestone.
+
+## Common species and item/form accounting
+
+Here, "common" means the same starting base species in both domains of the
+frozen [Study T manifest](../experiments/teams/tera-mega.json), not a species'
+usage rank or certified availability in both official games. All 20 distinct
+base species are shared, in the same four-member team order. No member is
+substituted between domains. Each entry below gives the species and its fixed
+Tera type; those types remain recorded but cannot activate in the Mega domain.
+
+| Split | Team / family | Shared species (Tera type), in manifest order | Mega recipient |
+| --- | --- | --- | --- |
+| Training | `train-rain` / rain | Pelipper (Water), Ludicolo (Grass), Raichu (Electric), Gyarados (Water) | Gyarados |
+| Training | `train-sun` / sun | Torkoal (Fire), Venusaur (Poison), Arcanine (Fire), Charizard (Flying) | Charizard |
+| Validation, reserved | `val-tailwind` / tailwind | Talonflame (Flying), Dragonite (Dragon), Gengar (Ghost), Lucario (Fighting) | Lucario |
+| Held-out test | `test-bulky` / bulky | Annihilape (Ghost), Maushold (Normal), Snorlax (Normal), Slowbro (Psychic) | Slowbro |
+| Held-out test | `test-sand` / sand | Tyranitar (Rock), Excadrill (Ground), Hippowdon (Ground), Garchomp (Dragon) | Tyranitar |
+
+Starting moves, abilities, nature, level, IVs, zero investment and pre-activation
+stats match across domains. The validation family is reserved, with no training
+or held-out evaluation games in this pilot. Both the candidate and opponent use
+these same domain-specific team constructions, in either transfer direction.
+
+The only packed-set edits are five item fields: one stone per Mega-domain team,
+already held before activation. All other 15 Mega-domain members have empty
+item slots; all 20 Tera-domain members have empty slots. A compatible stone is
+required for each selected Mega form and occupies the holder's single item
+slot. Tera requires no held item. Leaving Tera's slots empty and giving no
+ordinary items to the other members are experimental choices, not requirements
+of Tera or Champions. The pilot therefore does not measure the opportunity cost
+against optimized ordinary items. Giving a stone to only one member per team
+also fixes Mega's recipient by design; other shared species with Mega forms
+receive no stone and cannot Mega Evolve in these fixtures.
+
+The five starting species remain in their base forms until Mega activation.
+These are the resulting forms and their unavoidable type/ability changes in
+the pinned Champions simulator:
+
+| Stone | Starting species → activated form | Starting types → Mega types | Declared ability → Mega ability |
+| --- | --- | --- | --- |
+| Gyaradosite | Gyarados → Gyarados-Mega | Water/Flying → Water/Dark | Intimidate → Mold Breaker |
+| Charizardite Y | Charizard → Charizard-Mega-Y | Fire/Flying → Fire/Flying | Solar Power → Drought |
+| Lucarionite | Lucario → Lucario-Mega | Fighting/Steel → Fighting/Steel | Inner Focus → Adaptability |
+| Slowbronite | Slowbro → Slowbro-Mega | Water/Psychic → Water/Psychic | Regenerator → Shell Armor |
+| Tyranitarite | Tyranitar → Tyranitar-Mega | Rock/Dark → Rock/Dark | Sand Stream → Sand Stream |
+
+Mega also changes base stats. In HP/Atk/Def/SpA/SpD/Spe order, the Mega-minus-base
+deltas are Gyarados `0/+30/+30/+10/+30/0`, Charizard Y
+`0/+20/0/+50/+30/0`, Lucario `0/+35/+18/+25/0/+22`, Slowbro
+`0/0/+70/+30/0/0`, and Tyranitar `0/+30/+40/0/+20/+10`. These are base-stat
+deltas from this pinned mod, not battle-stat increments or claims about another
+game version. The same starting stats do not imply equal stats after activation.
+
+Tera instead retains each listed species, ability and base stats while changing
+its defensive typing to the declared single Tera type and applying the
+simulator's Tera STAB rules. None of these fixtures uses a special Tera form or
+Stellar type. Either mechanic uses the team's once-per-battle activation and
+persists through switching. Tera can select any of the four members; Mega can
+select only that team's stone holder. Thus matching base species cannot match
+the recipient choices, item slots or activated types, abilities and stats.
+These differences are part of this transfer setup. The complete format change
+still includes other rules; this accounting does not isolate a mechanic effect.
+
+The item mapping and exact packed-set invariant are implemented in
+[`domain_teams`](../src/vgc_rulebreak/tera_mega.py). At simulator revision
+`9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e`, the resolved
+`Dex.mod('champions').species` entries supply the Mega types, abilities and base
+stats above. Upstream `data/items.ts`, `sim/battle-actions.ts` and
+`data/mods/champions/scripts.ts` define stone eligibility and activation/form
+behavior. The existing checks can be rerun against a built pinned checkout:
+
+```sh
+SHOWDOWN_PATH=/path/to/pinned/pokemon-showdown uv run pytest tests/test_tera_mega.py
+```
+
+They reject fixture drift, compare every unpacked set with the manifest, verify
+equal starting stats and the four-versus-one eligibility difference for every
+team, and execute both mechanics in real simulator battles. The form tables
+record the resolved simulator data; they do not certify official team legality.
 
 ## Pilot result: 2026-11-10
 

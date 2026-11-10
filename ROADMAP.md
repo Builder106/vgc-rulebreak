@@ -92,7 +92,7 @@ The [held-out synthetic-team pilots and legal sourced OTS references](docs/full-
 The [bidirectional activation-timing pilot](docs/tera-mega.md) compares both directions and native training budgets. Controlled mechanic attribution remains to measure.
 
 - [x] Compare both transfer directions and equal-budget native references.
-- [ ] Document common species and unavoidable item/form differences.
+- [x] Document common species and unavoidable item/form differences.
 - [ ] Separate mechanic changes from unrelated rule changes.
 - [ ] Publish the limits of conclusions about human skill and metagame optimality.
 

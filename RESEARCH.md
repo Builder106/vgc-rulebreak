@@ -131,6 +131,10 @@ the complete Champions background fixed and varies Tera/Mega availability plus
 the declared stones. Controlled estimates are conditional on that background
 and include recipient/item/form differences; subtracting separately trained
 full and controlled results does not establish an additive rule-only effect.
+The [published limits on human skill and metagame optimality](docs/tera-mega.md#limits-human-skill-and-metagame-optimality)
+explain why this restricted agent's recovery and native gaps cannot rank human
+difficulty or certify optimal play. Both rules modes include these limits in
+new generated reports; archived pilot artifacts retain their original hashes.
 
 Fixed-team studies measure battle decisions. Claims about Annihilape's overall viability, partner slots, or an optimal team require later team-selection experiments.
 

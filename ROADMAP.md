@@ -94,7 +94,7 @@ The [bidirectional activation-timing pilot](docs/tera-mega.md) compares both dir
 - [x] Compare both transfer directions and equal-budget native references.
 - [x] Document common species and unavoidable item/form differences.
 - [x] Separate mechanic changes from unrelated rule changes.
-- [ ] Publish the limits of conclusions about human skill and metagame optimality.
+- [x] Publish the limits of conclusions about human skill and metagame optimality.
 
 ## Adding a study
 

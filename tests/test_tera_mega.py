@@ -144,6 +144,18 @@ def test_pipeline_keeps_splits_budgets_and_both_directions(
     assert report["rules_mode"] == rules_mode
     assert report["formats"] == formats
     assert report["format_overlay_sha256"]
+    published = json.loads((tmp_path / "transfer_report.json").read_text())
+    assert published["limitations"] == report["limitations"]
+    limits = " ".join(published["limitations"])
+    for claim_limit in (
+        "No human participants or human learning measured",
+        "no inference about human skill",
+        "no metagame optimality",
+        "native gaps are not distance from optimal play",
+        "Equal training-game budgets do not establish equal compute",
+        "zero-width intervals do not establish equivalence",
+    ):
+        assert claim_limit in limits
     protocol = json.loads((tmp_path / "protocol.json").read_text())
     assert protocol["rules_mode"] == rules_mode
     assert protocol["formats"] == formats

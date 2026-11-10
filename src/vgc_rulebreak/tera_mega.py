@@ -443,7 +443,15 @@ def run_tera_mega(
             "decomposition of the full-rules result is inferred.",
             "Only a shared HP activation threshold learns; moves/recipient order stay heuristic.",
             "Tera can select any active member; Mega requires the designated stone holder.",
-            "Pilot intervals condition on fixed teams/evaluation seeds; no human-skill inference.",
+            "No human participants or human learning measured; no inference about human skill, "
+            "difficulty, skill ceiling or transfer speed.",
+            "Finite fixed opponent/team pool; no metagame optimality, solved format, "
+            "exploitability bound or ladder/tournament strength established.",
+            "Native references use the same restricted policy class; native gaps are not "
+            "distance from optimal play. Teams, builds and opponent responses are not optimized.",
+            "Equal training-game budgets do not establish equal compute or human practice.",
+            "Training-seed intervals condition on fixed teams/evaluation seeds; zero recovery "
+            "or zero-width intervals do not establish equivalence or rule out larger-budget gains.",
         ],
     }
     recorder.finish(provenance, report)

@@ -1,5 +1,27 @@
 # Journal
 
+## 2026-11-10: Publish Study T interpretation limits #milestone
+
+Publish the human-skill and metagame-optimality limits beside Study T's protocol
+and results, with a link from the research plan. The one-threshold agent and
+finite fixed pool measure conditional score changes. They do not measure human
+difficulty, skill ceilings, human transfer or optimal metagame play. Explain
+the restricted native reference, unoptimized team/opponent choices, game-count
+versus compute budgets, three-seed uncertainty and the evidence a broader claim
+would require.
+
+Include these limits in new reports in both rules modes and check the serialized
+reports in the existing pipeline test. Preserve archived pilot artifacts and
+their hashes; the published interpretation applies to them without rewriting
+their evidence. No experiment, policy, statistic or frontend implementation
+changes.
+
+Verification passed: 352 Python tests against a writable copy of the pinned
+simulator, strict mypy, Ruff lint/format, source/wheel builds, installed-wheel
+and specification checks, showcase check/lint/build, five browser tests, Python
+dependency audit, npm's high-severity audit threshold and secret scanning.
+npm retains ten existing moderate findings in the frontend lint dependency tree.
+
 ## 2026-11-10: Hold the Study T rules background fixed #milestone #decision
 
 Add `compare-tera-mega --rules-mode mechanic-only`, retaining `full` as the

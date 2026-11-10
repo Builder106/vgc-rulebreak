@@ -109,6 +109,57 @@ and real simulator Tera/Mega execution. A real pinned-simulator run must retain
 Report negative or null pilot results without generalizing beyond this policy
 and these fixtures. No frontend implementation is part of this milestone.
 
+## Limits: human skill and metagame optimality
+
+The published estimates describe one learned HP activation threshold, fixed
+move/preview heuristics, a fixed immediate-activation opponent, two held-out
+synthetic team families and the recorded seed/budget schedule. They measure
+points per game and changes in those points after transfer or adaptation.
+Native references are fresh training trajectories within this same restricted
+policy class; "native" does not mean expert or optimal play.
+
+No human participants, player ratings, human learning curves or human decision
+quality were measured. Agent recovery therefore cannot rank Tera and Mega by
+human difficulty, skill floor, skill ceiling or ease of human transfer. It
+depends on the policy representation, fixed recipient order, search method,
+source experience and budget. Equal training-game counts do not establish equal
+compute costs or comparable human practice. A claim about human skill would
+require a separate human study with defined skill measures, matched experience,
+controlled rules and uncertainty across players.
+
+Performance against this finite opponent/team pool does not establish metagame
+optimality, a solved format, an unexploitable policy, optimal team composition,
+species viability or ladder/tournament strength. The pilot does not optimize
+teams, builds, ordinary items, Tera types, recipient selection or the opponent's
+responses. It includes no best-response search, exploitability bound or
+equilibrium certificate. A native gap measures the recorded reference's score
+minus the adapted score; it is not distance from optimal play. Broader strength
+claims would need legal dated teams, stronger diverse opponents, team-selection
+experiments and independent evaluation on new opponents and metagame snapshots.
+Such evaluations would still bound the tested scope rather than prove global
+optimality.
+
+The full-rules result combines mechanic and background changes. The controlled
+result isolates the declared mechanic package on the fixed Champions
+background, including stone, recipient and form differences; it cannot rank the
+mechanics independently of that background or those constructions. Neither
+custom-game pool certifies official regulation legality or real-game fidelity.
+
+The 95% intervals resample only three training seeds, conditional on the frozen
+teams and evaluation schedule. They omit uncertainty from new teams, opponent
+policies, rules versions and alternative policy classes. Zero recovery and
+zero-width intervals describe this pilot; they do not establish equivalence,
+absence of transferable knowledge or lack of benefit from larger budgets.
+The reused source/native checkpoints also prevent treating the two directions
+as independent evidence that one mechanic is easier. Report the observed
+conditional score differences alongside these limits, including null or
+negative results.
+
+New `transfer_report.json` artifacts carry human-skill and metagame-optimality
+limits in their `limitations` list in both rules modes. The archived pilots
+retain their original artifacts and hashes; this section supplies the
+interpretive limits for those results too.
+
 ## Common species and item/form accounting
 
 Here, "common" means the same starting base species in both domains of the

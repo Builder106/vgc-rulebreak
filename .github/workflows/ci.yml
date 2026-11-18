@@ -70,7 +70,7 @@ jobs:
         run: npm ci
       - name: Audit frontend dependencies
         working-directory: web
-        run: npm audit --audit-level=high
+        run: node scripts/audit.mjs
       - name: Check frontend types and markup
         working-directory: web
         run: npm run check

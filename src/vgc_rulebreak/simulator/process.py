@@ -51,8 +51,11 @@ class ShowdownProcess:
                 return candidate
 
         for candidate in cls.DEFAULT_PATHS:
-            if candidate.exists():
-                return candidate
+            try:
+                if candidate.exists():
+                    return candidate
+            except (OSError, PermissionError):
+                continue
 
         raise FileNotFoundError(
             "Pokemon Showdown directory not found. Set SHOWDOWN_PATH or pass showdown_dir."

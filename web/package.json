@@ -8,7 +8,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "lint": "eslint \"src/**/*.{astro,ts,js,mjs}\" \"tests/**/*.{js,mjs,ts}\" astro.config.mjs eslint.config.mjs --max-warnings 0",
-    "test:browser": "node --test tests/browser.test.mjs"
+    "test:browser": "node --test tests/browser.test.mjs",
+    "typecheck:native": "tsc --noEmit"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
@@ -24,7 +25,8 @@
     "eslint": "^10.13.0",
     "eslint-plugin-astro": "^3.2.1",
     "playwright": "^1.64.1",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.72.0"
+    "typescript": "npm:@typescript/typescript6@6.0.2",
+    "typescript-eslint": "^8.72.0",
+    "@typescript/native": "npm:typescript@^7.0.2"
   }
 }
